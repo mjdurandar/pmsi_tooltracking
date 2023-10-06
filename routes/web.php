@@ -39,5 +39,26 @@ Route::group(['middleware' => 'auth'], function(){
     Route::get('/category/edit/{category}',[App\Http\Controllers\CategoryController::class, 'edit']);
     Route::get('/category/destroy/{category}',[App\Http\Controllers\CategoryController::class, 'destroy']);
 
+    // UNIT 
+    Route::get('/unit',[App\Http\Controllers\UnitController::class, 'index']);
+    Route::get('/unit/show',[App\Http\Controllers\UnitController::class, 'show']);
+    Route::post('/unit/store',[App\Http\Controllers\UnitController::class, 'store']);
+    Route::get('/unit/edit/{unit}',[App\Http\Controllers\UnitController::class, 'edit']);
+    Route::get('/unit/destroy/{unit}',[App\Http\Controllers\UnitController::class, 'destroy']);
+
+    // SUPPLIER 
+    Route::get('/supplier',[App\Http\Controllers\SupplierController::class, 'index']);
+    Route::get('/supplier/show',[App\Http\Controllers\SupplierController::class, 'show']);
+    Route::post('/supplier/store',[App\Http\Controllers\SupplierController::class, 'store']);
+    Route::get('/supplier/edit/{supplier}',[App\Http\Controllers\SupplierController::class, 'edit']);
+    Route::get('/supplier/destroy/{supplier}',[App\Http\Controllers\SupplierController::class, 'destroy']);
+
+    // POWERTOOLS 
+    Route::get('/powertools',[App\Http\Controllers\PowerToolsController::class, 'index']);
+    Route::get('/powertools/show',[App\Http\Controllers\PowerToolsController::class, 'show']);
+    Route::post('/powertools/store',[App\Http\Controllers\PowerToolsController::class, 'store']);
+    Route::get('/powertools/edit/{powertools}',[App\Http\Controllers\PowerToolsController::class, 'edit']);
+    Route::get('/powertools/destroy/{powertools}',[App\Http\Controllers\PowerToolsController::class, 'destroy']);
+
 });
 

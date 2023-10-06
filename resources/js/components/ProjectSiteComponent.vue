@@ -33,7 +33,7 @@
             </template>
             <template #modalFooter>
                 <div class="text-right">
-                    <button class="btn btn-primary" v-on:click="storeData">Save Data</button>
+                    <button class="btn btn-success" v-on:click="storeData">Save</button>
                 </div>
             </template>
         </ModalComponent>

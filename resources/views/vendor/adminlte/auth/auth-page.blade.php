@@ -14,19 +14,39 @@
 @stop
 
 @section('classes_body'){{ ($auth_type ?? 'login') . '-page' }}@stop
-
+<style>
+    body {
+        background-image: url("/images/pmsi_bg_dark.jpeg");
+        background-size: 100%;
+        background-position: bottom;
+        background-repeat: no-repeat;
+        opacity: 2;
+    }
+    .logo-login-pmsi{
+        text-align: center;
+        margin-bottom: 370px;
+        position: absolute;
+        z-index: 5;
+    }
+    .logo-pmsi{
+        width: 150px;
+        height: 150px;
+    }
+</style>
 @section('body')
+    <div class="logo-login-pmsi">
+        <img src="/images/pmsi_logo.png" alt="PMSI LOGO" class="logo-pmsi">
+    </div>
     <div class="{{ $auth_type ?? 'login' }}-box">
-
         {{-- Card Box --}}
         <div class="card">
 
             {{-- Card Header --}}
             @hasSection('auth_header')
                 <div class="card-header {{ config('adminlte.classes_auth_header', '') }}">
-                    <h3 class="card-title float-none text-center">
+                    <!-- <h3 class="card-title float-none text-center">
                         PMSI TOOLTRACKING
-                    </h3>
+                    </h3> -->
                 </div>
             @endif
 

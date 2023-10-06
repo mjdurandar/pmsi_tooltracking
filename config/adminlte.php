@@ -331,15 +331,27 @@ return [
         // ],
         [
             'text'    => 'Master Data',
-            'icon'    => 'fas fa-fw fa-share',
+            'icon'    => 'fa-solid fa-database',
             'submenu' => [
                 [
                     'text' => 'Project Site',
+                    'icon'    => '',
                     'url'  => '/project-site',
                 ],
                 [
                     'text' => 'Category',
+                    'icon'    => '',
                     'url'  => '/category',
+                ],
+                [
+                    'text' => 'Unit',
+                    'icon'    => '',
+                    'url'  => '/unit',
+                ],
+                [
+                    'text' => 'Supplier',
+                    'icon'    => '',
+                    'url'  => '/supplier',
                 ],
                 // [
                 //     'text'    => 'level_one',
@@ -370,6 +382,16 @@ return [
                 //     'url'  => '#',
                 // ],
             ],
+        ],
+        [
+            'text' => 'Power Tools',
+            'icon'    => 'fa-solid fa-screwdriver-wrench', 
+            'url'  => '/powertools',
+        ],
+        [
+            'text' => 'Scaffolding',
+            'icon'    => 'fa-solid fa-wrench',  
+            'url'  => '/scaffolding',
         ],
         // ['header' => 'labels'],
         // [

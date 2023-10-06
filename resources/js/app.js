@@ -19,6 +19,9 @@ const app = createApp({});
 import ExampleComponent from './components/ExampleComponent.vue';
 import ProjectSiteComponent from './components/ProjectSiteComponent.vue';
 import CategoryComponent from './components/CategoryComponent.vue';
+import UnitComponent from './components/UnitComponent.vue';
+import SupplierComponent from './components/SupplierComponent.vue';
+import PowerToolsComponent from './components/PowerToolsComponent.vue';
 
 app.config.globalProperties.$swal = Swal;
 app.use(ServerTable, {}, 'bootstrap4')
@@ -28,7 +31,9 @@ app.use(EventBus, {}, 'bootstrap4')
 app.component('example-component', ExampleComponent);
 app.component('project-site-component', ProjectSiteComponent);
 app.component('category-component', CategoryComponent);
-
+app.component('unit-component', UnitComponent);
+app.component('supplier-component', SupplierComponent);
+app.component('powertools-component', PowerToolsComponent);
 
 /**
  * The following block of code may be used to automatically register your
