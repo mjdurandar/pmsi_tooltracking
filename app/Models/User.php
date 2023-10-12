@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -42,4 +43,15 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function getRoleNameAttribute() {
+        $role_name = '';
+        if($this->role == '1') {
+            $role_name = 'Admin';
+        }
+        else{
+            $role_name = 'User';
+        }
+        return $role_name;
+    }
 }

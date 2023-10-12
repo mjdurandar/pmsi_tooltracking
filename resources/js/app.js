@@ -22,6 +22,8 @@ import CategoryComponent from './components/CategoryComponent.vue';
 import UnitComponent from './components/UnitComponent.vue';
 import SupplierComponent from './components/SupplierComponent.vue';
 import PowerToolsComponent from './components/PowerToolsComponent.vue';
+import ScaffoldingComponent from './components/ScaffoldingComponent.vue';
+import BuyToolsComponent from './components/BuyToolsComponent.vue';
 
 app.config.globalProperties.$swal = Swal;
 app.use(ServerTable, {}, 'bootstrap4')
@@ -34,6 +36,8 @@ app.component('category-component', CategoryComponent);
 app.component('unit-component', UnitComponent);
 app.component('supplier-component', SupplierComponent);
 app.component('powertools-component', PowerToolsComponent);
+app.component('scaffolding-component', ScaffoldingComponent);
+app.component('buytools-component', BuyToolsComponent);
 
 /**
  * The following block of code may be used to automatically register your

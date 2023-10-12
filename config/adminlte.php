@@ -290,7 +290,7 @@ return [
     */
 
     'menu' => [
-        // // Navbar items:
+        // Navbar items:
         // [
         //     'type'         => 'navbar-search',
         //     'text'         => 'search',
@@ -332,6 +332,7 @@ return [
         [
             'text'    => 'Master Data',
             'icon'    => 'fa-solid fa-database',
+            'can' => ['admin'],
             'submenu' => [
                 [
                     'text' => 'Project Site',
@@ -386,12 +387,32 @@ return [
         [
             'text' => 'Power Tools',
             'icon'    => 'fa-solid fa-screwdriver-wrench', 
+            'can' => ['admin'],
             'url'  => '/powertools',
         ],
         [
             'text' => 'Scaffolding',
             'icon'    => 'fa-solid fa-wrench',  
+            'can' => ['admin'],
             'url'  => '/scaffolding',
+        ],
+        [
+            'text' => 'Buy Tools',
+            'icon'    => 'fa-solid fa-cart-shopping', 
+            'can' => ['user'],
+            'url'  => '/buytools',
+        ], 
+        [
+            'text' => 'Borrow Tools',
+            'icon'    => 'fa-solid fa-handshake',  
+            'can' => ['user'],
+            'url'  => '/powertools',
+        ],
+        [
+            'text' => 'Check Delivery', 
+            'icon'    => 'fa-solid fa-truck', 
+            'can' => ['user'],
+            'url'  => '/powertools',
         ],
         // ['header' => 'labels'],
         // [

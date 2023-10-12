@@ -1,0 +1,142 @@
+<template>
+    <div class="p-3">
+        <BreadCrumbComponent tab_title="Buy Tools"></BreadCrumbComponent>
+        <div class="row">
+            <div class="col-md-4" v-for="(tool, index) in data" :key="index">
+                <!-- Card component for each tool -->
+                <div class="card">
+                    <div class="card-body">
+                        <!-- Display tool information -->
+                        <h5 class="card-title">{{ tool.name }}</h5>
+                        <p class="card-text">Price: {{ tool.price }}</p>
+                        <p class="card-text">Stocks: {{ tool.quantity }}</p>
+                        <!-- Add any other tool information as needed -->
+                        <!-- Button to trigger the modal or purchase action -->
+                        <button class="btn btn-primary" v-on:click="showDetails(tool)">Buy Tool</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <ModalComponent :id="modalId" :title="modalTitle" :size="modalSize" :position="modalPosition">
+            <template #modalHeader>
+                <div class="m-auto">
+                    <h4>Purchase a Tool</h4>
+                </div>
+            </template>
+            <template #modalBody>
+                <div class="row">
+                    <div class="col-12 pb-2">
+                        <input type="hidden" v-model="dataValues.power_tools_id">
+                        <label for="">PowerTools</label>
+                        <input type="text" v-model="selectedTool.name" class="form-control" disabled> 
+                    </div>  
+                    <div class="col-12 pb-2">
+                        <label for="">Price</label>
+                        <input type="number" v-model="selectedTool.price" class="form-control" disabled> 
+                    </div>  
+                    <div class="col-12">
+                        <label for="">Quantity</label>
+                        <input type="number" v-model="dataValues.quantity" class="form-control" @change="onChange()"> 
+                        <div class="text-danger" v-if="errors.quantity">{{ errors.quantity[0] }}</div>
+                    </div> 
+                    <div class="col-12">
+                        <label for="">Total</label>
+                        <input type="number" v-model="dataValues.total" class="form-control" @change="onChange()" disabled> 
+                        <div class="text-danger" v-if="errors.total">{{ errors.total[0] }}</div>
+                    </div>  
+                </div>
+            </template>
+            <template #modalFooter>
+                <div class="text-right">
+                    <button class="btn btn-success" v-on:click="storeData">Buy</button>
+                </div>
+            </template>
+        </ModalComponent>
+
+    </div>
+</template>
+
+<script>    
+import BreadCrumbComponent from "./partials/BreadCrumbComponent.vue";   
+import FormComponent from "./partials/FormComponent.vue";   
+import ModalComponent from "./partials/ModalComponent.vue";
+import Swal from 'sweetalert2'
+import axios from 'axios';
+
+export default{
+
+    data(){
+        return{
+            data : [],
+            errors: [],
+            selectedTool: [],
+            dataValues: {},
+            modalId : 'modal-buytools',
+            modalTitle : 'Buy Tools',
+            modalPosition: 'modal-dialog-centered',
+            modalSize : 'modal-md',
+        }
+    },
+    components: {
+        FormComponent,
+        ModalComponent,
+        BreadCrumbComponent
+    },
+    methods: {
+        onChange(){
+            this.dataValues.total = this.dataValues.quantity * this.selectedTool.price;
+        },
+        showDetails(tool) {
+            this.selectedTool = tool;
+            this.dataValues = {
+                power_tools_id: tool.id,
+            };
+            $('#' + this.modalId).modal('show');
+        },
+        getData() {
+            axios.get('/powertools/show').then(response => {
+                this.data = response.data.data;
+            })
+        },
+        clearInputs() {
+            this.dataValues = {
+                name: '',
+            }
+            this.errors = [];
+        },
+        storeData() {
+            axios.post('/buytools/store', this.dataValues).then(response => {
+                if(response.status === 200) {
+                    Swal.fire({
+                        title: "Success",
+                        text: response.data.message,
+                        icon: 'success',
+                        timer: 3000
+                    });
+                }
+                this.getData();
+                $('#' + this.modalId).modal('hide');
+            })
+            .catch(errors => {
+                if(errors.response.data.message.length > 0) {
+                    Swal.fire({
+                        title: "Warning",
+                        text: errors.response.data.message,
+                        icon: 'warning',
+                        timer: 3000
+                    });
+
+                    this.errors = errors.response.data.errors;
+                }
+            })
+        },
+    },
+    mounted() {
+            this.getData();
+        }
+        
+
+
+}
+
+</script>

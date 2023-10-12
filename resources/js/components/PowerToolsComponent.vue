@@ -62,7 +62,7 @@
                     </div>  
                     <div class="col-12">
                         <label for="">Total</label>
-                        <input type="number" class="form-control" v-model="dataValues.total">
+                        <input type="number" class="form-control" v-model="dataValues.total" disabled>
                         <div class="text-danger" v-if="errors.total">{{ errors.total[0] }}</div>
                     </div>  
                 </div>

@@ -1,13 +1,13 @@
 <template>
     <div class="p-3">
-        <BreadCrumbComponent tab_title="Category"></BreadCrumbComponent>
+        <BreadCrumbComponent tab_title="Scaffolding"></BreadCrumbComponent>
         <div class="card">
             <div class="card-body">
                 <FormComponent 
                     :data="data"
                     :columns="columns"
                     :options="options"
-                    btnName="Add Category"
+                    btnName="Add Scaffolding"
                     @deleteClicked="deleteClicked"
                     @editClicked="editClicked"
                     @addClicked="addClicked"
@@ -19,7 +19,7 @@
         <ModalComponent :id="modalId" :title="modalTitle" :size="modalSize" :position="modalPosition">
             <template #modalHeader>
                 <div class="m-auto">
-                    <h4>Add Category</h4>
+                    <h4>Add Scaffolding</h4>
                 </div>
             </template>
             <template #modalBody>
@@ -28,6 +28,49 @@
                         <label for="">Name</label>
                         <input type="text" class="form-control" v-model="dataValues.name">
                         <div class="text-danger" v-if="errors.name">{{ errors.name[0] }}</div>
+                    </div>  
+                    <div class="col-12">
+                        <label for="">Quantity</label>
+                        <input type="number" class="form-control" v-model="dataValues.quantity" @change="onChange()">
+                        <div class="text-danger" v-if="errors.quantity">{{ errors.quantity[0] }}</div>
+                    </div>  
+                    <div class="col-12">
+                        <label for="">Price</label>
+                        <input type="number" class="form-control" v-model="dataValues.price" @change="onChange()">
+                        <div class="text-danger" v-if="errors.price">{{ errors.price[0] }}</div>
+                    </div>  
+                    <div class="col-12">
+                        <label for="">Category</label>
+                        <select class="form-control" v-model="dataValues.category_id">
+                            <option v-for="category in categories" :value="category.id">{{ category.name }}</option>
+                        </select>  
+                        <div class="text-danger" v-if="errors.category">{{ errors.category[0] }}</div>
+                    </div>  
+                    <div class="col-12">
+                        <label for="">Unit</label>
+                        <select class="form-control" v-model="dataValues.unit_id">
+                            <option v-for="unit in units" :value="unit.id">{{ unit.name }}</option>
+                        </select>  
+                        <div class="text-danger" v-if="errors.unit">{{ errors.unit[0] }}</div>
+                    </div>  
+                    <div class="col-12">
+                        <label for="">Supplier</label>
+                        <select class="form-control" v-model="dataValues.supplier_id">
+                            <option v-for="supplier in suppliers" :value="supplier.id">{{ supplier.name }}</option>
+                        </select>
+                        <div class="text-danger" v-if="errors.supplier">{{ errors.supplier[0] }}</div>
+                    </div>  
+                    <div class="col-12">
+                        <label for="">Project Site</label>
+                        <select class="form-control" v-model="dataValues.project_site_id">
+                            <option v-for="project in projects" :value="project.id">{{ project.name }}</option>
+                        </select>
+                        <div class="text-danger" v-if="errors.project">{{ errors.project[0] }}</div>
+                    </div>  
+                    <div class="col-12">
+                        <label for="">Total</label>
+                        <input type="number" class="form-control" v-model="dataValues.total" disabled>
+                        <div class="text-danger" v-if="errors.total">{{ errors.total[0] }}</div>
                     </div>  
                 </div>
             </template>
@@ -54,10 +97,22 @@ export default{
         return{
                 data : [],
                 errors: [],
-                columns : ['name' ,'action'],
+                categories: [],
+                units: [],
+                suppliers: [],
+                projects: [],
+                columns : ['name', 'quantity', 'price', 'category_name', 'unit_name', 'supplier_name', 'project_site_name' ,'total' ,'action'],
+                errors: [],
                 options : {
                     headings : {
-                        name : 'Category',
+                        name : 'Unit',
+                        quantity: 'Quantity',
+                        price: 'Price',
+                        category_name: 'Category',
+                        unit_name: 'Unit',
+                        supplier_name: 'Supplier',
+                        project_site_name: 'Project Site',
+                        total: 'Total',
                         action : 'Action',
                     },
                     filterable: false,
@@ -66,8 +121,8 @@ export default{
                 dataValues: {
                     name: '',
                 },
-                modalId : 'modal-category',
-                modalTitle : 'Category',
+                modalId : 'modal-scaffolding',
+                modalTitle : 'Scaffolding',
                 modalPosition: 'modal-dialog-centered',
                 modalSize : 'modal-md',
         }
@@ -78,13 +133,20 @@ export default{
         BreadCrumbComponent
     },
     methods: {
+        onChange(){
+            this.dataValues.total = this.dataValues.quantity * this.dataValues.price;
+        },
         addClicked(props){
             $('#' + this.modalId).modal('show');
             this.clearInputs();
         },
         getData() {
-            axios.get('/category/show').then(response => {
+            axios.get('/scaffolding/show').then(response => {
                 this.data = response.data.data;
+                this.categories = response.data.categories;
+                this.units = response.data.units;
+                this.suppliers = response.data.suppliers;
+                this.projects = response.data.projects;
             })
         },
         clearInputs() {
@@ -97,7 +159,7 @@ export default{
             this.dataValues = props.data;
             this.modalTitle= 'Edit Data';
 
-            axios.get('/category/edit/' + this.dataValues.id).then(response => {
+            axios.get('/scaffolding/edit/' + this.dataValues.id).then(response => {
                 this.dataValues = response.data.data;
                 $('#' + this.modalId).modal('show');
             })
@@ -124,7 +186,7 @@ export default{
             }).then((result) => {
                 if (result.isConfirmed) {
                     // User confirmed, proceed with deletion
-                    axios.get('/category/destroy/' + props.data.id).then(response => {
+                    axios.get('/scaffolding/destroy/' + props.data.id).then(response => {
                         if(response.status === 200) {
                             Swal.fire({
                                 title: "Success",
@@ -148,7 +210,7 @@ export default{
             });
         },
         storeData() {
-                axios.post('/category/store', this.dataValues).then(response => {
+                axios.post('/scaffolding/store', this.dataValues).then(response => {
                     if(response.status === 200) {
                         Swal.fire({
                             title: "Success",
