@@ -31,6 +31,9 @@ Route::group(['middleware' => 'auth'], function(){
     });
 
     Route::get('/powertools/show',[App\Http\Controllers\PowerToolsController::class, 'show']);
+
+    Route::get('/history',[App\Http\Controllers\HistoryController::class, 'index']);
+    Route::get('/history/show',[App\Http\Controllers\HistoryController::class, 'show']);
     
     Route::middleware(['CheckRole:admin'])->group(function() {
         // PROJECY SITE
@@ -39,6 +42,13 @@ Route::group(['middleware' => 'auth'], function(){
         Route::post('/project-site/store',[App\Http\Controllers\ProjectSiteController::class, 'store']);
         Route::get('/project-site/edit/{projectsite}',[App\Http\Controllers\ProjectSiteController::class, 'edit']);
         Route::get('/project-site/destroy/{projectsite}',[App\Http\Controllers\ProjectSiteController::class, 'destroy']);
+
+        // RETURN DAYS 
+        Route::get('/returndays',[App\Http\Controllers\ReturnDaysController::class, 'index']);
+        Route::get('/returndays/show',[App\Http\Controllers\ReturnDaysController::class, 'show']);
+        Route::post('/returndays/store',[App\Http\Controllers\ReturnDaysController::class, 'store']);
+        Route::get('/returndays/edit/{returndays}',[App\Http\Controllers\ReturnDaysController::class, 'edit']);
+        Route::get('/returndays/destroy/{returndays}',[App\Http\Controllers\ReturnDaysController::class, 'destroy']);
 
         // CATEGORY 
         Route::get('/category',[App\Http\Controllers\CategoryController::class, 'index']);
@@ -81,6 +91,15 @@ Route::group(['middleware' => 'auth'], function(){
         Route::post('/buytools/store',[App\Http\Controllers\BuyToolsController::class, 'store']);
         Route::get('/buytools/edit/{buytools}',[App\Http\Controllers\BuyToolsController::class, 'edit']);
         Route::get('/buytools/destroy/{buytools}',[App\Http\Controllers\BuyToolsController::class, 'destroy']);
+
+        Route::get('/borrowtools',[App\Http\Controllers\BorrowToolsController::class, 'index']);
+        Route::get('/borrowtools/show',[App\Http\Controllers\BorrowToolsController::class, 'show']);
+        Route::post('/borrowtools/store',[App\Http\Controllers\BorrowToolsController::class, 'store']);
+        Route::get('/borrowtools/edit/{borrowtools}',[App\Http\Controllers\BorrowToolsController::class, 'edit']);
+        Route::get('/borrowtools/destroy/{borrowtools}',[App\Http\Controllers\BorrowToolsController::class, 'destroy']);
+
+        Route::get('/delivery',[App\Http\Controllers\DeliveryController::class, 'index']);
+        Route::get('/delivery/show',[App\Http\Controllers\DeliveryController::class, 'show']);
     });
 
 });

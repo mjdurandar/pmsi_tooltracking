@@ -1,13 +1,13 @@
 <template>
     <div class="p-3">
-        <BreadCrumbComponent tab_title="Power Tools"></BreadCrumbComponent>
+        <BreadCrumbComponent tab_title="Return Days"></BreadCrumbComponent>
         <div class="card">
             <div class="card-body">
                 <FormComponent 
                     :data="data"
                     :columns="columns"
                     :options="options"
-                    btnName="Add Power Tools"
+                    btnName="Add Return Days"
                     @deleteClicked="deleteClicked"
                     @editClicked="editClicked"
                     @addClicked="addClicked"
@@ -19,52 +19,13 @@
         <ModalComponent :id="modalId" :title="modalTitle" :size="modalSize" :position="modalPosition">
             <template #modalHeader>
                 <div class="m-auto">
-                    <h4>Add Power Tools</h4>
+                    <h4>Add Return Days</h4>
                 </div>
             </template>
             <template #modalBody>
                 <div class="row">
-                    <div class="col-12">
-                        <label for="">Name</label>
-                        <input type="text" class="form-control" v-model="dataValues.name">
-                        <div class="text-danger" v-if="errors.name">{{ errors.name[0] }}</div>
-                    </div>  
-                    <div class="col-12">
-                        <label for="">Quantity</label>
-                        <input type="number" class="form-control" v-model="dataValues.quantity" @keyup="onChange()">
-                        <div class="text-danger" v-if="errors.quantity">{{ errors.quantity[0] }}</div>
-                    </div>  
-                    <div class="col-12">
-                        <label for="">Price</label>
-                        <input type="number" class="form-control" v-model="dataValues.price" @keyup="onChange()">
-                        <div class="text-danger" v-if="errors.price">{{ errors.price[0] }}</div>
-                    </div>  
-                    <div class="col-12">
-                        <label for="">Category</label>
-                        <select class="form-control" v-model="dataValues.category_id">
-                            <option v-for="category in categories" :value="category.id">{{ category.name }}</option>
-                        </select>  
-                        <div class="text-danger" v-if="errors.category">{{ errors.category[0] }}</div>
-                    </div>  
-                    <div class="col-12">
-                        <label for="">Unit</label>
-                        <select class="form-control" v-model="dataValues.unit_id">
-                            <option v-for="unit in units" :value="unit.id">{{ unit.name }}</option>
-                        </select>  
-                        <div class="text-danger" v-if="errors.unit">{{ errors.unit[0] }}</div>
-                    </div>  
-                    <div class="col-12">
-                        <label for="">Supplier</label>
-                        <select class="form-control" v-model="dataValues.supplier_id">
-                            <option v-for="supplier in suppliers" :value="supplier.id">{{ supplier.name }}</option>
-                        </select>
-                        <div class="text-danger" v-if="errors.supplier">{{ errors.supplier[0] }}</div>
-                    </div>  
-                    <div class="col-12">
-                        <label for="">Total</label>
-                        <input type="number" class="form-control" v-model="dataValues.total" disabled>
-                        <div class="text-danger" v-if="errors.total">{{ errors.total[0] }}</div>
-                    </div>  
+                    <label for="">Number of Days</label>
+                    <input type="number" class="form-control" v-model="dataValues.number_of_days">
                 </div>
             </template>
             <template #modalFooter>
@@ -89,30 +50,20 @@ export default{
     data(){
         return{
                 data : [],
-                categories : [],
-                units : [],
-                suppliers : [],
-                columns : ['name', 'quantity', 'price', 'category_name', 'unit_name', 'supplier_name', 'total' ,'action'],
+                columns : ['number_of_days' ,'action'],
                 errors: [],
                 options : {
                     headings : {
-                        name : 'Unit',
-                        quantity: 'Quantity',
-                        price: 'Price',
-                        category_name: 'Category',
-                        unit_name: 'Unit',
-                        supplier_name: 'Supplier',
-                        total: 'Total',
+                        number_of_days : 'Number of Days',
                         action : 'Action',
                     },
                     filterable: false,
                     sortable: []
                 },
                 dataValues: {
-                    name: '',
                 },
-                modalId : 'modal-powertools',
-                modalTitle : 'Power Tools',
+                modalId : 'modal-returndays',
+                modalTitle : 'Return Days',
                 modalPosition: 'modal-dialog-centered',
                 modalSize : 'modal-md',
         }
@@ -123,28 +74,17 @@ export default{
         BreadCrumbComponent,
     },
     methods: {
-        onChange(){
-            if(this.dataValues.quantity === ''){
-                this.dataValues.total = 0;
-                return;
-            }
-            this.dataValues.total = this.dataValues.quantity * this.dataValues.price;
-        },
         addClicked(props){
             $('#' + this.modalId).modal('show');
             this.clearInputs();
         },
         getData() {
-            axios.get('/powertools/show').then(response => {
+            axios.get('/returndays/show').then(response => {
                 this.data = response.data.data;
-                this.categories = response.data.categories;
-                this.units = response.data.units;
-                this.suppliers = response.data.suppliers;
             })
         },
         clearInputs() {
             this.dataValues = {
-                name: '',
             }
             this.errors = [];
         },
@@ -152,7 +92,7 @@ export default{
             this.dataValues = props.data;
             this.modalTitle= 'Edit Data';
 
-            axios.get('/powertools/edit/' + this.dataValues.id).then(response => {
+            axios.get('/returndays/edit/' + this.dataValues.id).then(response => {
                 this.dataValues = response.data.data;
                 $('#' + this.modalId).modal('show');
             })
@@ -179,7 +119,7 @@ export default{
             }).then((result) => {
                 if (result.isConfirmed) {
                     // User confirmed, proceed with deletion
-                    axios.get('/powertools/destroy/' + props.data.id).then(response => {
+                    axios.get('/returndays/destroy/' + props.data.id).then(response => {
                         if(response.status === 200) {
                             Swal.fire({
                                 title: "Success",
@@ -203,7 +143,7 @@ export default{
             });
         },
         storeData() {
-                axios.post('/powertools/store', this.dataValues).then(response => {
+                axios.post('/returndays/store', this.dataValues).then(response => {
                     if(response.status === 200) {
                         Swal.fire({
                             title: "Success",

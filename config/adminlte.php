@@ -340,6 +340,11 @@ return [
                     'url'  => '/project-site',
                 ],
                 [
+                    'text' => 'Return Days',
+                    'icon'    => '',
+                    'url'  => '/returndays',
+                ],
+                [
                     'text' => 'Category',
                     'icon'    => '',
                     'url'  => '/category',
@@ -406,13 +411,19 @@ return [
             'text' => 'Borrow Tools',
             'icon'    => 'fa-solid fa-handshake',  
             'can' => ['user'],
-            'url'  => '/powertools',
+            'url'  => '/borrowtools',
         ],
         [
             'text' => 'Check Delivery', 
             'icon'    => 'fa-solid fa-truck', 
             'can' => ['user'],
-            'url'  => '/powertools',
+            'url'  => '/delivery',
+        ],
+        [
+            'text' => 'History', 
+            'icon'    => 'fa-solid fa-book',  
+            'can' => ['user'],
+            'url'  => '/history',
         ],
         // ['header' => 'labels'],
         // [

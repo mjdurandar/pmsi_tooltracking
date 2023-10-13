@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\BuyTools;
 use Illuminate\Http\Request;
 use App\Models\Category;
+use App\Models\History;
 use App\Models\Unit;
 use App\Models\Supplier;
 use App\Models\PowerTools;
+use App\Models\Delivery;
 
 class BuyToolsController extends Controller
 {
@@ -60,6 +62,22 @@ class BuyToolsController extends Controller
         $data->total = $request->total;
         $data->purchased_at = now();
         $data->save();
+
+        $history = new History();
+        $history->user_id = $user_id;
+        $history->power_tools_id = $request->power_tools_id;
+        $history->quantity = $request->quantity;
+        $history->total = $request->total;
+        $history->purchased_at = now();
+        $history->save();
+
+        $delivery = new Delivery();
+        $delivery->user_id = $user_id;
+        $delivery->power_tools_id = $request->power_tools_id;
+        $delivery->quantity = $request->quantity;
+        $delivery->total = $request->total;
+        $delivery->purchased_at = now();
+        $delivery->save();
     
         // Update the quantity of the selected PowerTools
         $selectedPowerTools->quantity -= $request->quantity;

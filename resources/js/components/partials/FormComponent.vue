@@ -26,7 +26,7 @@
     <div>
         <slot name="filter-control"></slot>
         <div>
-            <div class="btn-position">
+            <div class="btn-position" v-if="addButton">
                 <button class="btn btn-primary" @click="addClicked(props)">{{ btnName }}</button>
             </div>
             <v-client-table :data="data" :columns="columns" :options="options">
@@ -115,7 +115,11 @@
             btnName: {
                 type: String,
                 default: "Add"
-            }
+            },
+            addButton: {
+                type: Boolean,
+                default: true
+            },
         },
         data(){ 
             return {

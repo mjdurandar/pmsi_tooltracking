@@ -1,6 +1,6 @@
 <template>
     <div class="p-3">
-        <BreadCrumbComponent tab_title="Buy Tools"></BreadCrumbComponent>
+        <BreadCrumbComponent tab_title="Borrow Tools"></BreadCrumbComponent>
         <div class="row">
             <div class="col-md-4" v-for="(tool, index) in data" :key="index">
                 <!-- Card component for each tool -->
@@ -12,7 +12,7 @@
                         <p class="card-text">Stocks: {{ tool.quantity }}</p>
                         <!-- Add any other tool information as needed -->
                         <!-- Button to trigger the modal or purchase action -->
-                        <button class="btn btn-success" v-on:click="showDetails(tool)">Buy Tool</button>
+                        <button class="btn btn-primary" v-on:click="showDetails(tool)">Borrow Tool</button>
                     </div>
                 </div>
             </div>
@@ -20,24 +20,31 @@
         <ModalComponent :id="modalId" :title="modalTitle" :size="modalSize" :position="modalPosition">
             <template #modalHeader>
                 <div class="m-auto">
-                    <h4>Purchase a Tool</h4>
+                    <h4>Borrow a Tool</h4>
                 </div>
             </template>
             <template #modalBody>
                 <div class="row">
                     <div class="col-12 pb-2">
-                        <input type="hidden" v-model="dataValues.power_tools_id">
-                        <label for="">PowerTools</label>
+                        <input type="hidden" v-model="dataValues.scaffoldings_id">
+                        <label for="">Scaffolding</label>
                         <input type="text" v-model="selectedTool.name" class="form-control" disabled> 
                     </div>  
                     <div class="col-12 pb-2">
                         <label for="">Price</label>
                         <input type="number" v-model="selectedTool.price" class="form-control" disabled> 
                     </div>  
-                    <div class="col-12">
+                    <div class="col-12 pb-2">
                         <label for="">Quantity</label>
                         <input type="number" v-model="dataValues.quantity" class="form-control" @keyup="onChange()"> 
                         <div class="text-danger" v-if="errors.quantity">{{ errors.quantity[0] }}</div>
+                    </div> 
+                    <div class="col-12 pb-2">
+                        <label for="">Return Days</label>
+                        <select class="form-control" v-model="dataValues.return_days_id">
+                            <option v-for="returnday in returndays" :value="returnday.id">{{ returnday.number_of_days }}</option>
+                        </select>
+                        <div class="text-danger" v-if="errors.returnday">{{ errors.returnday[0] }}</div>
                     </div> 
                     <div class="col-12">
                         <label for="">Total</label>
@@ -48,7 +55,7 @@
             </template>
             <template #modalFooter>
                 <div class="text-right">
-                    <button class="btn btn-success" v-on:click="storeData">Buy</button>
+                    <button class="btn btn-primary" v-on:click="storeData">Borrow a Tool</button>
                 </div>
             </template>
         </ModalComponent>
@@ -70,9 +77,10 @@ export default{
             data : [],
             errors: [],
             selectedTool: [],
+            returndays: '',
             dataValues: {},
-            modalId : 'modal-buytools',
-            modalTitle : 'Buy Tools',
+            modalId : 'modal-borrowtools',
+            modalTitle : 'Borrow Tools',
             modalPosition: 'modal-dialog-centered',
             modalSize : 'modal-md',
         }
@@ -91,15 +99,17 @@ export default{
             this.dataValues.total = this.dataValues.quantity * this.selectedTool.price;
         },
         showDetails(tool) {
+            console.log(tool);
             this.selectedTool = tool;
             this.dataValues = {
-                power_tools_id: tool.id,
+                scaffoldings_id: tool.id,
             };
             $('#' + this.modalId).modal('show');
         },
         getData() {
-            axios.get('/powertools/show').then(response => {
+            axios.get('/borrowtools/show').then(response => {
                 this.data = response.data.data;
+                this.returndays = response.data.returndays;
             })
         },
         clearInputs() {
@@ -109,7 +119,7 @@ export default{
             this.errors = [];
         },
         storeData() {
-            axios.post('/buytools/store', this.dataValues).then(response => {
+            axios.post('/borrowtools/store', this.dataValues).then(response => {
                 if(response.status === 200) {
                     Swal.fire({
                         title: "Success",
