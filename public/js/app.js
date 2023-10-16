@@ -20394,6 +20394,40 @@ __webpack_require__.r(__webpack_exports__);
     BreadCrumbComponent: _partials_BreadCrumbComponent_vue__WEBPACK_IMPORTED_MODULE_0__["default"]
   },
   methods: {
+    chartSales: function chartSales() {
+      axios__WEBPACK_IMPORTED_MODULE_2__["default"].get('/dashboardCount/counts').then(function (response) {
+        var ctx = document.getElementById('salesChart');
+        var totalPerDay = response.data.totalPerDay;
+        var labels = totalPerDay.map(function (item) {
+          return item.date;
+        });
+        var data = totalPerDay.map(function (item) {
+          return item.total;
+        });
+        new chart_js_auto__WEBPACK_IMPORTED_MODULE_1__.Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Sales',
+              data: data,
+              borderWidth: 1,
+              backgroundColor: 'rgba(75, 192, 192, 0.2)',
+              borderColor: 'rgba(75, 192, 192, 1)'
+            }]
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      })["catch"](function (error) {
+        console.error('Error fetching sales data', error);
+      });
+    },
     dashboard: function dashboard() {
       axios__WEBPACK_IMPORTED_MODULE_2__["default"].get('/dashboardCount/counts').then(function (response) {
         var ctx = document.getElementById('myChart');
@@ -20443,11 +20477,38 @@ __webpack_require__.r(__webpack_exports__);
       })["catch"](function (error) {
         console.error('Error fetching project data', error);
       });
+    },
+    piecharttools: function piecharttools() {
+      axios__WEBPACK_IMPORTED_MODULE_2__["default"].get('/dashboardCount/counts').then(function (response) {
+        var ctx = document.getElementById('pieChartTools');
+        new chart_js_auto__WEBPACK_IMPORTED_MODULE_1__.Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: ['Scaffolding', 'Power Tools'],
+            datasets: [{
+              label: 'Count',
+              data: [response.data.scaffoldingCounts, response.data.powertoolsCounts],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      })["catch"](function (error) {
+        console.error('Error fetching project data', error);
+      });
     }
   },
   mounted: function mounted() {
+    this.chartSales();
     this.dashboard();
     this.piechart();
+    this.piecharttools();
   }
 });
 
@@ -22334,7 +22395,7 @@ __webpack_require__.r(__webpack_exports__);
 var _hoisted_1 = {
   "class": "p-3"
 };
-var _hoisted_2 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createStaticVNode)("<div class=\"row\"><div class=\"col-6\"><div class=\"card\" style=\"background-color:#F3A068;color:#fff;\"><div class=\"card-body dash-title\"> Data Count </div></div><div class=\"card\"><div class=\"card-body\"><canvas id=\"myChart\"></canvas></div></div></div><div class=\"col-6\"><div class=\"card\" style=\"background-color:#F3A068;color:#fff;\"><div class=\"card-body dash-title\"> Data Count </div></div><div class=\"card\"><div class=\"card-body\"><canvas id=\"pieChart\"></canvas></div></div></div></div>", 1);
+var _hoisted_2 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createStaticVNode)("<div class=\"row\"><div class=\"col-6\"><div class=\"card\" style=\"background-color:#f18f4e;color:#fff;\"><div class=\"card-body dash-title\"> Sales per Day </div></div><div class=\"card\"><div class=\"card-body\"><canvas id=\"salesChart\"></canvas></div></div></div><div class=\"col-6\"><div class=\"card\" style=\"background-color:#f18f4e;color:#fff;\"><div class=\"card-body dash-title\"> Master Data Count </div></div><div class=\"card\"><div class=\"card-body\"><canvas id=\"myChart\"></canvas></div></div></div></div><div class=\"row\"><div class=\"col-6\"><div class=\"card\" style=\"background-color:#f18f4e;color:#fff;\"><div class=\"card-body dash-title\"> Buying / Borrowing </div></div><div class=\"card\"><div class=\"card-body\"><canvas id=\"pieChart\"></canvas></div></div></div><div class=\"col-6\"><div class=\"card\" style=\"background-color:#f18f4e;color:#fff;\"><div class=\"card-body dash-title\"> Tools </div></div><div class=\"card\"><div class=\"card-body\"><canvas id=\"pieChartTools\"></canvas></div></div></div></div>", 2);
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   var _component_BreadCrumbComponent = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("BreadCrumbComponent");
   return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_BreadCrumbComponent, {

@@ -40,6 +40,7 @@ Route::group(['middleware' => 'auth'], function(){
 
     Route::middleware(['CheckRole:admin'])->group(function() {
         // DASHBOARD
+        Route::get('/',[App\Http\Controllers\DashboardController::class, 'index']);
         Route::get('/dashboard',[App\Http\Controllers\DashboardController::class, 'index']);
         Route::get('/dashboardCount/counts',[App\Http\Controllers\DashboardController::class, 'counts']);
 
@@ -102,6 +103,7 @@ Route::group(['middleware' => 'auth'], function(){
     });
    
     Route::middleware(['CheckRole:user'])->group(function() {
+        Route::get('/',[App\Http\Controllers\BuyToolsController::class, 'index']);
         Route::get('/buytools',[App\Http\Controllers\BuyToolsController::class, 'index']);
         Route::get('/buytools/show',[App\Http\Controllers\BuyToolsController::class, 'show']);
         Route::post('/buytools/store',[App\Http\Controllers\BuyToolsController::class, 'store']);
