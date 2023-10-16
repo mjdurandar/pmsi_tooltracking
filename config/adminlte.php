@@ -330,6 +330,12 @@ return [
         //     'icon' => 'fas fa-fw fa-lock',
         // ],
         [
+            'text'    => 'Dashboard',
+            'icon'    => 'fa-solid fa-chart-simple',
+            'can' => ['admin'],
+            'url' => '/dashboard'
+        ],
+        [
             'text'    => 'Master Data',
             'icon'    => 'fa-solid fa-database',
             'can' => ['admin'],

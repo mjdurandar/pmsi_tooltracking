@@ -8,6 +8,7 @@ import 'bootstrap';
 import { createApp } from 'vue';
 import Swal from 'sweetalert2';
 import {ServerTable, ClientTable, EventBus} from 'v-tables-3';
+
 /**
  * Next, we will create a fresh Vue application instance. You may then begin
  * registering components with the application instance so they are ready
@@ -30,6 +31,7 @@ import ReturnDaysComponent from './components/ReturnDaysComponent.vue';
 import UsersComponent from './components/UsersComponent.vue';
 import BuyingHistoryComponent from './components/BuyingHistoryComponent.vue';
 import BorrowedHistoryComponent from './components/BorrowedHistoryComponent.vue';
+import DashbboardComponent from './components/DashboardComponent.vue';
 
 app.config.globalProperties.$swal = Swal;
 app.use(ServerTable, {}, 'bootstrap4')
@@ -50,6 +52,7 @@ app.component('returndays-component', ReturnDaysComponent);
 app.component('users-component', UsersComponent);
 app.component('buyinghistory-component', BuyingHistoryComponent);
 app.component('borrowedhistory-component', BorrowedHistoryComponent);
+app.component('dashboard-component', DashbboardComponent);
 
 /**
  * The following block of code may be used to automatically register your

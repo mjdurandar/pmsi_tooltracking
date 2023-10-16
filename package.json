@@ -22,6 +22,7 @@
         "vue-loader": "^16.2.0"
     },
     "dependencies": {
+        "chart.js": "^4.4.0",
         "qrcode-generator": "^1.4.4",
         "sweetalert2": "^11.7.31",
         "v-tables-3": "^0.4.7"

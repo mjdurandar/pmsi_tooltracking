@@ -39,6 +39,11 @@ Route::group(['middleware' => 'auth'], function(){
     Route::get('/borrowedhistory/showHistory',[App\Http\Controllers\BorrowToolsController::class, 'showHistory']);
 
     Route::middleware(['CheckRole:admin'])->group(function() {
+        // DASHBOARD
+        Route::get('/dashboard',[App\Http\Controllers\DashboardController::class, 'index']);
+        Route::get('/dashboardCount/counts',[App\Http\Controllers\DashboardController::class, 'counts']);
+
+
         // PROJECY SITE
         Route::get('/project-site',[App\Http\Controllers\ProjectSiteController::class, 'index']);
         Route::get('/project-site/show',[App\Http\Controllers\ProjectSiteController::class, 'show']);
