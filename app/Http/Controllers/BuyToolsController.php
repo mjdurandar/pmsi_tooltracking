@@ -5,17 +5,33 @@ namespace App\Http\Controllers;
 use App\Models\BuyTools;
 use Illuminate\Http\Request;
 use App\Models\Category;
-use App\Models\History;
 use App\Models\Unit;
 use App\Models\Supplier;
 use App\Models\PowerTools;
 use App\Models\Delivery;
+use Illuminate\Support\Facades\Auth;
 
 class BuyToolsController extends Controller
 {
     public function index()
     {
         return view('users.buytools');
+    }
+
+    public function history() {
+        return view('users.buyinghistory');
+    }
+
+    public function showHistory() {
+        
+        $user_id = Auth::id();
+        $data = BuyTools::where('user_id', $user_id)
+            ->leftJoin('power_tools', 'power_tools.id', '=', 'buy_tools.power_tools_id')
+            ->leftjoin('users', 'users.id', '=', 'buy_tools.user_id')
+            ->select('buy_tools.*', 'power_tools.name as power_tools_name', 'users.name as users_name')
+            ->get();
+
+        return response()->json([ 'data' => $data]);
     }
 
     public function show(){
@@ -62,14 +78,6 @@ class BuyToolsController extends Controller
         $data->total = $request->total;
         $data->purchased_at = now();
         $data->save();
-
-        $history = new History();
-        $history->user_id = $user_id;
-        $history->power_tools_id = $request->power_tools_id;
-        $history->quantity = $request->quantity;
-        $history->total = $request->total;
-        $history->purchased_at = now();
-        $history->save();
 
         $delivery = new Delivery();
         $delivery->user_id = $user_id;

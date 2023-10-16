@@ -32,9 +32,12 @@ Route::group(['middleware' => 'auth'], function(){
 
     Route::get('/powertools/show',[App\Http\Controllers\PowerToolsController::class, 'show']);
 
-    Route::get('/history',[App\Http\Controllers\HistoryController::class, 'index']);
-    Route::get('/history/show',[App\Http\Controllers\HistoryController::class, 'show']);
-    
+    Route::get('/buyinghistory',[App\Http\Controllers\BuyToolsController::class, 'history']);
+    Route::get('/buyinghistory/showHistory',[App\Http\Controllers\BuyToolsController::class, 'showHistory']);
+
+    Route::get('/borrowedhistory',[App\Http\Controllers\BorrowToolsController::class, 'history']);
+    Route::get('/borrowedhistory/showHistory',[App\Http\Controllers\BorrowToolsController::class, 'showHistory']);
+
     Route::middleware(['CheckRole:admin'])->group(function() {
         // PROJECY SITE
         Route::get('/project-site',[App\Http\Controllers\ProjectSiteController::class, 'index']);
@@ -83,6 +86,14 @@ Route::group(['middleware' => 'auth'], function(){
         Route::post('/scaffolding/store',[App\Http\Controllers\ScaffoldingController::class, 'store']);
         Route::get('/scaffolding/edit/{scaffolding}',[App\Http\Controllers\ScaffoldingController::class, 'edit']);
         Route::get('/scaffolding/destroy/{scaffolding}',[App\Http\Controllers\ScaffoldingController::class, 'destroy']);
+
+        // USER
+        Route::get('/users',[App\Http\Controllers\UsersController::class, 'index']);
+        Route::get('/users/show',[App\Http\Controllers\UsersController::class, 'show']);
+        Route::post('/users/store',[App\Http\Controllers\UsersController::class, 'store']);
+        Route::get('/users/edit/{users}',[App\Http\Controllers\UsersController::class, 'edit']);
+        Route::get('/users/destroy/{users}',[App\Http\Controllers\UsersController::class, 'destroy']);
+
     });
    
     Route::middleware(['CheckRole:user'])->group(function() {

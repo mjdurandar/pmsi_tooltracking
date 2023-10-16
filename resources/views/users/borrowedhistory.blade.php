@@ -4,7 +4,7 @@
 @section('content')
 
     <div id="app">
-        <history-component></history-component>
+        <borrowedhistory-component></borrowedhistory-component>
     </div>
 
 

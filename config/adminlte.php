@@ -402,6 +402,12 @@ return [
             'url'  => '/scaffolding',
         ],
         [
+            'text' => 'Users Accounts',
+            'icon'    => 'fa-solid fa-users',  
+            'can' => ['admin'],
+            'url'  => '/users',
+        ],
+        [
             'text' => 'Buy Tools',
             'icon'    => 'fa-solid fa-cart-shopping', 
             'can' => ['user'],
@@ -420,10 +426,16 @@ return [
             'url'  => '/delivery',
         ],
         [
-            'text' => 'History', 
+            'text' => 'Buying History', 
             'icon'    => 'fa-solid fa-book',  
             'can' => ['user'],
-            'url'  => '/history',
+            'url'  => '/buyinghistory',
+        ],
+        [
+            'text' => 'Borrowing History', 
+            'icon'    => 'fa-solid fa-book',  
+            'can' => ['user'],
+            'url'  => '/borrowedhistory',
         ],
         // ['header' => 'labels'],
         // [

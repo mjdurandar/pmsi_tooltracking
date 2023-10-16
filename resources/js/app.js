@@ -24,10 +24,12 @@ import SupplierComponent from './components/SupplierComponent.vue';
 import PowerToolsComponent from './components/PowerToolsComponent.vue';
 import ScaffoldingComponent from './components/ScaffoldingComponent.vue';
 import BuyToolsComponent from './components/BuyToolsComponent.vue';
-import HistoryComponent from './components/HistoryComponent.vue';
 import DeliveryComponent from './components/DeliveryComponent.vue';
 import BorrowToolsComponent from './components/BorrowToolsComponent.vue';
 import ReturnDaysComponent from './components/ReturnDaysComponent.vue';
+import UsersComponent from './components/UsersComponent.vue';
+import BuyingHistoryComponent from './components/BuyingHistoryComponent.vue';
+import BorrowedHistoryComponent from './components/BorrowedHistoryComponent.vue';
 
 app.config.globalProperties.$swal = Swal;
 app.use(ServerTable, {}, 'bootstrap4')
@@ -42,10 +44,12 @@ app.component('supplier-component', SupplierComponent);
 app.component('powertools-component', PowerToolsComponent);
 app.component('scaffolding-component', ScaffoldingComponent);
 app.component('buytools-component', BuyToolsComponent);
-app.component('history-component', HistoryComponent);
 app.component('delivery-component', DeliveryComponent);
 app.component('borrowtools-component', BorrowToolsComponent);
 app.component('returndays-component', ReturnDaysComponent);
+app.component('users-component', UsersComponent);
+app.component('buyinghistory-component', BuyingHistoryComponent);
+app.component('borrowedhistory-component', BorrowedHistoryComponent);
 
 /**
  * The following block of code may be used to automatically register your

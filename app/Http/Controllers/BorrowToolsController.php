@@ -9,14 +9,29 @@ use App\Models\Unit;
 use App\Models\Supplier;
 use App\Models\Scaffolding;
 use App\Models\ReturnDays;
-use App\Models\History;
-use App\Models\Delivery;
+use Illuminate\Support\Facades\Auth;
 
 class BorrowToolsController extends Controller
 {
     public function index()
     {
         return view('users.borrowtools');
+    }
+
+    public function history() {
+        return view('users.borrowedhistory');
+    }
+
+    public function showHistory() {
+
+        $user_id = Auth::id();
+        $data = BorrowTools::where('user_id', $user_id)
+            ->leftJoin('scaffoldings', 'scaffoldings.id', '=', 'borrow_tools.scaffoldings_id')
+            ->leftjoin('users', 'users.id', '=', 'borrow_tools.user_id')
+            ->select('borrow_tools.*', 'scaffoldings.name as scaffoldings_name', 'users.name as users_name')
+            ->get();
+
+        return response()->json([ 'data' => $data]);
     }
 
     public function show(){
@@ -65,22 +80,6 @@ class BorrowToolsController extends Controller
         $data->total = $request->total;
         $data->borrowed_at = now();
         $data->save();
-
-        // $history = new History();
-        // $history->user_id = $user_id;
-        // // $history->scaffoldings_id = $request->scaffoldings_id;
-        // $history->quantity = $request->quantity;
-        // $history->total = $request->total;
-        // $history->purchased_at = now();
-        // $history->save();
-
-        // $delivery = new Delivery();
-        // $delivery->user_id = $user_id;
-        // // $delivery->scaffoldings_id = $request->scaffoldings_id;
-        // $delivery->quantity = $request->quantity;
-        // $delivery->total = $request->total;
-        // $delivery->purchased_at = now();
-        // $delivery->save();
     
         // Update the quantity of the selected PowerTools
         $selectedScaffoldings->quantity -= $request->quantity;
