@@ -7,11 +7,17 @@
                 <div class="card">
                     <div class="card-body">
                         <!-- Display tool information -->
-                        <h5 class="card-title">{{ tool.name }}</h5>
-                        <p class="card-text">Price: {{ tool.price }}</p>
-                        <p class="card-text">Stocks: {{ tool.quantity }}</p>
-                        <!-- Add any other tool information as needed -->
-                        <!-- Button to trigger the modal or purchase action -->
+                        <div class="d-flex justify-content-between">
+                            <div style="width: 50%;">
+                                <h5 class="card-title">{{ tool.name }}</h5>
+                                <p class="card-text">Price: {{ tool.price }}</p>
+                                <p class="card-text">Stocks: {{ tool.quantity }}</p>
+                            </div>
+                            <div style="width: 50%;">
+                                <img v-if="tool.image" :src="'/images/' + tool.image" alt="Tool Image" class="img-fluid">
+                                <p v-else>No Image</p>
+                            </div>
+                        </div>
                         <button class="btn btn-success" v-on:click="showDetails(tool)">Buy Tool</button>
                     </div>
                 </div>

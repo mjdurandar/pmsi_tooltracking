@@ -18,14 +18,14 @@
     body {
         background-image: url("/images/pmsi_bg_dark.jpeg");
         background-size: 100%;
-        background-position: bottom;
+        /* background-position: bottom; */
         background-repeat: no-repeat;
         opacity: 2;
     }
     .logo-login-pmsi{
         text-align: center;
-        margin-bottom: 370px;
-        position: absolute;
+        /* margin-bottom: 370px;
+        position: absolute; */
         z-index: 5;
     }
     .logo-pmsi{
@@ -34,13 +34,12 @@
     }
 </style>
 @section('body')
-    <div class="logo-login-pmsi">
-        <img src="/images/pmsi_logo.png" alt="PMSI LOGO" class="logo-pmsi">
-    </div>
     <div class="{{ $auth_type ?? 'login' }}-box">
+        <div class="logo-login-pmsi">
+            <img src="/images/pmsi_logo.png" alt="PMSI LOGO" class="logo-pmsi">
+        </div>
         {{-- Card Box --}}
         <div class="card">
-
             {{-- Card Header --}}
             @hasSection('auth_header')
                 <div class="card-header {{ config('adminlte.classes_auth_header', '') }}">

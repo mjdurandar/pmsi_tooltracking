@@ -30,6 +30,15 @@
                         <div class="text-danger" v-if="errors.name">{{ errors.name[0] }}</div>
                     </div>  
                     <div class="col-12">
+                        <label for="image">Image</label>
+                        <input type="file" id="image" class="form-control" @change="onFileChange">
+                        <div class="text-danger" v-if="errors.image">{{ errors.image[0] }}</div>
+                    </div>
+                    <div class="col-12" v-if="dataValues.image">
+                        <label for="currentImage">Current Image</label>
+                        <img :src="'/images/' + dataValues.image" alt="Current Image" class="img-fluid">
+                    </div>
+                    <div class="col-12">
                         <label for="">Quantity</label>
                         <input type="number" class="form-control" v-model="dataValues.quantity" @keyup="onChange()">
                         <div class="text-danger" v-if="errors.quantity">{{ errors.quantity[0] }}</div>
@@ -92,11 +101,13 @@ export default{
                 categories : [],
                 units : [],
                 suppliers : [],
-                columns : ['name', 'quantity', 'price', 'category_name', 'unit_name', 'supplier_name', 'total' ,'action'],
+                imageData: null,
+                columns : ['name', 'image' ,'quantity', 'price', 'category_name', 'unit_name', 'supplier_name', 'total' ,'action'],
                 errors: [],
                 options : {
                     headings : {
                         name : 'Unit',
+                        image : 'Image',
                         quantity: 'Quantity',
                         price: 'Price',
                         category_name: 'Category',
@@ -130,6 +141,12 @@ export default{
             }
             this.dataValues.total = this.dataValues.quantity * this.dataValues.price;
         },
+        onFileChange(event) {
+            const file = event.target.files[0];
+            if (file) {
+                this.imageData = file;
+            }
+        },
         addClicked(props){
             $('#' + this.modalId).modal('show');
             this.clearInputs();
@@ -146,18 +163,18 @@ export default{
             this.dataValues = {
                 name: '',
             }
+            this.imageData = null;
             this.errors = [];
         },
         editClicked(props) {
-            this.dataValues = props.data;
-            this.modalTitle= 'Edit Data';
+            this.modalTitle = 'Edit Data';
 
-            axios.get('/powertools/edit/' + this.dataValues.id).then(response => {
+            axios.get('/powertools/edit/' + props.data.id).then(response => {
                 this.dataValues = response.data.data;
                 $('#' + this.modalId).modal('show');
-            })
-            .catch(errors => {
-                if(errors.response.data.message.length > 0) {
+            }).catch(errors => {
+                // Handle errors
+                if (errors.response.data.message.length > 0) {
                     Swal.fire({
                         title: "Failed",
                         text: errors.response.data.message,
@@ -166,7 +183,7 @@ export default{
                     });
                     this.errors = errors.response.data.errors;
                 }
-            })
+            });
         },
         deleteClicked(props) {
             Swal.fire({
@@ -203,10 +220,30 @@ export default{
             });
         },
         storeData() {
-                axios.post('/powertools/store', this.dataValues).then(response => {
-                    if(response.status === 200) {
+            const formData = new FormData();
+            // Check if id is present and not null before appending it to the form data
+            if (this.dataValues.id !== null && this.dataValues.id !== undefined) {
+                formData.append('id', this.dataValues.id);
+            }
+            formData.append('name', this.dataValues.name);
+            formData.append('quantity', this.dataValues.quantity);
+            formData.append('price', this.dataValues.price);
+            formData.append('category_id', this.dataValues.category_id);
+            formData.append('unit_id', this.dataValues.unit_id);
+            formData.append('supplier_id', this.dataValues.supplier_id);
+            formData.append('total', this.dataValues.total);
+
+            if (this.imageData) {
+                formData.append('image', this.imageData);
+            }
+                axios.post('/powertools/store', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                }).then(response => {
+                    if (response.status === 200) {
                         Swal.fire({
-                            title: "Success",
+                            title: 'Success',
                             text: response.data.message,
                             icon: 'success',
                             timer: 3000
@@ -214,10 +251,9 @@ export default{
                     }
                     this.getData();
                     $('#' + this.modalId).modal('hide');
-                })
-                .catch(errors => {
-                        this.errors = errors.response.data.errors;
-                })
+                }).catch(errors => {
+                    this.errors = errors.response.data.errors;
+                });
             },
         },
         mounted() {
