@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\BuyTools;
+use App\Models\BorrowTools;
 
 class UsersController extends Controller
 {
@@ -37,6 +39,24 @@ class UsersController extends Controller
         $data->password = $request->password;
         $data->save();
         return response()->json(['message' => 'Data Successfully Saved']);
+    }
+
+    public function showBuyingHistory($id) {
+
+        $data = BuyTools::where('user_id', $id)
+            ->leftJoin('power_tools', 'power_tools.id', '=', 'buy_tools.power_tools_id')
+            ->leftjoin('users', 'users.id', '=', 'buy_tools.user_id')
+            ->select('buy_tools.*', 'power_tools.name as power_tools_name', 'users.name as users_name')
+            ->get();
+
+        $dataBorrow = BorrowTools::where('user_id', $id)
+            ->leftJoin('scaffoldings', 'scaffoldings.id', '=', 'borrow_tools.scaffoldings_id')
+            ->leftjoin('users', 'users.id', '=', 'borrow_tools.user_id')
+            ->select('borrow_tools.*', 'scaffoldings.name as scaffoldings_name', 'users.name as users_name')
+            ->get();
+
+        return response()->json([ 'data' => $data, 'dataBorrow' => $dataBorrow]);
+        
     }
 
     public function edit(User $users) {

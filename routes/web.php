@@ -96,6 +96,7 @@ Route::group(['middleware' => 'auth'], function(){
         // USER
         Route::get('/users',[App\Http\Controllers\UsersController::class, 'index']);
         Route::get('/users/show',[App\Http\Controllers\UsersController::class, 'show']);
+        Route::get('/users/showBuyingHistory/{id}',[App\Http\Controllers\UsersController::class, 'showBuyingHistory']);
         Route::post('/users/store',[App\Http\Controllers\UsersController::class, 'store']);
         Route::get('/users/edit/{users}',[App\Http\Controllers\UsersController::class, 'edit']);
         Route::get('/users/destroy/{users}',[App\Http\Controllers\UsersController::class, 'destroy']);

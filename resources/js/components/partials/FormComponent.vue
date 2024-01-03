@@ -52,6 +52,16 @@
                                 </div>
                             </div>
                         </button>
+                        <button class="btn" @click="optionalClicked(props)" :style="option3Color" v-if="option3Switch">
+                            <div class="d-flex">
+                                <div>
+                                    <i :class="option3Icon" style="padding-left: 10px;" aria-hidden="true"></i>
+                                </div>
+                                <div class="text-weight" style="padding-left: 5px;">
+                                    {{option3Name}}
+                                </div>
+                            </div>
+                        </button>
                     </div>
                 </template>
             </v-client-table>    
@@ -112,6 +122,23 @@
                 type: Boolean,
                 default: true
             },
+            //OPTION 3 NAME ICON AND SWICTH
+             option3Name:{
+                type: String,
+                default : "Purchased/Borrowed"
+            },
+            option3Icon: {
+                type: String,
+                default: "fa-solid fa-money-bill mr-2" 
+            },
+            option3Color: {
+                type: String,
+                default: "color: #168118"
+            },
+            option3Switch: {
+                type: Boolean,
+                default: false
+            },
             btnName: {
                 type: String,
                 default: "Add"
@@ -133,6 +160,9 @@
             },
             deleteClicked(props){
                 this.$emit('deleteClicked', { data: props.row, index: props.index});
+            },
+            optionalClicked(props){
+                this.$emit('optionalClicked', { data: props.row, index: props.index});
             },
             addClicked(){
                 this.$emit('addClicked');

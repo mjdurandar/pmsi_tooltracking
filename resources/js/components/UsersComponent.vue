@@ -8,8 +8,10 @@
                     :columns="columns"
                     :options="options"
                     btnName="Add Users Account"
+                    :option3Switch="true"
                     @deleteClicked="deleteClicked"
                     @editClicked="editClicked"
+                    @optionalClicked="optionalClicked"
                     @addClicked="addClicked"
                 >
                 </FormComponent>
@@ -60,6 +62,53 @@
             </template>
         </ModalComponent>
 
+        <!-- Purchased -->
+        <ModalComponent :id="modalIdReceipts" :title="modalTitle" :size="modalSizeReceipts" :position="modalPosition">
+            <template #modalBody>
+                <div class="row">
+                    <div class="col-lg-6 text-center">
+                        <label for="">Purchased</label>
+                        <div class="card">
+                            <div class="card-body">
+                                <FormComponent 
+                                    :data="dataReceipts"
+                                    :columns="columnsReceipts"
+                                    :options="optionsReceipts"
+                                    :addButton="false"
+                                    :option1Switch="false"
+                                    :option2Switch="false"
+                                >
+                                </FormComponent>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 text-center">
+                        <label for="">Borrowed</label>
+                        <div class="card">
+                            <div class="card-body">
+                                <FormComponent 
+                                    :data="dataBorrowed"
+                                    :columns="columnsBorrowed"
+                                    :options="optionsBorrowed"
+                                    :addButton="false"
+                                    :option1Switch="false"
+                                    :option2Switch="false"
+                                >
+                                </FormComponent>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </template>
+            <template #modalFooter>
+                <div class="text-right">
+                    <button class="btn btn-dark" v-on:click="dismissModal">Close</button>
+                </div>
+            </template>
+        </ModalComponent>
+
+        
     </div>
 </template>
 
@@ -79,7 +128,7 @@ export default{
                 errors: [],
                 options : {
                     headings : {
-                        name : 'Unit',
+                        name : 'Name',
                         email : 'Email',
                         role : 'Role',
                         address : 'Complete Address',
@@ -88,13 +137,41 @@ export default{
                     filterable: false,
                     sortable: []
                 },
+                dataReceipts : [],
+                columnsReceipts : ['users_name', 'power_tools_name', 'quantity' ,'total', 'purchased_at'],
+                optionsReceipts : {
+                    headings : {
+                        users_name : 'Name',
+                        power_tools_name : 'Tools',
+                        quantity : 'Quantity',
+                        total : 'Total',
+                        purchased_at : 'Purchased Date',
+                    },
+                    filterable: false,
+                    sortable: []
+                },
+                dataBorrowed : [],
+                columnsBorrowed : ['users_name', 'scaffoldings_name', 'quantity' ,'total', 'borrowed_at'],
+                optionsBorrowed : {
+                    headings : {
+                        users_name : 'Name',
+                        scaffoldings_name : 'Tools',
+                        quantity : 'Quantity',
+                        total : 'Total',
+                        borrowed_at : 'Borrowed Date',
+                    },
+                    filterable: false,
+                    sortable: []
+                },
                 dataValues: {
                     name: '',
                 },
                 modalId : 'modal-users',
+                modalIdReceipts: 'modal-receipts',
                 modalTitle : 'Users Account',
                 modalPosition: 'modal-dialog-centered',
                 modalSize : 'modal-md',
+                modalSizeReceipts : 'modal-xl'
         }
     },
     components: {
@@ -103,9 +180,12 @@ export default{
         BreadCrumbComponent,
     },
     methods: {
-        addClicked(props){
+        addClicked(){
             $('#' + this.modalId).modal('show');
             this.clearInputs();
+        },
+        dismissModal(){
+            $('#' + this.modalIdReceipts).modal('hide');
         },
         getData() {
             axios.get('/users/show').then(response => {
@@ -137,6 +217,20 @@ export default{
                     this.errors = errors.response.data.errors;
                 }
             })
+        },
+        optionalClicked(props) {
+            const userId = props.data.id;
+
+            axios.get(`/users/showBuyingHistory/${userId}`)
+                .then(response => {
+                    this.dataReceipts = response.data.data;
+                    this.dataBorrowed = response.data.dataBorrow;
+                    $('#' + this.modalIdReceipts).modal('show');
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                    // Handle the error as needed
+                });
         },
         deleteClicked(props) {
             Swal.fire({

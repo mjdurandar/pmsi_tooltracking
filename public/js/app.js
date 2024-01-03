@@ -21613,7 +21613,7 @@ __webpack_require__.r(__webpack_exports__);
       errors: [],
       options: {
         headings: {
-          name: 'Unit',
+          name: 'Name',
           email: 'Email',
           role: 'Role',
           address: 'Complete Address',
@@ -21622,13 +21622,41 @@ __webpack_require__.r(__webpack_exports__);
         filterable: false,
         sortable: []
       },
+      dataReceipts: [],
+      columnsReceipts: ['users_name', 'power_tools_name', 'quantity', 'total', 'purchased_at'],
+      optionsReceipts: {
+        headings: {
+          users_name: 'Name',
+          power_tools_name: 'Tools',
+          quantity: 'Quantity',
+          total: 'Total',
+          purchased_at: 'Purchased Date'
+        },
+        filterable: false,
+        sortable: []
+      },
+      dataBorrowed: [],
+      columnsBorrowed: ['users_name', 'scaffoldings_name', 'quantity', 'total', 'borrowed_at'],
+      optionsBorrowed: {
+        headings: {
+          users_name: 'Name',
+          scaffoldings_name: 'Tools',
+          quantity: 'Quantity',
+          total: 'Total',
+          borrowed_at: 'Borrowed Date'
+        },
+        filterable: false,
+        sortable: []
+      },
       dataValues: {
         name: ''
       },
       modalId: 'modal-users',
+      modalIdReceipts: 'modal-receipts',
       modalTitle: 'Users Account',
       modalPosition: 'modal-dialog-centered',
-      modalSize: 'modal-md'
+      modalSize: 'modal-md',
+      modalSizeReceipts: 'modal-xl'
     };
   },
   components: {
@@ -21637,9 +21665,12 @@ __webpack_require__.r(__webpack_exports__);
     BreadCrumbComponent: _partials_BreadCrumbComponent_vue__WEBPACK_IMPORTED_MODULE_2__["default"]
   },
   methods: {
-    addClicked: function addClicked(props) {
+    addClicked: function addClicked() {
       $('#' + this.modalId).modal('show');
       this.clearInputs();
+    },
+    dismissModal: function dismissModal() {
+      $('#' + this.modalIdReceipts).modal('hide');
     },
     getData: function getData() {
       var _this = this;
@@ -21672,8 +21703,20 @@ __webpack_require__.r(__webpack_exports__);
         }
       });
     },
-    deleteClicked: function deleteClicked(props) {
+    optionalClicked: function optionalClicked(props) {
       var _this3 = this;
+      var userId = props.data.id;
+      axios__WEBPACK_IMPORTED_MODULE_4__["default"].get("/users/showBuyingHistory/".concat(userId)).then(function (response) {
+        _this3.dataReceipts = response.data.data;
+        _this3.dataBorrowed = response.data.dataBorrow;
+        $('#' + _this3.modalIdReceipts).modal('show');
+      })["catch"](function (error) {
+        console.error('Error fetching data:', error);
+        // Handle the error as needed
+      });
+    },
+    deleteClicked: function deleteClicked(props) {
+      var _this4 = this;
       sweetalert2__WEBPACK_IMPORTED_MODULE_3___default().fire({
         title: 'Are you sure?',
         text: 'You will not be able to recover this data!',
@@ -21693,7 +21736,7 @@ __webpack_require__.r(__webpack_exports__);
                 timer: 3000
               });
             }
-            _this3.getData();
+            _this4.getData();
           })["catch"](function (errors) {
             if (errors.response.data.message.length > 0) {
               sweetalert2__WEBPACK_IMPORTED_MODULE_3___default().fire({
@@ -21708,7 +21751,7 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     storeData: function storeData() {
-      var _this4 = this;
+      var _this5 = this;
       axios__WEBPACK_IMPORTED_MODULE_4__["default"].post('/users/store', this.dataValues).then(function (response) {
         if (response.status === 200) {
           sweetalert2__WEBPACK_IMPORTED_MODULE_3___default().fire({
@@ -21718,10 +21761,10 @@ __webpack_require__.r(__webpack_exports__);
             timer: 3000
           });
         }
-        _this4.getData();
-        $('#' + _this4.modalId).modal('hide');
+        _this5.getData();
+        $('#' + _this5.modalId).modal('hide');
       })["catch"](function (errors) {
-        _this4.errors = errors.response.data.errors;
+        _this5.errors = errors.response.data.errors;
       });
     }
   },
@@ -21824,6 +21867,23 @@ __webpack_require__.r(__webpack_exports__);
       type: Boolean,
       "default": true
     },
+    //OPTION 3 NAME ICON AND SWICTH
+    option3Name: {
+      type: String,
+      "default": "Purchased/Borrowed"
+    },
+    option3Icon: {
+      type: String,
+      "default": "fa-solid fa-money-bill mr-2"
+    },
+    option3Color: {
+      type: String,
+      "default": "color: #168118"
+    },
+    option3Switch: {
+      type: Boolean,
+      "default": false
+    },
     btnName: {
       type: String,
       "default": "Add"
@@ -21845,6 +21905,12 @@ __webpack_require__.r(__webpack_exports__);
     },
     deleteClicked: function deleteClicked(props) {
       this.$emit('deleteClicked', {
+        data: props.row,
+        index: props.index
+      });
+    },
+    optionalClicked: function optionalClicked(props) {
+      this.$emit('optionalClicked', {
         data: props.row,
         index: props.index
       });
@@ -23518,6 +23584,36 @@ var _hoisted_22 = {
 var _hoisted_23 = {
   "class": "text-right"
 };
+var _hoisted_24 = {
+  "class": "row"
+};
+var _hoisted_25 = {
+  "class": "col-lg-6 text-center"
+};
+var _hoisted_26 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
+  "for": ""
+}, "Purchased", -1 /* HOISTED */);
+var _hoisted_27 = {
+  "class": "card"
+};
+var _hoisted_28 = {
+  "class": "card-body"
+};
+var _hoisted_29 = {
+  "class": "col-lg-6 text-center"
+};
+var _hoisted_30 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
+  "for": ""
+}, "Borrowed", -1 /* HOISTED */);
+var _hoisted_31 = {
+  "class": "card"
+};
+var _hoisted_32 = {
+  "class": "card-body"
+};
+var _hoisted_33 = {
+  "class": "text-right"
+};
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   var _component_BreadCrumbComponent = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("BreadCrumbComponent");
   var _component_FormComponent = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("FormComponent");
@@ -23529,10 +23625,12 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     columns: $data.columns,
     options: $data.options,
     btnName: "Add Users Account",
+    option3Switch: true,
     onDeleteClicked: $options.deleteClicked,
     onEditClicked: $options.editClicked,
+    onOptionalClicked: $options.optionalClicked,
     onAddClicked: $options.addClicked
-  }, null, 8 /* PROPS */, ["data", "columns", "options", "onDeleteClicked", "onEditClicked", "onAddClicked"])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_ModalComponent, {
+  }, null, 8 /* PROPS */, ["data", "columns", "options", "onDeleteClicked", "onEditClicked", "onOptionalClicked", "onAddClicked"])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_ModalComponent, {
     id: $data.modalId,
     title: $data.modalTitle,
     size: $data.modalSize,
@@ -23580,6 +23678,38 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
           return $options.storeData && $options.storeData.apply($options, arguments);
         })
       }, "Save")])];
+    }),
+    _: 1 /* STABLE */
+  }, 8 /* PROPS */, ["id", "title", "size", "position"]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Purchased "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_ModalComponent, {
+    id: $data.modalIdReceipts,
+    title: $data.modalTitle,
+    size: $data.modalSizeReceipts,
+    position: $data.modalPosition
+  }, {
+    modalBody: (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
+      return [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_24, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_25, [_hoisted_26, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_27, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_28, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_FormComponent, {
+        data: $data.dataReceipts,
+        columns: $data.columnsReceipts,
+        options: $data.optionsReceipts,
+        addButton: false,
+        option1Switch: false,
+        option2Switch: false
+      }, null, 8 /* PROPS */, ["data", "columns", "options"])])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_29, [_hoisted_30, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_31, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_32, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_FormComponent, {
+        data: $data.dataBorrowed,
+        columns: $data.columnsBorrowed,
+        options: $data.optionsBorrowed,
+        addButton: false,
+        option1Switch: false,
+        option2Switch: false
+      }, null, 8 /* PROPS */, ["data", "columns", "options"])])])])])];
+    }),
+    modalFooter: (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
+      return [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_33, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+        "class": "btn btn-dark",
+        onClick: _cache[6] || (_cache[6] = function () {
+          return $options.dismissModal && $options.dismissModal.apply($options, arguments);
+        })
+      }, "Close")])];
     }),
     _: 1 /* STABLE */
   }, 8 /* PROPS */, ["id", "title", "size", "position"])]);
@@ -23658,6 +23788,16 @@ var _hoisted_8 = {
     "padding-left": "5px"
   }
 };
+var _hoisted_9 = ["onClick"];
+var _hoisted_10 = {
+  "class": "d-flex"
+};
+var _hoisted_11 = {
+  "class": "text-weight",
+  style: {
+    "padding-left": "5px"
+  }
+};
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   var _component_v_client_table = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("v-client-table");
   return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.renderSlot)(_ctx.$slots, "filter-control"), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [$props.addButton ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
@@ -23697,7 +23837,20 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
           "padding-left": "10px"
         },
         "aria-hidden": "true"
-      }, null, 2 /* CLASS */)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_8, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($props.option2Name), 1 /* TEXT */)])], 12 /* STYLE, PROPS */, _hoisted_6)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])];
+      }, null, 2 /* CLASS */)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_8, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($props.option2Name), 1 /* TEXT */)])], 12 /* STYLE, PROPS */, _hoisted_6)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $props.option3Switch ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("button", {
+        key: 2,
+        "class": "btn",
+        onClick: function onClick($event) {
+          return $options.optionalClicked(props);
+        },
+        style: (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeStyle)($props.option3Color)
+      }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_10, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+        "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)($props.option3Icon),
+        style: {
+          "padding-left": "10px"
+        },
+        "aria-hidden": "true"
+      }, null, 2 /* CLASS */)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_11, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($props.option3Name), 1 /* TEXT */)])], 12 /* STYLE, PROPS */, _hoisted_9)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])];
     }),
     _: 1 /* STABLE */
   }, 8 /* PROPS */, ["data", "columns", "options"])])]);
