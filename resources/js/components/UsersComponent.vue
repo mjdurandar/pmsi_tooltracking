@@ -124,13 +124,12 @@ export default{
     data(){
         return{
                 data : [],
-                columns : ['name', 'email', 'role' ,'address' ,'action'],
+                columns : ['name', 'email' ,'address' ,'action'],
                 errors: [],
                 options : {
                     headings : {
                         name : 'Name',
                         email : 'Email',
-                        role : 'Role',
                         address : 'Complete Address',
                         action : 'Action',
                     },
@@ -138,26 +137,24 @@ export default{
                     sortable: []
                 },
                 dataReceipts : [],
-                columnsReceipts : ['users_name', 'power_tools_name', 'quantity' ,'total', 'purchased_at'],
+                columnsReceipts : ['users_name', 'power_tools_name' ,'price', 'purchased_at'],
                 optionsReceipts : {
                     headings : {
                         users_name : 'Name',
                         power_tools_name : 'Tools',
-                        quantity : 'Quantity',
-                        total : 'Total',
+                        price : 'Price',
                         purchased_at : 'Purchased Date',
                     },
                     filterable: false,
                     sortable: []
                 },
                 dataBorrowed : [],
-                columnsBorrowed : ['users_name', 'scaffoldings_name', 'quantity' ,'total', 'borrowed_at'],
+                columnsBorrowed : ['users_name', 'scaffoldings_name' ,'price', 'borrowed_at'],
                 optionsBorrowed : {
                     headings : {
                         users_name : 'Name',
                         scaffoldings_name : 'Tools',
-                        quantity : 'Quantity',
-                        total : 'Total',
+                        price : 'Price',
                         borrowed_at : 'Borrowed Date',
                     },
                     filterable: false,

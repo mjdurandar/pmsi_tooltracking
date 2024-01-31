@@ -35,7 +35,6 @@ class ScaffoldingController extends Controller
     {      
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
-            'quantity' => 'required|numeric',
             'price' => 'required|numeric',
             'category_id' => 'required|exists:categories,id',
             'unit_id' => 'required|exists:units,id',
@@ -64,15 +63,16 @@ class ScaffoldingController extends Controller
             $scaffolding = new Scaffolding();
         }
 
+        $productCode = 'S-' . str_pad(Scaffolding::count() + 1, 3, '0', STR_PAD_LEFT);
+
         $scaffolding = isset($request->id) ? Scaffolding::where('id', $request->id)->first() : new Scaffolding();
         $scaffolding->name = $request->name;
-        $scaffolding->quantity = $request->quantity;
         $scaffolding->price = $request->price;
         $scaffolding->category_id = $request->category_id;
         $scaffolding->unit_id = $request->unit_id;
         $scaffolding->project_site_id = $request->project_site_id;
         $scaffolding->supplier_id = $request->supplier_id;
-        $scaffolding->total = $request->total;
+        $scaffolding->product_code = $productCode;
 
         // Check if an image file is uploaded
         if ($request->hasFile('image')) {

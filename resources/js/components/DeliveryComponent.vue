@@ -63,13 +63,11 @@ export default{
                 data : [],
                 errors: [],
                 qrCodeUrl: '',
-                columns : [ 'user_name' , 'power_tools_name' , 'quantity', 'total' , 'action'],
+                columns : [ 'user_name' , 'power_tools_name', 'action'],
                 options : {
                     headings : {
                         user_name : 'Name',
                         power_tools_name : 'Power Tools',
-                        quantity : 'Quantity',
-                        total : 'Total',
                         action : 'Action',
                     },
                     filterable: false,

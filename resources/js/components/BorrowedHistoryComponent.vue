@@ -25,10 +25,26 @@
                 </div>
             </template>
             <template #modalBody>
+                <div class="col-12 pb-2">
+                    <label for="">Username</label>
+                        <input class="form-control" v-model="dataValues.users_name" disabled>
+                </div> 
+                <div class="col-12 pb-2">
+                    <label for="">Scaffolding Name</label>
+                        <input class="form-control" v-model="dataValues.scaffoldings_name" disabled>
+                </div> 
+                <div class="col-12 pb-2">
+                    <label for="">Return Days</label>
+                        <input class="form-control" v-model="dataValues.number_of_days" disabled>
+                </div> 
+                <div class="col-12 pb-2">
+                    <label for="">Borrowed At</label>
+                        <input class="form-control" v-model="dataValues.borrowed_at" disabled>
+                </div> 
             </template>
             <template #modalFooter>
                 <div class="text-right">
-                    <button class="btn btn-dark" v-on:click="storeData">Close</button>
+                    <button class="btn btn-dark" v-on:click="closeModal">Close</button>
                 </div>
             </template>
         </ModalComponent>
@@ -49,13 +65,12 @@ export default{
         return{
                 data : [],
                 errors: [],
-                columns : ['users_name', 'scaffoldings_name', 'quantity' ,'total', 'borrowed_at','action'],
+                columns : ['users_name', 'scaffoldings_name', 'number_of_days', 'borrowed_at','action'],
                 options : {
                     headings : {
                         users_name : 'User',
                         scaffoldings_name : 'Scaffolding',
-                        quantity : 'Quantity',
-                        total : 'Total',
+                        number_of_days : 'Return Days',
                         borrowed_at : 'Borrowed At',
                         action : 'Action',
                     },
@@ -81,6 +96,9 @@ export default{
             $('#' + this.modalId).modal('show');
             this.clearInputs();
         },
+        closeModal(){
+            $('#' + this.modalId).modal('hide');
+        },
         getData() {
             axios.get('/borrowedhistory/showHistory').then(response => {
                 this.data = response.data.data;
@@ -89,22 +107,7 @@ export default{
         editClicked(props) {
             this.dataValues = props.data;
             this.modalTitle= 'View Data';
-
-            axios.get('/borrowedhistory/edit/' + this.dataValues.id).then(response => {
-                this.dataValues = response.data.data;
-                $('#' + this.modalId).modal('show');
-            })
-            .catch(errors => {
-                if(errors.response.data.message.length > 0) {
-                    Swal.fire({
-                        title: "Failed",
-                        text: errors.response.data.message,
-                        icon: 'error',
-                        timer: 3000
-                    });
-                    this.errors = errors.response.data.errors;
-                }
-            })
+            $('#' + this.modalId).modal('show');
         },
         },
         mounted() {

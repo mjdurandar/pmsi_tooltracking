@@ -39,16 +39,6 @@
                         <img :src="'/images/' + dataValues.image" alt="Current Image" class="img-fluid">
                     </div>
                     <div class="col-12">
-                        <label for="">Quantity</label>
-                        <input type="number" class="form-control" v-model="dataValues.quantity" @keyup="onChange()">
-                        <div class="text-danger" v-if="errors.quantity">{{ errors.quantity[0] }}</div>
-                    </div>  
-                    <div class="col-12">
-                        <label for="">Price</label>
-                        <input type="number" class="form-control" v-model="dataValues.price" @keyup="onChange()">
-                        <div class="text-danger" v-if="errors.price">{{ errors.price[0] }}</div>
-                    </div>  
-                    <div class="col-12">
                         <label for="">Category</label>
                         <select class="form-control" v-model="dataValues.category_id">
                             <option v-for="category in categories" :value="category.id">{{ category.name }}</option>
@@ -68,11 +58,11 @@
                             <option v-for="supplier in suppliers" :value="supplier.id">{{ supplier.name }}</option>
                         </select>
                         <div class="text-danger" v-if="errors.supplier">{{ errors.supplier[0] }}</div>
-                    </div>  
+                    </div> 
                     <div class="col-12">
-                        <label for="">Total</label>
-                        <input type="number" class="form-control" v-model="dataValues.total" disabled>
-                        <div class="text-danger" v-if="errors.total">{{ errors.total[0] }}</div>
+                        <label for="">Price</label>
+                        <input type="number" class="form-control" v-model="dataValues.price">
+                        <div class="text-danger" v-if="errors.price">{{ errors.price[0] }}</div>
                     </div>  
                 </div>
             </template>
@@ -102,18 +92,17 @@ export default{
                 units : [],
                 suppliers : [],
                 imageData: null,
-                columns : ['name', 'image' ,'quantity', 'price', 'category_name', 'unit_name', 'supplier_name', 'total' ,'action'],
+                columns : ['name', 'image' ,'product_code', 'category_name', 'unit_name', 'supplier_name', 'price' ,'action'],
                 errors: [],
                 options : {
                     headings : {
                         name : 'Unit',
                         image : 'Image',
-                        quantity: 'Quantity',
-                        price: 'Price',
+                        product_code: 'Product Code',
                         category_name: 'Category',
                         unit_name: 'Unit',
                         supplier_name: 'Supplier',
-                        total: 'Total',
+                        price: 'Price',
                         action : 'Action',
                     },
                     filterable: false,
@@ -134,13 +123,6 @@ export default{
         BreadCrumbComponent,
     },
     methods: {
-        onChange(){
-            if(this.dataValues.quantity === ''){
-                this.dataValues.total = 0;
-                return;
-            }
-            this.dataValues.total = this.dataValues.quantity * this.dataValues.price;
-        },
         onFileChange(event) {
             const file = event.target.files[0];
             if (file) {

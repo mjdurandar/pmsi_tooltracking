@@ -14,8 +14,8 @@ class UsersController extends Controller
     }
 
     public function show() {
-        $data = User::get();
-        return response()->json([ 'data' => $data, ]);        
+        $data = User::where('role', '!=', 1)->get(); 
+        return response()->json([ 'data' => $data ]);
     }
 
     public function store(Request $request) {
@@ -46,13 +46,13 @@ class UsersController extends Controller
         $data = BuyTools::where('user_id', $id)
             ->leftJoin('power_tools', 'power_tools.id', '=', 'buy_tools.power_tools_id')
             ->leftjoin('users', 'users.id', '=', 'buy_tools.user_id')
-            ->select('buy_tools.*', 'power_tools.name as power_tools_name', 'users.name as users_name')
+            ->select('buy_tools.*', 'power_tools.name as power_tools_name', 'power_tools.price as price' ,'users.name as users_name')
             ->get();
 
         $dataBorrow = BorrowTools::where('user_id', $id)
             ->leftJoin('scaffoldings', 'scaffoldings.id', '=', 'borrow_tools.scaffoldings_id')
             ->leftjoin('users', 'users.id', '=', 'borrow_tools.user_id')
-            ->select('borrow_tools.*', 'scaffoldings.name as scaffoldings_name', 'users.name as users_name')
+            ->select('borrow_tools.*', 'scaffoldings.name as scaffoldings_name', 'scaffoldings.price as price' ,'users.name as users_name')
             ->get();
 
         return response()->json([ 'data' => $data, 'dataBorrow' => $dataBorrow]);

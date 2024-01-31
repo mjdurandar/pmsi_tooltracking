@@ -28,7 +28,8 @@ class BorrowToolsController extends Controller
         $data = BorrowTools::where('user_id', $user_id)
             ->leftJoin('scaffoldings', 'scaffoldings.id', '=', 'borrow_tools.scaffoldings_id')
             ->leftjoin('users', 'users.id', '=', 'borrow_tools.user_id')
-            ->select('borrow_tools.*', 'scaffoldings.name as scaffoldings_name', 'users.name as users_name')
+            ->leftJoin('return_days','return_days.id', '=', 'borrow_tools.return_days_id')
+            ->select('borrow_tools.*', 'scaffoldings.name as scaffoldings_name', 'users.name as users_name', 'return_days.number_of_days as number_of_days')
             ->get();
 
         return response()->json([ 'data' => $data]);
@@ -50,40 +51,24 @@ class BorrowToolsController extends Controller
 
     public function store(Request $request) {
         $request->validate([
-            'quantity' => 'required|integer',
             'return_days_id' => 'required|integer',
-            'total' => 'required|integer',
         ],
         [
-            'quantity.required' => "The Quantity field is required",
             'return_days_id.required' => "The Number of Days field is required",
-            'total.required' => "The Total field is required",
         ]);
         
         $user_id = auth()->user()->id;
-    
-        // Retrieve the selected Scaffolding and its quantity
-        $selectedScaffoldings = Scaffolding::findOrFail($request->scaffoldings_id);
-        $selectedScaffoldingsQuantity = $selectedScaffoldings->quantity;
-    
-        // Ensure there are enough PowerTools in stock
-        if ($selectedScaffoldingsQuantity < $request->quantity) {
-            return response()->json(['message' => 'Insufficient quantity in stock'], 400);
-        }
-    
+        // Update is_sold_out field for the purchased tool
+        $tool = Scaffolding::findOrFail($request->scaffoldings_id);
+        $tool->is_borrowed = true; // Assuming is_sold_out is a boolean field
+        $tool->save();
         // Proceed with storing BuyTools data
         $data = new BorrowTools();
         $data->user_id = $user_id;
         $data->scaffoldings_id = $request->scaffoldings_id;
         $data->return_days_id = $request->return_days_id;
-        $data->quantity = $request->quantity;
-        $data->total = $request->total;
         $data->borrowed_at = now();
         $data->save();
-    
-        // Update the quantity of the selected PowerTools
-        $selectedScaffoldings->quantity -= $request->quantity;
-        $selectedScaffoldings->save();
     
         return response()->json(['message' => 'Data Successfully Saved']);
     }

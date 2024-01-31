@@ -17,17 +17,17 @@
             <div class="col-6">
                 <div class="card" style="background-color: #f18f4e; color: #fff;">
                     <div class="card-body dash-title">
-                        Master Data Count
-                   </div>
+                        Borrowed per Day
+                    </div>
                 </div>
                 <div class="card">
                     <div class="card-body">
-                        <canvas id="myChart"></canvas>
-                   </div>
+                        <canvas id="borrowedChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="row">
+        <!-- <div class="row">
             <div class="col-6">
                 <div class="card" style="background-color: #f18f4e; color: #fff;">
                     <div class="card-body dash-title" >
@@ -52,7 +52,7 @@
                    </div>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
 </template>
 
@@ -81,37 +81,69 @@ export default{
     },
     methods: {
         chartSales(){
-                axios.get('/dashboardCount/counts')
-                .then(response => {
-                    const ctx = document.getElementById('salesChart');
-                    const totalPerDay = response.data.totalPerDay;
-                    const labels = totalPerDay.map(item => item.date);
-                    const data = totalPerDay.map(item => item.total);
-                    new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: labels,
-                            datasets: [{
-                                label: 'Sales',
-                                data: data,
-                                borderWidth: 1,
-                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                                borderColor: 'rgba(75, 192, 192, 1)',
-                            }]
-                        },
-                        options: {
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
+            axios.get('/dashboardCount/counts')
+            .then(response => {
+                const ctx = document.getElementById('salesChart');
+                const totalPerDay = response.data.salesCount;
+                const labels = totalPerDay.map(item => item.date);
+                const data = totalPerDay.map(item => item.total);
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Sales',
+                            data: data,
+                            borderWidth: 1,
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
                             }
                         }
-                    });
-                })
-                .catch(error => {
-                    console.error('Error fetching sales data', error);
+                    }
                 });
-            },
+            })
+            .catch(error => {
+                console.error('Error fetching sales data', error);
+            });
+        },
+        borrowedChart(){
+            axios.get('/dashboardCount/counts')
+            .then(response => {
+                const ctx = document.getElementById('borrowedChart');
+                const totalPerDay = response.data.borrowedCount;
+                const labels = totalPerDay.map(item => item.borrowed_at);
+                const data = totalPerDay.map(item => item.total);
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Borrowed',
+                            data: data,
+                            borderWidth: 1,
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching sales data', error);
+            });
+        },
             dashboard(){
                 axios.get('/dashboardCount/counts')
                 .then(response => {
@@ -156,7 +188,7 @@ export default{
                         options: {
                             scales: {
                             y: {
-                                beginAtZero: true
+                                beginAtZero: true 
                             }
                             }
                         }
@@ -197,6 +229,7 @@ export default{
         },
         mounted() {
             this.chartSales();
+            this.borrowedChart();
             this.dashboard();
             this.piechart();
             this.piecharttools();

@@ -33,7 +33,6 @@ class PowerToolsController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
-            'quantity' => 'required|numeric',
             'price' => 'required|numeric',
             'category_id' => 'required|exists:categories,id',
             'unit_id' => 'required|exists:units,id',
@@ -62,14 +61,15 @@ class PowerToolsController extends Controller
             $powerTool = new PowerTools();
         }
 
+        $productCode = 'P-' . str_pad(PowerTools::count() + 1, 3, '0', STR_PAD_LEFT);
+
         $powerTool = isset($request->id) ? PowerTools::where('id', $request->id)->first() : new PowerTools();
         $powerTool->name = $request->name;
-        $powerTool->quantity = $request->quantity;
         $powerTool->price = $request->price;
         $powerTool->category_id = $request->category_id;
         $powerTool->unit_id = $request->unit_id;
         $powerTool->supplier_id = $request->supplier_id;
-        $powerTool->total = $request->total;
+        $powerTool->product_code = $productCode;
 
         // Check if an image file is uploaded
         if ($request->hasFile('image')) {

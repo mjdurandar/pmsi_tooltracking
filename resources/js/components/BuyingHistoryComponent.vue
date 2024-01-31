@@ -25,10 +25,22 @@
                 </div>
             </template>
             <template #modalBody>
+                <div class="col-12 pb-2">
+                    <label for="">Username</label>
+                        <input class="form-control" v-model="dataValues.users_name" disabled>
+                </div> 
+                <div class="col-12 pb-2">
+                    <label for="">PowerTools</label>
+                        <input class="form-control" v-model="dataValues.power_tools_name" disabled>
+                </div> 
+                <div class="col-12 pb-2">
+                    <label for="">Purchased At</label>
+                        <input class="form-control" v-model="dataValues.purchased_at" disabled>
+                </div> 
             </template>
             <template #modalFooter>
                 <div class="text-right">
-                    <button class="btn btn-dark" v-on:click="storeData">Close</button>
+                    <button class="btn btn-dark" v-on:click="closeModal">Close</button>
                 </div>
             </template>
         </ModalComponent>
@@ -49,13 +61,11 @@ export default{
         return{
                 data : [],
                 errors: [],
-                columns : ['users_name', 'power_tools_name', 'quantity' ,'total', 'purchased_at','action'],
+                columns : ['users_name', 'power_tools_name', 'purchased_at','action'],
                 options : {
                     headings : {
                         users_name : 'User',
                         power_tools_name : 'PowerTools',
-                        quantity : 'Quantity',
-                        total : 'Total',
                         purchased_at : 'Purchased At',
                         action : 'Action',
                     },
@@ -81,6 +91,9 @@ export default{
             $('#' + this.modalId).modal('show');
             this.clearInputs();
         },
+        closeModal(){
+            $('#' + this.modalId).modal('hide');
+        },
         getData() {
             axios.get('/buyinghistory/showHistory').then(response => {
                 this.data = response.data.data;
@@ -89,22 +102,7 @@ export default{
         editClicked(props) {
             this.dataValues = props.data;
             this.modalTitle= 'View Data';
-
-            axios.get('/buyinghistory/edit/' + this.dataValues.id).then(response => {
-                this.dataValues = response.data.data;
-                $('#' + this.modalId).modal('show');
-            })
-            .catch(errors => {
-                if(errors.response.data.message.length > 0) {
-                    Swal.fire({
-                        title: "Failed",
-                        text: errors.response.data.message,
-                        icon: 'error',
-                        timer: 3000
-                    });
-                    this.errors = errors.response.data.errors;
-                }
-            })
+            $('#' + this.modalId).modal('show');
         },
         },
         mounted() {

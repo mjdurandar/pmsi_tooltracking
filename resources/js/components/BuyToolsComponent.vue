@@ -1,24 +1,39 @@
+<style>
+    .sold-out .card-body {
+        background-color: #f8f9fa; /* Change background color for sold-out cards */
+        opacity: 0.5; /* Set opacity to 80% */
+    }
+
+    .btn-sold-out {
+        color: #000 !important; /* Change button text color to black */
+    }
+</style>
+
 <template>
     <div class="p-3">
         <BreadCrumbComponent tab_title="Buy Tools"></BreadCrumbComponent>
         <div class="row">
             <div class="col-md-4" v-for="(tool, index) in data" :key="index">
                 <!-- Card component for each tool -->
-                <div class="card">
+                <div class="card" :class="{ 'sold-out': tool.is_sold_out }">
                     <div class="card-body">
                         <!-- Display tool information -->
                         <div class="d-flex justify-content-between">
                             <div style="width: 50%;">
                                 <h5 class="card-title">{{ tool.name }}</h5>
                                 <p class="card-text">Price: {{ tool.price }}</p>
-                                <p class="card-text">Stocks: {{ tool.quantity }}</p>
+                                <p class="card-text">Product Code: {{ tool.product_code }}</p>
                             </div>
                             <div style="width: 50%;">
                                 <img v-if="tool.image" :src="'/images/' + tool.image" alt="Tool Image" class="img-fluid">
                                 <p v-else>No Image</p>
                             </div>
                         </div>
-                        <button class="btn btn-success" v-on:click="showDetails(tool)">Buy Tool</button>
+                        <button :class="tool.is_sold_out ? 'btn btn-dark' : 'btn btn-success'"
+                                v-on:click="showDetails(tool)"
+                                :disabled="tool.is_sold_out">
+                            {{ tool.is_sold_out ? 'Sold Out' : 'Buy Tool' }}
+                        </button>
                     </div>
                 </div>
             </div>
@@ -37,18 +52,13 @@
                         <input type="text" v-model="selectedTool.name" class="form-control" disabled> 
                     </div>  
                     <div class="col-12 pb-2">
+                        <input type="hidden" v-model="dataValues.product_code">
+                        <label for="">Product Code</label>
+                        <input type="text" v-model="selectedTool.product_code" class="form-control" disabled> 
+                    </div>
+                    <div class="col-12 pb-2">
                         <label for="">Price</label>
                         <input type="number" v-model="selectedTool.price" class="form-control" disabled> 
-                    </div>  
-                    <div class="col-12">
-                        <label for="">Quantity</label>
-                        <input type="number" v-model="dataValues.quantity" class="form-control" @keyup="onChange()"> 
-                        <div class="text-danger" v-if="errors.quantity">{{ errors.quantity[0] }}</div>
-                    </div> 
-                    <div class="col-12">
-                        <label for="">Total</label>
-                        <input type="number" v-model="dataValues.total" class="form-control" @keyup="onChange()" disabled> 
-                        <div class="text-danger" v-if="errors.total">{{ errors.total[0] }}</div>
                     </div>  
                 </div>
             </template>
@@ -89,13 +99,6 @@ export default{
         BreadCrumbComponent
     },
     methods: {
-        onChange(){
-            if(this.dataValues.quantity === ''){
-                this.dataValues.total = 0;
-                return;
-            }
-            this.dataValues.total = this.dataValues.quantity * this.selectedTool.price;
-        },
         showDetails(tool) {
             this.selectedTool = tool;
             this.dataValues = {
