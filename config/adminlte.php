@@ -333,7 +333,13 @@ return [
             'text'    => 'Dashboard',
             'icon'    => 'fa-solid fa-chart-simple',
             'can' => ['admin'],
-            'url' => '/dashboard'
+            'url' => '/dashboard' 
+        ],
+        [
+            'text'    => 'Request a Product',
+            'icon'    => 'fa-solid fa-box',
+            'can' => ['admin'],
+            'url' => '/request-product'
         ],
         [
             'text'    => 'Master Data',
@@ -402,13 +408,13 @@ return [
             'url'  => '/powertools',
         ],
         [
-            'text' => 'Scaffolding',
+            'text' => 'Borrowed Tools',
             'icon'    => 'fa-solid fa-wrench',  
             'can' => ['admin'],
             'url'  => '/scaffolding',
         ],
         [
-            'text' => 'Users Accounts',
+            'text' => 'Company Accounts',
             'icon'    => 'fa-solid fa-users',  
             'can' => ['admin'],
             'url'  => '/users',

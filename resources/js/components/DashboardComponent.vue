@@ -14,7 +14,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-6">
+            <!-- <div class="col-6">
                 <div class="card" style="background-color: #f18f4e; color: #fff;">
                     <div class="card-body dash-title">
                         Borrowed per Day
@@ -25,7 +25,7 @@
                         <canvas id="borrowedChart"></canvas>
                     </div>
                 </div>
-            </div>
+            </div> -->
         </div>
         <!-- <div class="row">
             <div class="col-6">

@@ -44,8 +44,15 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('/dashboard',[App\Http\Controllers\DashboardController::class, 'index']);
         Route::get('/dashboardCount/counts',[App\Http\Controllers\DashboardController::class, 'counts']);
 
+        // REQUEST A PRODUCT
+        Route::get('/request-product',[App\Http\Controllers\RequestProductController::class, 'index']);
+        Route::get('/request-product/show',[App\Http\Controllers\RequestProductController::class, 'show']);
+        Route::post('/request-product/store',[App\Http\Controllers\RequestProductController::class, 'store']);
+        Route::post('/request-product/updateStock',[App\Http\Controllers\RequestProductController::class, 'updateStock']);
+        Route::get('/request-product/edit/{requestproduct}',[App\Http\Controllers\RequestProductController::class, 'edit']);
+        Route::get('/request-product/destroy/{requestproduct}',[App\Http\Controllers\RequestProductController::class, 'destroy']);
 
-        // PROJECY SITE
+        // PROJECT SITE
         Route::get('/project-site',[App\Http\Controllers\ProjectSiteController::class, 'index']);
         Route::get('/project-site/show',[App\Http\Controllers\ProjectSiteController::class, 'show']);
         Route::post('/project-site/store',[App\Http\Controllers\ProjectSiteController::class, 'store']);

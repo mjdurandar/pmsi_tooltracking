@@ -2,13 +2,13 @@
 
 return [
 
-    'full_name'                   => 'Full name',
+    'full_name'                   => 'Company Name',
     'email'                       => 'Email',
     'password'                    => 'Password',
     'retype_password'             => 'Retype password',
     'remember_me'                 => 'Remember Me',
     'register'                    => 'Register',
-    'register_a_new_membership'   => 'Register a new membership',
+    'register_a_new_membership'   => 'Register your Company',
     'i_forgot_my_password'        => 'I forgot my password',
     'i_already_have_a_membership' => 'I already have a membership',
     'sign_in'                     => 'Sign In',
