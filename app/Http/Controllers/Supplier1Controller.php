@@ -2,24 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\RequestProduct;
-use App\Models\Supplier;
 use Illuminate\Http\Request;
-use Validator;
+use App\Models\Supplier1;
+use App\Models\Supplier;
 
-class RequestProductController extends Controller
+class Supplier1Controller extends Controller
 {
-    public function index() {
-        return view('admin.request-product');
-    }
-
     public function show() {
-        $data = RequestProduct::leftjoin('suppliers', 'suppliers.id', '=', 'request_products.supplier_id')
-                                ->select('request_products.*', 'suppliers.name as supplier_name')
+        $data = Supplier1::leftjoin('request_products', 'suppliers.id', '=', 'supplier1.supplier_id')
+                                ->select('supplier1.*', 'suppliers.name as supplier_name')
                                 ->get();
-        $countRequestProduct = RequestProduct::count();
+        $countRequestProduct = Supplier1::count();
         $suppliers = Supplier::get();
-        return response()->json([ 'data' => $data, 'suppliers' => $suppliers, 'countRequestProduct' => $countRequestProduct ]);
+        return response()->json([ 'data' => $data, 'countRequestProduct' => $countRequestProduct, 'suppliers' => $suppliers ]);
     }
 
     public function store(Request $request) {
@@ -41,15 +36,15 @@ class RequestProductController extends Controller
 
         for ($i = 0; $i < $request->stocks; $i++) {
             // Create a new RequestProduct instance
-            $newRequestProduct = new RequestProduct();
+            $newRequestProduct = new Supplier1();
             $newRequestProduct->name = $request->name;
             $newRequestProduct->description = $request->description;
             $newRequestProduct->price = $request->price;
             $newRequestProduct->stocks = 1; // Each record has one stock
             $newRequestProduct->supplier_id = $request->supplier_id;
     
-            // // Generate unique product code for each record
-            // $productCodePrefix = 'P-' . str_pad(RequestProduct::count() + $i + 1, 3, '0', STR_PAD_LEFT);
+            // Generate unique product code for each record
+            // $productCodePrefix = 'P-' . str_pad(Supplier1::count() + $i + 1, 3, '0', STR_PAD_LEFT);
             // $newRequestProduct->product_code = $productCodePrefix;
     
             if ($i === 0 && $request->hasFile('image')) {
@@ -70,16 +65,15 @@ class RequestProductController extends Controller
         
     }
 
-    public function edit(RequestProduct $requestproduct)
+    public function edit(Supplier1 $requestproduct)
     {
         return response()->json(['data' => $requestproduct]);
     }
 
-    public function destroy(RequestProduct $requestproduct)
+    public function destroy(Supplier1 $requestproduct)
     {
         $requestproduct->delete();
         return response()->json(['data' => $requestproduct]);
     }
-
-
+    
 }

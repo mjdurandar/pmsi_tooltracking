@@ -336,16 +336,34 @@ return [
             'url' => '/dashboard' 
         ],
         [
-            'text'    => 'Request a Product',
-            'icon'    => 'fa-solid fa-box',
+            'text' => 'Supplier',
+            'icon'    => 'fa-solid fa-truck-field',
             'can' => ['admin'],
-            'url' => '/request-product'
+            'url'  => '/supplier',
         ],
+        // [
+        //     'text'    => 'Request a Product',
+        //     'icon'    => 'fa-solid fa-box',
+        //     'can' => ['admin'],
+        //     'url' => '/request-product'
+        // ],
         [
             'text'    => 'Master Data',
             'icon'    => 'fa-solid fa-database',
             'can' => ['admin'],
             'submenu' => [
+                [
+                    'text' => 'Tools and Equipment',
+                    'icon'    => '', 
+                    'can' => ['admin'],
+                    'url'  => '/powertools',
+                ],
+                [
+                    'text' => 'Borrowed Tools',
+                    'icon'    => '',  
+                    'can' => ['admin'],
+                    'url'  => '/scaffolding',
+                ],
                 [
                     'text' => 'Project Site',
                     'icon'    => '',
@@ -365,11 +383,6 @@ return [
                     'text' => 'Unit',
                     'icon'    => '',
                     'url'  => '/unit',
-                ],
-                [
-                    'text' => 'Supplier',
-                    'icon'    => '',
-                    'url'  => '/supplier',
                 ],
                 // [
                 //     'text'    => 'level_one',
@@ -402,22 +415,16 @@ return [
             ],
         ],
         [
-            'text' => 'Power Tools',
-            'icon'    => 'fa-solid fa-screwdriver-wrench', 
-            'can' => ['admin'],
-            'url'  => '/powertools',
-        ],
-        [
-            'text' => 'Borrowed Tools',
-            'icon'    => 'fa-solid fa-wrench',  
-            'can' => ['admin'],
-            'url'  => '/scaffolding',
-        ],
-        [
-            'text' => 'Company Accounts',
+            'text' => 'Customer Data',
             'icon'    => 'fa-solid fa-users',  
-            'can' => ['admin'],
+            'can' => ['admin'], 
             'url'  => '/users',
+        ],
+        [
+            'text' => 'Product History',
+            'icon'    => 'fa-solid fa-book',
+            'can' => ['admin'], 
+            'url'  => '/producthistory',
         ],
         [
             'text' => 'Buy Tools',

@@ -1,16 +1,20 @@
 <template>
     <div class="p-3">
-        <BreadCrumbComponent tab_title="Scaffolding"></BreadCrumbComponent>
+        <BreadCrumbComponent tab_title="Borrowed Tools"></BreadCrumbComponent>
         <div class="card">
             <div class="card-body">
                 <FormComponent 
                     :data="data"
                     :columns="columns"
                     :options="options"
-                    btnName="Add Scaffolding"
+                    :option3Switch="true"
+                    option3Name="View Image"
+                    option3Icon="fa-regular fa-image"
+                    btnName="Add Borrowed Tools"
                     @deleteClicked="deleteClicked"
                     @editClicked="editClicked"
                     @addClicked="addClicked"
+                    @optionalClicked="optionalClicked"
                 >
                 </FormComponent>
             </div>
@@ -19,7 +23,7 @@
         <ModalComponent :id="modalId" :title="modalTitle" :size="modalSize" :position="modalPosition">
             <template #modalHeader>
                 <div class="m-auto">
-                    <h4>Add Scaffolding</h4>
+                    <h4>Add Borrowed Tools</h4>
                 </div>
             </template>
             <template #modalBody>
@@ -80,6 +84,22 @@
             </template>
         </ModalComponent>
 
+        <!-- VIEW IMAGE MODAL -->
+        <ModalComponent :id="modalIdImage" :title="modalTitle" :size="modalSize" :position="modalPosition">
+            <template #modalBody>
+                <div class="row">
+                    <div class="col-12" v-if="dataValues.image">
+                        <img :src="'/images/' + dataValues.image" alt="Current Image" class="img-fluid">
+                    </div>
+                </div>
+            </template>
+            <template #modalFooter>
+                <div class="text-right">
+                    <button class="btn btn-dark" data-bs-dismiss="modal">Close</button>
+                </div>
+            </template>
+        </ModalComponent>
+
     </div>
 </template>
 
@@ -101,14 +121,14 @@ export default{
                 suppliers: [],
                 projects: [],
                 imageData: null,
-                columns : ['name', 'image', 'product_code' ,'category_name', 'unit_name', 'supplier_name', 'project_site_name', 'price' ,'action'],
+                columns : ['category_name', 'product_code', 'name' ,'image', 'unit_name', 'supplier_name', 'project_site_name', 'price' ,'action'],
                 errors: [],
                 options : {
                     headings : {
-                        name : 'Unit',
-                        image : 'Image',
-                        product_code : 'Product Code',
                         category_name: 'Category',
+                        product_code : 'Product Code',
+                        name : 'Name',
+                        image : 'Image',
                         unit_name: 'Unit',
                         supplier_name: 'Supplier',
                         project_site_name: 'Project Site',
@@ -125,6 +145,8 @@ export default{
                 modalTitle : 'Scaffolding',
                 modalPosition: 'modal-dialog-centered',
                 modalSize : 'modal-md',
+
+                modalIdImage : 'modal-image'
         }
     },
     components: {
@@ -142,6 +164,23 @@ export default{
         addClicked(props){
             $('#' + this.modalId).modal('show');
             this.clearInputs();
+        },
+        optionalClicked(props){
+            axios.get('/scaffolding/edit/' + props.data.id).then(response => {
+                this.dataValues = response.data.data;
+                $('#' + this.modalIdImage).modal('show');
+            }).catch(errors => {
+                // Handle errors
+                if (errors.response.data.message.length > 0) {
+                    Swal.fire({
+                        title: "Failed",
+                        text: errors.response.data.message,
+                        icon: 'error',
+                        timer: 3000
+                    });
+                    this.errors = errors.response.data.errors;
+                }
+            });
         },
         getData() {
             axios.get('/scaffolding/show').then(response => {

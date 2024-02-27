@@ -44,6 +44,14 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('/dashboard',[App\Http\Controllers\DashboardController::class, 'index']);
         Route::get('/dashboardCount/counts',[App\Http\Controllers\DashboardController::class, 'counts']);
 
+        //Supplier1
+        Route::get('/supplier1',[App\Http\Controllers\Supplier1Controller::class, 'index']);
+        Route::get('/supplier1/show',[App\Http\Controllers\Supplier1Controller::class, 'show']);
+        Route::post('/supplier1/store',[App\Http\Controllers\Supplier1Controller::class, 'store']);
+        Route::post('/supplier1/updateStock',[App\Http\Controllers\Supplier1Controller::class, 'updateStock']);
+        Route::get('/supplier1/edit/{requestproduct}',[App\Http\Controllers\Supplier1Controller::class, 'edit']);
+        Route::get('/supplier1/destroy/{requestproduct}',[App\Http\Controllers\Supplier1Controller::class, 'destroy']);
+
         // REQUEST A PRODUCT
         Route::get('/request-product',[App\Http\Controllers\RequestProductController::class, 'index']);
         Route::get('/request-product/show',[App\Http\Controllers\RequestProductController::class, 'show']);

@@ -1,8 +1,8 @@
 <template>
     <div class="p-3">
-        <!-- <BreadCrumbComponent tab_title="Request a Product"></BreadCrumbComponent> -->
+        <!-- <BreadCrumbComponent tab_title="Supplier 1"></BreadCrumbComponent> -->
 
-        <!-- <div class="card">
+        <div class="card">
             <div class="card-body">
                 <FormComponent 
                     :data="data"
@@ -15,9 +15,9 @@
                 >
                 </FormComponent>
             </div>
-        </div> -->
+        </div>
         
-        <div class="row">
+        <!-- <div class="row">
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
@@ -34,9 +34,9 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
 
-        <!-- <ModalComponent :id="modalId" :title="modalTitle" :size="modalSize" :position="modalPosition">
+        <ModalComponent :id="modalId" :title="modalTitle" :size="modalSize" :position="modalPosition">
             <template #modalHeader>
                 <div class="m-auto">
                     <h4>Add Supplier Product</h4>
@@ -87,10 +87,10 @@
                     <button class="btn btn-success" v-on:click="storeData">Save</button>
                 </div>
             </template>
-        </ModalComponent> -->
+        </ModalComponent>
 
         <!-- REQUEST THIS PRODUCT MODAL -->
-        <ModalComponent :id="modalId" :title="modalTitle" :size="modalSize" :position="modalPosition">
+        <!-- <ModalComponent :id="modalId" :title="modalTitle" :size="modalSize" :position="modalPosition">
             <template #modalHeader>
                 <div class="m-auto">
                     <h4>Request this Product</h4>
@@ -201,7 +201,7 @@
                     <button class="btn btn-success" v-on:click="getProduct" :disabled="!agreementChecked">Request</button>
                 </div>
             </template>
-        </ModalComponent>
+        </ModalComponent> -->
 
     </div>
 </template>
@@ -290,7 +290,7 @@ export default{
             $('#' + this.modalId).modal('show');
         },
         getData() {
-            axios.get('/request-product/show').then(response => {
+            axios.get('/supplier1/show').then(response => {
                 this.data = response.data.data;
                 this.suppliers = response.data.suppliers;
                 this.countRequestProduct = response.data.countRequestProduct;
@@ -306,7 +306,7 @@ export default{
         editClicked(props) {
             this.modalTitle = 'Edit Data';
 
-            axios.get('/request-product/edit/' + props.data.id).then(response => {
+            axios.get('/supplier1/edit/' + props.data.id).then(response => {
                 this.dataValues = response.data.data;
                 $('#' + this.modalId).modal('show');
             }).catch(errors => {
@@ -333,7 +333,7 @@ export default{
             }).then((result) => {
                 if (result.isConfirmed) {
                     // User confirmed, proceed with deletion
-                    axios.get('/request-product/destroy/' + props.data.id).then(response => {
+                    axios.get('/supplier1/destroy/' + props.data.id).then(response => {
                         if(response.status === 200) {
                             Swal.fire({
                                 title: "Success",
@@ -373,7 +373,7 @@ export default{
             if (this.imageData) {
                 formData.append('image', this.imageData);
             }
-                axios.post('/request-product/store', formData, {
+                axios.post('/supplier1/store', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },

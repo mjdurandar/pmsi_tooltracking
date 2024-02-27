@@ -1,21 +1,79 @@
+<style scoped> 
+    .form-spacing-test{
+        padding: 15px 15px 0px 15px;
+    }
+    .supplier1{
+        font-weight: 800;
+        border: 1px solid #f18f4e;
+        border-radius: 8px;
+        padding: 12px;
+        letter-spacing: 1px;
+        cursor: pointer;
+    }
+    .supplier2{
+        font-weight: 800;
+        border: 1px solid  #f18f4e;
+        border-radius: 8px;
+        padding: 12px;
+        letter-spacing: 1px;
+        cursor: pointer;
+    }
+    .supplier3{
+        font-weight: 800;
+        border: 1px solid #f18f4e;
+        border-radius: 8px;
+        padding: 12px;
+        letter-spacing: 1px;
+        cursor: pointer;
+    }
+
+    .spacing{
+        padding: 0px 10px 10px 0px;
+    }
+    
+    .spacing div:hover{
+        background-color: #f18f4e;
+        color: #fff;
+    }
+
+    .active[data-v-e490b594]{
+        background: #f18f4e !important; 
+        color: #fff !important;
+    }
+    .title-design{
+        color: #2D2D2D;
+        font-weight: 800;
+        font-size: 25px;
+        padding: 0px 0px 10px 0px;
+ 
+    }
+
+</style>
+
 <template>
     <div class="p-3">
-        <BreadCrumbComponent tab_title="Supplier"></BreadCrumbComponent>
         <div class="card">
-            <div class="card-body">
-                <FormComponent 
-                    :data="data"
-                    :columns="columns"
-                    :options="options"
-                    btnName="Add Supplier"
-                    @deleteClicked="deleteClicked"
-                    @editClicked="editClicked"
-                    @addClicked="addClicked"
-                >
-                </FormComponent>
+            <div>
+                <div class="form-spacing-test">
+                    <div class="tab-cho d-flex">
+                        <div class="spacing">
+                            <div v-on:click="onClickSelection(1)" class="supplier1" :class="pageSelected === 1 ? 'active' : '' ">Supplier 1</div>
+                        </div>
+                        <div class="spacing">
+                            <div v-on:click="onClickSelection(2)" class="supplier2" :class="pageSelected === 2 ? 'active' : '' ">Supplier 2</div>
+                        </div>
+                        <div class="spacing">
+                            <div v-on:click="onClickSelection(3)" class="supplier3" :class="pageSelected === 3 ? 'active' : '' ">Supplier 3</div>
+                        </div>
+                    </div>
+                    <request-product-component v-if="pageSelected === 1"></request-product-component>
+                    <!-- <supplier1-component v-if="pageSelected === 1"></supplier1-component> -->
+                    <supplier2-component v-if="pageSelected === 2"></supplier2-component>
+                    <supplier3-component v-if="pageSelected === 3"></supplier3-component>
+                </div>
             </div>
         </div>
-
+<!-- 
         <ModalComponent :id="modalId" :title="modalTitle" :size="modalSize" :position="modalPosition">
             <template #modalHeader>
                 <div class="m-auto">
@@ -36,7 +94,9 @@
                     <button class="btn btn-success" v-on:click="storeData">Save</button>
                 </div>
             </template>
-        </ModalComponent>
+        </ModalComponent> -->
+
+
 
     </div>
 </template>
@@ -45,6 +105,8 @@
 import FormComponent from "./partials/FormComponent.vue";   
 import ModalComponent from "./partials/ModalComponent.vue";
 import BreadCrumbComponent from "./partials/BreadCrumbComponent.vue";
+import Supplier1Component from "./Supplier1Component.vue";
+import RequestProductComponent from "./RequestProductComponent.vue";
 import Swal from 'sweetalert2'
 import axios from 'axios';
 
@@ -53,6 +115,7 @@ export default{
     data(){
         return{
                 data : [],
+                pageSelected : 1,
                 columns : ['name' ,'action'],
                 errors: [],
                 options : {
@@ -76,6 +139,8 @@ export default{
         FormComponent,
         ModalComponent,
         BreadCrumbComponent,
+        Supplier1Component,
+        RequestProductComponent
     },
     methods: {
         addClicked(props){
@@ -86,6 +151,9 @@ export default{
             axios.get('/supplier/show').then(response => {
                 this.data = response.data.data;
             })
+        },
+        onClickSelection(page) {
+            this.pageSelected = page;
         },
         clearInputs() {
             this.dataValues = {
