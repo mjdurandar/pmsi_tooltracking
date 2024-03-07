@@ -1,7 +1,10 @@
 <template>
     <div class="p-3">
         <BreadCrumbComponent tab_title="Borrowed Tools"></BreadCrumbComponent>
-        <div class="card">
+        <div class="d-flex justify-content-center">
+            <img src="images\under_maintenance.png" alt="Under Maintenance" style="text-align: center;"> 
+        </div>
+        <!-- <div class="card">
             <div class="card-body">
                 <FormComponent 
                     :data="data"
@@ -82,10 +85,10 @@
                     <button class="btn btn-success" v-on:click="storeData">Save</button>
                 </div>
             </template>
-        </ModalComponent>
+        </ModalComponent> -->
 
         <!-- VIEW IMAGE MODAL -->
-        <ModalComponent :id="modalIdImage" :title="modalTitle" :size="modalSize" :position="modalPosition">
+        <!-- <ModalComponent :id="modalIdImage" :title="modalTitle" :size="modalSize" :position="modalPosition">
             <template #modalBody>
                 <div class="row">
                     <div class="col-12" v-if="dataValues.image">
@@ -98,7 +101,7 @@
                     <button class="btn btn-dark" data-bs-dismiss="modal">Close</button>
                 </div>
             </template>
-        </ModalComponent>
+        </ModalComponent> -->
 
     </div>
 </template>
@@ -135,7 +138,7 @@ export default{
                         price: 'Price',
                         action : 'Action',
                     },
-                    filterable: false,
+                    filterable: true,
                     sortable: []
                 },
                 dataValues: {

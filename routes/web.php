@@ -48,9 +48,9 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('/supplier1',[App\Http\Controllers\Supplier1Controller::class, 'index']);
         Route::get('/supplier1/show',[App\Http\Controllers\Supplier1Controller::class, 'show']);
         Route::post('/supplier1/store',[App\Http\Controllers\Supplier1Controller::class, 'store']);
-        Route::post('/supplier1/updateStock',[App\Http\Controllers\Supplier1Controller::class, 'updateStock']);
-        Route::get('/supplier1/edit/{requestproduct}',[App\Http\Controllers\Supplier1Controller::class, 'edit']);
-        Route::get('/supplier1/destroy/{requestproduct}',[App\Http\Controllers\Supplier1Controller::class, 'destroy']);
+        Route::post('/supplier1/requestproduct',[App\Http\Controllers\Supplier1Controller::class, 'requestproduct']);
+        Route::get('/supplier1/edit/{supplier1}',[App\Http\Controllers\Supplier1Controller::class, 'edit']);
+        Route::get('/supplier1/destroy/{supplier1}',[App\Http\Controllers\Supplier1Controller::class, 'destroy']);
 
         // REQUEST A PRODUCT
         Route::get('/request-product',[App\Http\Controllers\RequestProductController::class, 'index']);
@@ -115,6 +115,9 @@ Route::group(['middleware' => 'auth'], function(){
         Route::post('/users/store',[App\Http\Controllers\UsersController::class, 'store']);
         Route::get('/users/edit/{users}',[App\Http\Controllers\UsersController::class, 'edit']);
         Route::get('/users/destroy/{users}',[App\Http\Controllers\UsersController::class, 'destroy']);
+
+        //PRODUCT HISTORY
+        Route::get('/product-history',[App\Http\Controllers\ProductHistoryController::class, 'index']);
 
     });
    

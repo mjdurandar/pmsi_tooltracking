@@ -1,7 +1,7 @@
 <template>
     <div class="p-3">
         <BreadCrumbComponent tab_title="Tools and Equipment"></BreadCrumbComponent>
-        <div class="card">
+        <!-- <div class="card">
             <div class="card-body">
                 <FormComponent 
                     :data="data"
@@ -18,9 +18,9 @@
                 >
                 </FormComponent>
             </div>
-        </div>
+        </div> -->
 
-        <ModalComponent :id="modalId" :title="modalTitle" :size="modalSize" :position="modalPosition">
+        <!-- <ModalComponent :id="modalId" :title="modalTitle" :size="modalSize" :position="modalPosition">
             <template #modalHeader>
                 <div class="m-auto">
                     <h4>Add Tools and Equipment</h4>
@@ -75,10 +75,10 @@
                     <button class="btn btn-success" v-on:click="storeData">Save</button>
                 </div>
             </template>
-        </ModalComponent>
+        </ModalComponent> -->
 
         <!-- VIEW IMAGE MODAL -->
-        <ModalComponent :id="modalIdImage" :title="modalTitle" :size="modalSize" :position="modalPosition">
+        <!-- <ModalComponent :id="modalIdImage" :title="modalTitle" :size="modalSize" :position="modalPosition">
             <template #modalBody>
                 <div class="row">
                     <div class="col-12" v-if="dataValues.image">
@@ -91,7 +91,27 @@
                     <button class="btn btn-dark" data-bs-dismiss="modal">Close</button>
                 </div>
             </template>
-        </ModalComponent>
+        </ModalComponent> -->
+
+        <div class="row">
+            <div class="col-md-4" v-for="(product, index) in data" :key="index">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div style="width: 50%;">
+                                <h2 class="card-title" style="font-weight: bold;">{{ product.name }}</h2>
+                                <h4 class="card-text">{{ product.product_code }}</h4>
+                            </div>
+                            <div style="width: 50%;">
+                                <img v-if="product.image" :src="'/images/' + product.image" alt="Product Image" class="img-fluid">
+                                <p v-else>No Stocks</p>
+                            </div>
+                        </div>
+                        <button class="btn btn-success" @click="releastProduct(product)">Release Product</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     </div>
 </template>
@@ -108,26 +128,6 @@ export default{
     data(){
         return{
                 data : [],
-                categories : [],
-                units : [],
-                suppliers : [],
-                imageData: null,
-                columns : ['category_name', 'product_code' ,'name', 'image', 'unit_name', 'supplier_name', 'price' ,'action'],
-                errors: [],
-                options : {
-                    headings : {
-                        category_name: 'Category',
-                        product_code: 'Product Code',
-                        name : 'Name',
-                        image : 'Image',
-                        unit_name: 'Unit',
-                        supplier_name: 'Supplier',
-                        price: 'Price',
-                        action : 'Action',
-                    },
-                    filterable: false,
-                    sortable: []
-                },
                 dataValues: {
                     name: '',
                 },
@@ -175,9 +175,6 @@ export default{
         getData() {
             axios.get('/powertools/show').then(response => {
                 this.data = response.data.data;
-                this.categories = response.data.categories;
-                this.units = response.data.units;
-                this.suppliers = response.data.suppliers;
             })
         },
         clearInputs() {

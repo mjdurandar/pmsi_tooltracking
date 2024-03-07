@@ -384,6 +384,12 @@ return [
                     'icon'    => '',
                     'url'  => '/unit',
                 ],
+                [
+                    'text' => 'Customer Data',
+                    'icon'    => '',  
+                    'can' => ['admin'], 
+                    'url'  => '/users',
+                ],
                 // [
                 //     'text'    => 'level_one',
                 //     'url'     => '#',
@@ -415,16 +421,10 @@ return [
             ],
         ],
         [
-            'text' => 'Customer Data',
-            'icon'    => 'fa-solid fa-users',  
-            'can' => ['admin'], 
-            'url'  => '/users',
-        ],
-        [
             'text' => 'Product History',
             'icon'    => 'fa-solid fa-book',
             'can' => ['admin'], 
-            'url'  => '/producthistory',
+            'url'  => '/product-history',
         ],
         [
             'text' => 'Buy Tools',

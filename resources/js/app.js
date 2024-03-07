@@ -34,6 +34,7 @@ import BorrowedHistoryComponent from './components/BorrowedHistoryComponent.vue'
 import DashbboardComponent from './components/DashboardComponent.vue';
 import RequestProductComponent from './components/RequestProductComponent.vue';
 import Supplier1Component from './components/Supplier1Component.vue';
+import ProductHistoryComponent from './components/ProductHistoryComponent.vue';
 
 app.config.globalProperties.$swal = Swal;
 app.use(ServerTable, {}, 'bootstrap4')
@@ -57,6 +58,7 @@ app.component('borrowedhistory-component', BorrowedHistoryComponent);
 app.component('dashboard-component', DashbboardComponent);
 app.component('request-product-component', RequestProductComponent);
 app.component('supplier1-component', Supplier1Component);
+app.component('product-history-component', ProductHistoryComponent);
 
 /**
  * The following block of code may be used to automatically register your

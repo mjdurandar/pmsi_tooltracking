@@ -57,19 +57,19 @@
                 <div class="form-spacing-test">
                     <div class="tab-cho d-flex">
                         <div class="spacing">
-                            <div v-on:click="onClickSelection(1)" class="supplier1" :class="pageSelected === 1 ? 'active' : '' ">Supplier 1</div>
+                            <div v-on:click="onClickSelection(1)" class="supplier1" :class="pageSelected === 1 ? 'active' : '' ">Twinbar Metal Industries</div>
                         </div>
-                        <div class="spacing">
+                        <!-- <div class="spacing">
                             <div v-on:click="onClickSelection(2)" class="supplier2" :class="pageSelected === 2 ? 'active' : '' ">Supplier 2</div>
                         </div>
                         <div class="spacing">
                             <div v-on:click="onClickSelection(3)" class="supplier3" :class="pageSelected === 3 ? 'active' : '' ">Supplier 3</div>
-                        </div>
+                        </div> -->
                     </div>
-                    <request-product-component v-if="pageSelected === 1"></request-product-component>
-                    <!-- <supplier1-component v-if="pageSelected === 1"></supplier1-component> -->
-                    <supplier2-component v-if="pageSelected === 2"></supplier2-component>
-                    <supplier3-component v-if="pageSelected === 3"></supplier3-component>
+                    <!-- <request-product-component v-if="pageSelected === 1"></request-product-component> -->
+                    <supplier1-component v-if="pageSelected === 1"></supplier1-component>
+                    <!-- <supplier2-component v-if="pageSelected === 2"></supplier2-component>
+                    <supplier3-component v-if="pageSelected === 3"></supplier3-component> -->
                 </div>
             </div>
         </div>

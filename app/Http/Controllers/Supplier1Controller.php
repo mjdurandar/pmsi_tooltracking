@@ -5,16 +5,17 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Supplier1;
 use App\Models\Supplier;
+use App\Models\ToolsAndEquipment;
 
 class Supplier1Controller extends Controller
 {
     public function show() {
-        $data = Supplier1::leftjoin('request_products', 'suppliers.id', '=', 'supplier1.supplier_id')
-                                ->select('supplier1.*', 'suppliers.name as supplier_name')
-                                ->get();
-        $countRequestProduct = Supplier1::count();
+        $data = Supplier1::leftjoin('suppliers', 'suppliers.id', '=', 'supplier1s.supplier_id')
+                        ->select('supplier1s.*', 'suppliers.name as supplier_name')
+                        ->get();
+                        
         $suppliers = Supplier::get();
-        return response()->json([ 'data' => $data, 'countRequestProduct' => $countRequestProduct, 'suppliers' => $suppliers ]);
+        return response()->json([ 'data' => $data, 'suppliers' => $suppliers ]);
     }
 
     public function store(Request $request) {
@@ -23,57 +24,76 @@ class Supplier1Controller extends Controller
             'description' => 'required:description',
             'price' => 'required:price',
             'stocks' => 'required:stocks',
-            'supplier_id' => 'required:supplier_id',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ], [
             'name.required' => "The Name field is required",
             'description.required' => "The Description field is required",
             'price.required' => "The Price field is required",
             'stocks.required' => "The Stocks field is required",
-            'supplier_id.required' => "The Supplier field is required",
-            'image.required' => "The Image field is required",
         ]);
+        
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName(); 
+            $image->move(public_path('images'), $imageName);
+        } 
 
-        for ($i = 0; $i < $request->stocks; $i++) {
-            // Create a new RequestProduct instance
-            $newRequestProduct = new Supplier1();
-            $newRequestProduct->name = $request->name;
-            $newRequestProduct->description = $request->description;
-            $newRequestProduct->price = $request->price;
-            $newRequestProduct->stocks = 1; // Each record has one stock
-            $newRequestProduct->supplier_id = $request->supplier_id;
+        // $productCode = 'P-' . str_pad(Supplier1::count() + 1, 3, '0', STR_PAD_LEFT);
+        // Create a new Supplier1 instance
+        $newSupplier1 = new Supplier1();
+        $newSupplier1->name = $request->name;
+        $newSupplier1->description = $request->description;
+        // $newSupplier1->product_code = $productCode;
+        $newSupplier1->price = $request->price;
+        $newSupplier1->stocks =  $request->stocks; // Each record has one stock
+        $newSupplier1->supplier_id = 1;
+
+        // Associate the image with the record
+        $newSupplier1->image = $imageName;
+
+        // Save the new Supplier1 instance
+        $newSupplier1->save();
     
-            // Generate unique product code for each record
-            // $productCodePrefix = 'P-' . str_pad(Supplier1::count() + $i + 1, 3, '0', STR_PAD_LEFT);
-            // $newRequestProduct->product_code = $productCodePrefix;
     
-            if ($i === 0 && $request->hasFile('image')) {
-                $image = $request->file('image');
-                $imageName = time() . '_' . $image->getClientOriginalName(); // Generate unique image name
-                $image->move(public_path('images'), $imageName);
-                $newRequestProduct->image = $imageName;
-            }    
+        return response()->json(['message' => 'Supplier Products added successfully'], 200);
+    }
     
-            // Save the new RequestProduct instance
-            $newRequestProduct->save();
+    public function requestProduct(Request $request){
+        $requestedQuantity = $request->requestedQuantity;
+        $requestedId = $request->requestedId;
+        $product = Supplier1::findOrFail($requestedId);
+        // Duplicate the product data based on the requested quantity
+        for ($i = 0; $i < $requestedQuantity; $i++) {
+            $productCode = 'P-' . str_pad(ToolsAndEquipment::count() + 1, 3, '0', STR_PAD_LEFT);
+            // Create a new instance of ToolsAndEquipment
+            $tool = new ToolsAndEquipment();
+            // Assign the product details to the ToolsAndEquipment instance
+            $tool->name = $product->name;
+            $tool->description = $product->description;
+            $tool->image = $product->image;
+            $tool->price = $product->price;
+            $tool->product_code = $productCode;
+            $tool->stocks =  1; 
+            $tool->supplier_id = $product->supplier_id;
+            // Save the duplicated product to the ToolsAndEquipment table
+            $tool->save();
         }
 
-        return response()->json(['message' => 'Supplier Product added successfully'], 200);
+        // Update the stocks in the Supplier1 table
+        $product->decrement('stocks', $requestedQuantity);
+
+        return response()->json(['message' => 'Products Requested Successfully'], 200);
     }
 
-    public function updateStock(){
-        
-    }
-
-    public function edit(Supplier1 $requestproduct)
+    public function edit(Supplier1 $supplier1)
     {
-        return response()->json(['data' => $requestproduct]);
+        return response()->json(['data' => $supplier1]);
     }
 
-    public function destroy(Supplier1 $requestproduct)
+    public function destroy(Supplier1 $supplier1)
     {
-        $requestproduct->delete();
-        return response()->json(['data' => $requestproduct]);
+        $supplier1->delete();
+        return response()->json(['data' => $supplier1]);
     }
     
 }

@@ -1,7 +1,10 @@
 <template>
     <div class="p-3">
         <BreadCrumbComponent tab_title="Dashboard"></BreadCrumbComponent>
-        <div class="row">
+        <div class="d-flex justify-content-center">
+            <img src="images\under_maintenance.png" alt="Under Maintenance" style="text-align: center;"> 
+        </div>
+        <!-- <div class="row">
             <div class="col-6">
                 <div class="card" style="background-color: #f18f4e; color: #fff;">
                     <div class="card-body dash-title">
@@ -14,7 +17,7 @@
                     </div>
                 </div>
             </div>
-            <!-- <div class="col-6">
+            <div class="col-6">
                 <div class="card" style="background-color: #f18f4e; color: #fff;">
                     <div class="card-body dash-title">
                         Borrowed per Day
@@ -25,9 +28,9 @@
                         <canvas id="borrowedChart"></canvas>
                     </div>
                 </div>
-            </div> -->
+            </div>
         </div>
-        <!-- <div class="row">
+        <div class="row">
             <div class="col-6">
                 <div class="card" style="background-color: #f18f4e; color: #fff;">
                     <div class="card-body dash-title" >

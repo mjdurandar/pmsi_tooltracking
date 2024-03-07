@@ -2,7 +2,7 @@
     <div class="p-3">
         <!-- <BreadCrumbComponent tab_title="Supplier 1"></BreadCrumbComponent> -->
 
-        <div class="card">
+        <!-- <div class="card">
             <div class="card-body">
                 <FormComponent 
                     :data="data"
@@ -15,28 +15,29 @@
                 >
                 </FormComponent>
             </div>
-        </div>
+        </div> -->
         
-        <!-- <div class="row">
-            <div class="col-md-4">
+        <div class="row">
+            <div class="col-md-4" v-for="(product, index) in data" :key="index">
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex justify-content-between">
                             <div style="width: 50%;">
-                                <h2 class="card-title" style="font-weight: bold;">{{ data.length > 0 ? data[0].name : '' }}</h2>
+                                <h2 class="card-title" style="font-weight: bold;">{{ product.name }}</h2>
                             </div>
                             <div style="width: 50%;">
-                                <img v-if="data.length > 0 && data[0].image" :src="'/images/' + data[0].image" alt="Tool Image" class="img-fluid">
-                                <p v-else>No Image</p>
+                                <img v-if="product.image" :src="'/images/' + product.image" alt="Product Image" class="img-fluid">
+                                <p v-else>No Stocks</p>
                             </div>
                         </div>
-                        <button class="btn btn-success" v-if="data.length > 0" v-on:click="requestProduct">Request this Product</button>
+                        <button class="btn btn-success" @click="requestProduct(product)">Request this Product</button>
                     </div>
                 </div>
             </div>
-        </div> -->
+        </div>
 
-        <ModalComponent :id="modalId" :title="modalTitle" :size="modalSize" :position="modalPosition">
+        <!-- ADD SUPPLIER1 PRODUCT -->
+        <!-- <ModalComponent :id="modalId" :title="modalTitle" :size="modalSize" :position="modalPosition">
             <template #modalHeader>
                 <div class="m-auto">
                     <h4>Add Supplier Product</h4>
@@ -69,13 +70,6 @@
                         <div class="text-danger" v-if="errors.stocks">{{ errors.stocks[0] }}</div>
                     </div>
                     <div class="col-12">
-                        <label for="">Supplier</label>
-                        <select class="form-control" v-model="dataValues.supplier_id">
-                            <option v-for="supplier in suppliers" :value="supplier.id">{{ supplier.name }}</option>
-                        </select>  
-                        <div class="text-danger" v-if="errors.supplier">{{ errors.supplier[0] }}</div>
-                    </div> 
-                    <div class="col-12">
                         <label for="">Price per pc</label>
                         <input type="number" class="form-control" v-model="dataValues.price">
                         <div class="text-danger" v-if="errors.price">{{ errors.price[0] }}</div>
@@ -87,63 +81,8 @@
                     <button class="btn btn-success" v-on:click="storeData">Save</button>
                 </div>
             </template>
-        </ModalComponent>
-
-        <!-- REQUEST THIS PRODUCT MODAL -->
-        <!-- <ModalComponent :id="modalId" :title="modalTitle" :size="modalSize" :position="modalPosition">
-            <template #modalHeader>
-                <div class="m-auto">
-                    <h4>Request this Product</h4>
-                </div>
-            </template>
-            <template #modalBody>
-                <div class="row">
-                    <div class="col-12">
-                        <label for="">Name</label>
-                        <input type="text" class="form-control" v-model="dataValues.name" disabled>
-                        <div class="text-danger" v-if="errors.name">{{ errors.name[0] }}</div>
-                    </div>  
-                    <div class="col-12">
-                        <label for="">Description</label>
-                        <textarea class="form-control" v-model="dataValues.description" disabled></textarea>
-                        <div class="text-danger" v-if="errors.description">{{ errors.description[0] }}</div>
-                    </div>
-                    <div class="col-12">
-                        <label for="">Stocks</label>
-                        <input type="number" class="form-control" v-model="countRequestProduct" disabled>
-                        <div class="text-danger" v-if="errors.stocks">{{ errors.stocks[0] }}</div>
-                    </div>
-                    <div class="col-12">
-                        <label for="">Supplier</label>
-                        <select class="form-control" v-model="dataValues.supplier_id" disabled>
-                            <option v-for="supplier in suppliers" :value="supplier.id">{{ supplier.name }}</option>
-                        </select>  
-                        <div class="text-danger" v-if="errors.supplier">{{ errors.supplier[0] }}</div>
-                    </div> 
-                    <div class="col-12">
-                        <label for="">Price per pc</label>
-                        <input type="number" class="form-control" v-model="dataValues.price" disabled>
-                        <div class="text-danger" v-if="errors.price">{{ errors.price[0] }}</div>
-                    </div>  
-                    <div class="col-12">
-                        <label for="">How many?</label>
-                        <input type="number" class="form-control" v-model="requestedItems" @input="calculateTotal">
-                        <div class="text-danger" v-if="errors.requestedItems">{{ errors.requestedItems[0] }}</div>
-                    </div>  
-                    <div class="col-12">
-                        <label for="">Total</label>
-                        <input type="number" class="form-control" v-model="total" disabled>
-                    </div>  
-                </div>
-            </template>
-            <template #modalFooter>
-                <div class="text-right">
-                    <button class="btn btn-success" v-on:click="yesProduct">Yes</button>
-                    <button style="margin-left: 5px;" class="btn btn-danger" v-on:click="noProduct">No</button>
-                </div>
-            </template>
-        </ModalComponent>
-
+        </ModalComponent> -->
+        
         <ModalComponent :id="modalIdFinal" :title="modalTitle" :size="modalSizeFinal" :position="modalPosition">
             <template #modalHeader>
                 <div class="m-auto">
@@ -188,7 +127,7 @@
                     </div>
                     <div class="d-flex">
                         <div>
-                            <input type="checkbox" @change="toggleButtonState">
+                            <input type="checkbox" v-model="agreementChecked">
                         </div>
                         <div style="margin-left:5px">
                             <strong>Please check the box if you agree to the terms and conditions above.</strong>
@@ -201,7 +140,62 @@
                     <button class="btn btn-success" v-on:click="getProduct" :disabled="!agreementChecked">Request</button>
                 </div>
             </template>
-        </ModalComponent> -->
+        </ModalComponent>
+
+        <!-- REQUEST THIS PRODUCT MODAL -->
+        <ModalComponent :id="modalId" :title="modalTitle" :size="modalSize" :position="modalPosition">
+            <template #modalHeader>
+                <div class="m-auto">
+                    <h4>Request this Product</h4>
+                </div>
+            </template>
+            <template #modalBody>
+                <div class="row">
+                    <div class="col-12">
+                        <label for="">Name</label>
+                        <input type="text" class="form-control" v-model="dataValues.name" disabled>
+                        <div class="text-danger" v-if="errors.name">{{ errors.name[0] }}</div>
+                    </div>  
+                    <div class="col-12">
+                        <label for="">Description</label>
+                        <textarea class="form-control" v-model="dataValues.description" disabled></textarea>
+                        <div class="text-danger" v-if="errors.description">{{ errors.description[0] }}</div>
+                    </div>
+                    <div class="col-12">
+                        <label for="">Stocks</label>
+                        <input type="number" class="form-control" v-model="dataValues.stocks" disabled>
+                        <div class="text-danger" v-if="errors.stocks">{{ errors.stocks[0] }}</div>
+                    </div>
+                    <div class="col-12">
+                        <label for="">Supplier</label>
+                        <select class="form-control" v-model="dataValues.supplier_id" disabled>
+                            <option v-for="supplier in suppliers" :value="supplier.id">{{ supplier.name }}</option>
+                        </select>  
+                        <div class="text-danger" v-if="errors.supplier">{{ errors.supplier[0] }}</div>
+                    </div> 
+                    <div class="col-12">
+                        <label for="">Price per pc</label>
+                        <input type="number" class="form-control" v-model="dataValues.price" disabled>
+                        <div class="text-danger" v-if="errors.price">{{ errors.price[0] }}</div>
+                    </div>  
+                    <div class="col-12">
+                        <label for="">How many?</label>
+                        <input type="number" class="form-control" v-model="requestedItems" @input="calculateTotal">
+                        <div class="text-danger" v-if="errors.requestedItems">{{ errors.requestedItems[0] }}</div>
+                    </div>  
+                    <div class="col-12">
+                        <label for="">Total</label>
+                        <input type="number" class="form-control" v-model="total" disabled>
+                    </div>  
+                </div>
+            </template>
+            <template #modalFooter>
+                <div class="text-right">
+                    <button class="btn btn-success" v-on:click="yesProduct(props)">Yes</button>
+                    <button style="margin-left: 5px;" class="btn btn-danger" v-on:click="noProduct">No</button>
+                </div>
+            </template>
+        </ModalComponent>
 
     </div>
 </template>
@@ -267,48 +261,12 @@ export default{
         addClicked(){
             $('#' + this.modalId).modal('show');
         },
-        toggleButtonState() {
-            this.agreementChecked = !this.agreementChecked;
-        },
-        requestProduct(props){
-            $('#' + this.modalIdFinal).modal('show');
-            if (this.data.length > 0) {
-                this.dataValues = { ...this.data[0] };
-            }
-        },
-        calculateTotal() {
-            this.total = this.requestedItems * this.dataValues.price;
-        },
-        yesProduct(){
-            $('#' + this.modalId).modal('hide');
-        },
-        noProduct(){
-            $('#' + this.modalId).modal('hide');
-        },
-        getProduct(){
-            $('#' + this.modalIdFinal).modal('hide');
-            $('#' + this.modalId).modal('show');
-        },
-        getData() {
-            axios.get('/supplier1/show').then(response => {
-                this.data = response.data.data;
-                this.suppliers = response.data.suppliers;
-                this.countRequestProduct = response.data.countRequestProduct;
-            })
-        },
-        clearInputs() {
-            this.dataValues = {
-                name: '',
-            }
-            this.imageData = null;
-            this.errors = [];
-        },
-        editClicked(props) {
-            this.modalTitle = 'Edit Data';
+        requestProduct(product){
 
-            axios.get('/supplier1/edit/' + props.data.id).then(response => {
+            this.agreementChecked = false;
+            axios.get('/supplier1/edit/' + product.id).then(response => {
                 this.dataValues = response.data.data;
-                $('#' + this.modalId).modal('show');
+                $('#' + this.modalIdFinal).modal('show');
             }).catch(errors => {
                 // Handle errors
                 if (errors.response.data.message.length > 0) {
@@ -321,41 +279,123 @@ export default{
                     this.errors = errors.response.data.errors;
                 }
             });
+            
         },
-        deleteClicked(props) {
-            Swal.fire({
-                title: 'Are you sure?',
-                text: 'You will not be able to recover this data!',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Yes, delete it!',
-                cancelButtonText: 'Cancel',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // User confirmed, proceed with deletion
-                    axios.get('/supplier1/destroy/' + props.data.id).then(response => {
-                        if(response.status === 200) {
-                            Swal.fire({
-                                title: "Success",
-                                text: response.data.message,
-                                icon: 'success',
-                                timer: 3000
-                            });
-                        }
-                        this.getData();
-                    }).catch(errors => {
-                        if(errors.response.data.message.length > 0) {
-                            Swal.fire({
-                                title: "Failed",
-                                text: errors.response.data.message,
-                                icon: 'error',
-                                timer: 3000
-                            });
-                        }
+        calculateTotal() {
+            this.total = this.requestedItems * this.dataValues.price;
+        },
+        yesProduct(){
+            if(this.requestedItems == 0){
+                Swal.fire({
+                    title: "Insufficient Stocks!",
+                    icon: 'warning',
+                    timer: 3000
+                });
+                return;
+            }
+            if (this.requestedItems <= this.dataValues.stocks) {
+                const requestData = {
+                    requestedQuantity: this.requestedItems,
+                    requestedId: this.dataValues.id
+                };
+                axios.post('/supplier1/requestproduct', requestData)
+                    .then(response => {
+                        this.dataValues.stocks -= this.requestedItems;
+                        Swal.fire({
+                            title: "Request Product Successfully!",
+                            icon: 'success',
+                            timer: 3000
+                        });
+                        // Close the modal or perform any other action
+                        $('#' + this.modalId).modal('hide');
+                    })
+                    .catch(error => {
+                        // Handle errors from the backend
+                        console.error('Error requesting product:', error);
                     });
-                }
-            });
+            } else {
+                Swal.fire({
+                    title: "Insufficient Stocks!",
+                    icon: 'warning',
+                    timer: 3000
+                });
+            }
         },
+        noProduct(){
+            $('#' + this.modalId).modal('hide');
+        },
+        getProduct(){
+            this.requestedItems = 0;
+            this.total = 0;
+            $('#' + this.modalIdFinal).modal('hide');
+            $('#' + this.modalId).modal('show');
+        },
+        getData() {
+            axios.get('/supplier1/show').then(response => {
+                this.data = response.data.data;
+                this.suppliers = response.data.suppliers;
+            })
+        },
+        clearInputs() {
+            this.dataValues = {
+                name: '',
+            }
+            this.imageData = null;
+            this.errors = [];
+        },
+        // requestProduct(props) {
+        //     this.modalTitle = 'Edit Data';
+
+        //     axios.get('/supplier1/edit/' + props.data.id).then(response => {
+        //         this.dataValues = response.data.data;
+        //         $('#' + this.modalId).modal('show');
+        //     }).catch(errors => {
+        //         // Handle errors
+        //         if (errors.response.data.message.length > 0) {
+        //             Swal.fire({
+        //                 title: "Failed",
+        //                 text: errors.response.data.message,
+        //                 icon: 'error',
+        //                 timer: 3000
+        //             });
+        //             this.errors = errors.response.data.errors;
+        //         }
+        //     });
+        // },
+        // deleteClicked(props) {
+        //     Swal.fire({
+        //         title: 'Are you sure?',
+        //         text: 'You will not be able to recover this data!',
+        //         icon: 'warning',
+        //         showCancelButton: true,
+        //         confirmButtonText: 'Yes, delete it!',
+        //         cancelButtonText: 'Cancel',
+        //     }).then((result) => {
+        //         if (result.isConfirmed) {
+        //             // User confirmed, proceed with deletion
+        //             axios.get('/supplier1/destroy/' + props.data.id).then(response => {
+        //                 if(response.status === 200) {
+        //                     Swal.fire({
+        //                         title: "Success",
+        //                         text: response.data.message,
+        //                         icon: 'success',
+        //                         timer: 3000
+        //                     });
+        //                 }
+        //                 this.getData();
+        //             }).catch(errors => {
+        //                 if(errors.response.data.message.length > 0) {
+        //                     Swal.fire({
+        //                         title: "Failed",
+        //                         text: errors.response.data.message,
+        //                         icon: 'error',
+        //                         timer: 3000
+        //                     });
+        //                 }
+        //             });
+        //         }
+        //     });
+        // },
         storeData() {
             const formData = new FormData();
             // Check if id is present and not null before appending it to the form data
@@ -366,7 +406,6 @@ export default{
             formData.append('description', this.dataValues.description);
             formData.append('image', this.dataValues.image);
             formData.append('stocks', this.dataValues.stocks);
-            formData.append('product_code', this.dataValues.product_code);
             formData.append('supplier_id', this.dataValues.supplier_id);
             formData.append('price', this.dataValues.price);
 
