@@ -37,6 +37,11 @@
                         <div class="text-danger" v-if="errors.email">{{ errors.email[0] }}</div>
                     </div>  
                     <div class="col-12 mb-2">
+                        <label for="">Balance</label>
+                        <input type="text" class="form-control" v-model="dataValues.balance">
+                        <div class="text-danger" v-if="errors.balance">{{ errors.balance[0] }}</div>
+                    </div>
+                    <div class="col-12 mb-2">
                         <label for="">Address</label>
                         <input type="text" class="form-control" v-model="dataValues.address">
                         <div class="text-danger" v-if="errors.address">{{ errors.address[0] }}</div>
@@ -124,12 +129,13 @@ export default{
     data(){
         return{
                 data : [],
-                columns : ['name', 'email' ,'address' ,'action'],
+                columns : ['name', 'email', 'balance' ,'address' ,'action'],
                 errors: [],
                 options : {
                     headings : {
                         name : 'Name',
                         email : 'Email',
+                        balance : 'Balance',
                         address : 'Complete Address',
                         action : 'Action',
                     },

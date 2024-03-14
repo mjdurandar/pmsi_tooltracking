@@ -6,16 +6,33 @@ use Illuminate\Http\Request;
 use App\Models\Supplier1;
 use App\Models\Supplier;
 use App\Models\ToolsAndEquipment;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class Supplier1Controller extends Controller
 {
     public function show() {
+        $user_id = Auth::id();
+        $user = User::findOrFail($user_id);
+        $balance = $user->balance; 
+
         $data = Supplier1::leftjoin('suppliers', 'suppliers.id', '=', 'supplier1s.supplier_id')
                         ->select('supplier1s.*', 'suppliers.name as supplier_name')
                         ->get();
                         
         $suppliers = Supplier::get();
-        return response()->json([ 'data' => $data, 'suppliers' => $suppliers ]);
+        return response()->json([ 'data' => $data, 'suppliers' => $suppliers , 'balance' => $balance]);
+    }
+
+    public function search($value){
+
+        $data = Supplier1::when($value !== null, function($query) use ($value) {
+            $query->where('name', 'like', '%' .$value .'%');
+        })
+        ->get();
+
+        return response()->json(['data' => $data]);
+        
     }
 
     public function store(Request $request) {
@@ -59,8 +76,17 @@ class Supplier1Controller extends Controller
     }
     
     public function requestProduct(Request $request){
+        $user_id = Auth::id();
+        $user = User::findOrFail($user_id);
+
         $requestedQuantity = $request->requestedQuantity;
         $requestedId = $request->requestedId;
+        $total = $request->total;
+
+        // Deduct the total from the user's balance
+        $user->balance -= $total;
+        $user->save();
+
         $product = Supplier1::findOrFail($requestedId);
         // Duplicate the product data based on the requested quantity
         for ($i = 0; $i < $requestedQuantity; $i++) {

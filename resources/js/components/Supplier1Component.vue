@@ -16,6 +16,14 @@
                 </FormComponent>
             </div>
         </div> -->
+        <div class="row">
+            <div class="col-lg-3">
+                <div class="d-flex mb-3">
+                    <input type="text" class="form-control" placeholder="Search Anything..." v-model="searchData">
+                    <button class="btn btn-primary" @click="searchProduct()">Search</button>
+                </div>
+            </div>
+        </div>
         
         <div class="row">
             <div class="col-md-4" v-for="(product, index) in data" :key="index">
@@ -26,7 +34,7 @@
                                 <h2 class="card-title" style="font-weight: bold;">{{ product.name }}</h2>
                             </div>
                             <div style="width: 50%;">
-                                <img v-if="product.image" :src="'/images/' + product.image" alt="Product Image" class="img-fluid">
+                                <img v-if="product.image" :src="'/images/' + product.image" alt="Product Image" class="img-fluid" style="height: 250px;">
                                 <p v-else>No Stocks</p>
                             </div>
                         </div>
@@ -187,6 +195,15 @@
                         <label for="">Total</label>
                         <input type="number" class="form-control" v-model="total" disabled>
                     </div>  
+                    <div class="col-12">
+                        <label for="">Your Balance</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">₱</span>
+                        </div>
+                        <input type="text" class="form-control" v-model="balance" disabled>
+                    </div>
+                    </div>  
                 </div>
             </template>
             <template #modalFooter>
@@ -214,9 +231,11 @@ export default{
                 data : [],
                 categories : [],
                 units : [],
+                searchData : '',
                 countRequestProduct : [],
                 agreementChecked: false,
                 suppliers : [],
+                balance: 0,
                 imageData: null,
                 requestedItems: 0,
                 total: 0,
@@ -261,6 +280,16 @@ export default{
         addClicked(){
             $('#' + this.modalId).modal('show');
         },
+        searchProduct(){
+            if(this.searchData){
+                axios.post('/supplier1/search/' + this.searchData).then(response => {
+                    this.data = response.data.data;
+                })
+            }
+            else{
+                this.getData();
+            }
+        },
         requestProduct(product){
 
             this.agreementChecked = false;
@@ -293,14 +322,16 @@ export default{
                 });
                 return;
             }
-            if (this.requestedItems <= this.dataValues.stocks) {
+            if (this.requestedItems < this.dataValues.stocks) {
                 const requestData = {
                     requestedQuantity: this.requestedItems,
-                    requestedId: this.dataValues.id
+                    requestedId: this.dataValues.id,
+                    total: this.total
                 };
                 axios.post('/supplier1/requestproduct', requestData)
                     .then(response => {
                         this.dataValues.stocks -= this.requestedItems;
+                        this.balance -= this.total;
                         Swal.fire({
                             title: "Request Product Successfully!",
                             icon: 'success',
@@ -313,9 +344,17 @@ export default{
                         // Handle errors from the backend
                         console.error('Error requesting product:', error);
                     });
-            } else {
+            } 
+            else if (this.requestedItems > this.dataValues.stocks) {
                 Swal.fire({
                     title: "Insufficient Stocks!",
+                    icon: 'warning',
+                    timer: 3000
+                });
+            }
+            else if (this.total > this.balance) {
+                Swal.fire({
+                    title: "Insufficient Balance!",
                     icon: 'warning',
                     timer: 3000
                 });
@@ -334,6 +373,7 @@ export default{
             axios.get('/supplier1/show').then(response => {
                 this.data = response.data.data;
                 this.suppliers = response.data.suppliers;
+                this.balance = response.data.balance;
             })
         },
         clearInputs() {

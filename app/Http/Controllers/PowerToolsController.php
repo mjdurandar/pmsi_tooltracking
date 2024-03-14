@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ToolsAndEquipment;
 use Illuminate\Http\Request;
 use App\Models\Category;
+use App\Models\PowerTools;
 use App\Models\Unit;
 use App\Models\Supplier;
 use Validator;
@@ -16,9 +17,62 @@ class PowerToolsController extends Controller
     }
     
     public function show(){
-        $data = ToolsAndEquipment::get();
+        $data = ToolsAndEquipment::leftjoin('categories', 'tools_and_equipment.category_id', '=', 'categories.id')
+                                ->leftjoin('suppliers', 'tools_and_equipment.supplier_id', '=', 'suppliers.id')
+                                ->select('tools_and_equipment.*', 'categories.name as category_name', 'suppliers.name as supplier_name')
+                                ->get();
 
-        return response()->json([ 'data' => $data]);
+        $categories = Category::get();
+
+        return response()->json([ 'data' => $data, 'categories' => $categories ]);
+    }
+
+    public function searchCategory(Request $request) {
+        $category_id = $request->category_id;
+        
+        $data = ToolsAndEquipment::leftjoin('categories', 'tools_and_equipment.category_id', '=', 'categories.id')
+                                ->leftjoin('suppliers', 'tools_and_equipment.supplier_id', '=', 'suppliers.id')
+                                ->select('tools_and_equipment.*', 'categories.name as category_name', 'suppliers.name as supplier_name')
+                                ->where('category_id', $category_id)->get();
+        
+        if ($data->isEmpty()) {
+            return response()->json(['data' => []]);
+        }
+        
+        return response()->json(['data' => $data]);
+    }    
+
+    public function searchProductCode(Request $request){
+        $category_id = $request->category_id;
+        $product_code = $request->product_code;
+    
+        $data = ToolsAndEquipment::leftjoin('categories', 'tools_and_equipment.category_id', '=', 'categories.id')
+                                ->leftjoin('suppliers', 'tools_and_equipment.supplier_id', '=', 'suppliers.id')
+                                ->select('tools_and_equipment.*', 'categories.name as category_name', 'suppliers.name as supplier_name')
+                                ->newQuery();
+    
+        if ($category_id) {
+            $data->where('category_id', $category_id);
+        }
+    
+        if ($product_code) {
+            $data->where('product_code', 'like', '%' . $product_code . '%');
+        }
+    
+        $result = $data->get();
+    
+        return response()->json(['data' => $result]);
+    }    
+
+    public function releaseProduct(ToolsAndEquipment $toolsAndEquipment){
+        
+        $toolsAndEquipment = ToolsAndEquipment::leftjoin('categories', 'tools_and_equipment.category_id', '=', 'categories.id')
+                                ->leftjoin('suppliers', 'tools_and_equipment.supplier_id', '=', 'suppliers.id')
+                                ->select('tools_and_equipment.*', 'categories.name as category_name', 'suppliers.name as supplier_name')
+                                ->where('tools_and_equipment.id', $toolsAndEquipment->id)
+                                ->first();
+
+        return response()->json(['data' => $toolsAndEquipment]);
     }
 
     // public function store(Request $request)

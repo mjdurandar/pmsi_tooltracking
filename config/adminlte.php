@@ -358,12 +358,12 @@ return [
                     'can' => ['admin'],
                     'url'  => '/powertools',
                 ],
-                [
-                    'text' => 'Borrowed Tools',
-                    'icon'    => '',  
-                    'can' => ['admin'],
-                    'url'  => '/scaffolding',
-                ],
+                // [
+                //     'text' => 'Borrowed Tools',
+                //     'icon'    => '',  
+                //     'can' => ['admin'],
+                //     'url'  => '/scaffolding',
+                // ],
                 [
                     'text' => 'Project Site',
                     'icon'    => '',

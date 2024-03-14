@@ -93,6 +93,19 @@
             </template>
         </ModalComponent> -->
 
+        <div class="d-flex mb-3 justify-content-between">
+            <div class="d-flex">
+                <select class="form-control" v-model="dataValues.category_id">
+                    <option v-for="category in categories" :value="category.id">{{ category.name }}</option>
+                </select> 
+                <button class="btn btn-primary" @click="searchCategory()">Search</button>
+            </div>
+            <div class="d-flex">
+                <input type="text" class="form-control" placeholder="Search Product Code..." v-model="searchData">
+                <button class="btn btn-primary" @click="searchProductCode()">Search</button>
+            </div>
+        </div>
+
         <div class="row">
             <div class="col-md-4" v-for="(product, index) in data" :key="index">
                 <div class="card">
@@ -101,17 +114,61 @@
                             <div style="width: 50%;">
                                 <h2 class="card-title" style="font-weight: bold;">{{ product.name }}</h2>
                                 <h4 class="card-text">{{ product.product_code }}</h4>
+                                <h6 class="card-text">{{ product.category_name }}</h6>
                             </div>
                             <div style="width: 50%;">
                                 <img v-if="product.image" :src="'/images/' + product.image" alt="Product Image" class="img-fluid">
                                 <p v-else>No Stocks</p>
                             </div>
                         </div>
-                        <button class="btn btn-success" @click="releastProduct(product)">Release Product</button>
+                        <button class="btn btn-success" @click="releaseProduct(product)">Release Product</button>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- RELEASE PRODUCT MODAL -->
+        <ModalComponent :id="modalId" :title="modalTitle" :size="modalSize" :position="modalPosition">
+                <template #modalHeader>
+                    <div class="m-auto">
+                        <h4>Release Product</h4>
+                    </div>
+                </template>
+                <template #modalBody>
+                    <div class="row">
+                        <div class="col-12">
+                            <label for="">Name</label>
+                            <input type="text" class="form-control" v-model="dataValues.name" disabled>
+                            <div class="text-danger" v-if="errors.name">{{ errors.name[0] }}</div>
+                        </div>  
+                        <div class="col-12" v-if="dataValues.image">
+                            <label for="currentImage">Image</label>
+                            <img :src="'/images/' + dataValues.image" alt="Current Image" class="img-fluid">
+                        </div>
+                        <div class="col-12">
+                            <label for="">Category</label>
+                            <select class="form-control" v-model="category_id">
+                                <option v-for="category in categories" :value="category.id">{{ category.name }}</option>
+                            </select>  
+                            <div class="text-danger" v-if="errors.category">{{ errors.category[0] }}</div>
+                        </div>  
+                        <div class="col-12">
+                            <label for="">Supplier</label>
+                            <input type="text" class="form-control" v-model="dataValues.supplier_name" disabled>
+                        </div> 
+                        <div class="col-12">
+                            <label for="">Price</label>
+                            <input type="number" class="form-control" v-model="dataValues.price">
+                            <div class="text-danger" v-if="errors.price">{{ errors.price[0] }}</div>
+                        </div>  
+                    </div>
+                </template>
+                <template #modalFooter>
+                    <div class="text-right">
+                        <button class="btn btn-success" v-on:click="storeData">Review</button>
+                    </div>
+                </template>
+            </ModalComponent>
 
     </div>
 </template>
@@ -128,8 +185,16 @@ export default{
     data(){
         return{
                 data : [],
+                categories : [],
+                category: '',
+                errors: '',
+                searchData: '', 
+                units: [],
+                suppliers: [],
+                category_id: '',
                 dataValues: {
                     name: '',
+                    category_id: 1,
                 },
                 modalId : 'modal-powertools',
                 modalTitle : 'Power Tools',
@@ -155,10 +220,11 @@ export default{
             $('#' + this.modalId).modal('show');
             this.clearInputs();
         },
-        optionalClicked(props){
-            axios.get('/powertools/edit/' + props.data.id).then(response => {
+        releaseProduct(product){
+            axios.get('/powertools/releaseProduct/' + product.id).then(response => {
                 this.dataValues = response.data.data;
-                $('#' + this.modalIdImage).modal('show');
+                console.log(this.dataValues);
+                $('#' + this.modalId).modal('show');
             }).catch(errors => {
                 // Handle errors
                 if (errors.response.data.message.length > 0) {
@@ -172,9 +238,42 @@ export default{
                 }
             });
         },
+        searchCategory() {
+            if (this.dataValues.category_id) {
+                axios.post('/powertools/searchCategory', {
+                    category_id: this.dataValues.category_id,
+                    product_code: this.searchData // Assuming searchData contains the product code to search
+                })
+                .then(response => {
+                    this.data = response.data.data;
+                })
+                .catch(error => {
+                    console.error('Error searching by category:', error);
+                });
+            } else {
+                this.getData(); // Or any other fallback action you want
+            }
+        },
+        searchProductCode() {
+            if (this.searchData) {
+                axios.post('/powertools/searchProductCode', {
+                    category_id: this.dataValues.category_id, // Include the selected category ID
+                    product_code: this.searchData // Include the product code to search
+                })
+                .then(response => {
+                    this.data = response.data.data;
+                })
+                .catch(error => {
+                    console.error('Error searching by product code:', error);
+                });
+            } else {
+                this.getData(); // Or any other fallback action you want
+            }
+        },
         getData() {
             axios.get('/powertools/show').then(response => {
                 this.data = response.data.data;
+                this.categories = response.data.categories;
             })
         },
         clearInputs() {

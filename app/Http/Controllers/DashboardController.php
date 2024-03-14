@@ -12,6 +12,8 @@ use App\Models\BuyTools;
 use Carbon\Carbon;
 use App\Models\PowerTools;
 use App\Models\Scaffolding;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class DashboardController extends Controller
 {
@@ -20,6 +22,11 @@ class DashboardController extends Controller
     }
 
     public function counts() {
+        //Get Balance
+        $user_id = Auth::id();
+        $user = User::findOrFail($user_id);
+        $balance = $user->balance; 
+        
         // $projectCount = ProjectSite::count();
         // $unitCount = Unit::count();
         // $categoryCount = Category::count();
@@ -64,6 +71,7 @@ class DashboardController extends Controller
         return response()->json([ 
                                     'salesCount' => $salesCount,
                                     'borrowedCount' => $borrowedCount,
+                                    'balance' => $balance
                                 ]);
     }
 }

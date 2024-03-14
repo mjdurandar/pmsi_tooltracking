@@ -14,7 +14,8 @@ class UsersController extends Controller
     }
 
     public function show() {
-        $data = User::where('role', '!=', 1)->get(); 
+        // $data = User::where('role', '!=', 1)->get(); 
+        $data = User::get();
         return response()->json([ 'data' => $data ]);
     }
 
@@ -35,6 +36,7 @@ class UsersController extends Controller
         $data = isset($request->id) ? User::where('id', $request->id)->first() : new User();
         $data->name = $request->name;
         $data->email = $request->email;
+        $data->balance = $request->balance;
         $data->address = $request->address;
         $data->password = $request->password;
         $data->save();

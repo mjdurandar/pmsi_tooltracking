@@ -48,6 +48,7 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('/supplier1',[App\Http\Controllers\Supplier1Controller::class, 'index']);
         Route::get('/supplier1/show',[App\Http\Controllers\Supplier1Controller::class, 'show']);
         Route::post('/supplier1/store',[App\Http\Controllers\Supplier1Controller::class, 'store']);
+        Route::post('/supplier1/search/{value}',[App\Http\Controllers\Supplier1Controller::class, 'search']);
         Route::post('/supplier1/requestproduct',[App\Http\Controllers\Supplier1Controller::class, 'requestproduct']);
         Route::get('/supplier1/edit/{supplier1}',[App\Http\Controllers\Supplier1Controller::class, 'edit']);
         Route::get('/supplier1/destroy/{supplier1}',[App\Http\Controllers\Supplier1Controller::class, 'destroy']);
@@ -98,7 +99,9 @@ Route::group(['middleware' => 'auth'], function(){
         // POWERTOOLS 
         Route::get('/powertools',[App\Http\Controllers\PowerToolsController::class, 'index']);
         Route::post('/powertools/store',[App\Http\Controllers\PowerToolsController::class, 'store']);
-        Route::get('/powertools/edit/{powertools}',[App\Http\Controllers\PowerToolsController::class, 'edit']);
+        Route::post('/powertools/searchProductCode/',[App\Http\Controllers\PowerToolsController::class, 'searchProductCode']);
+        Route::post('/powertools/searchCategory',[App\Http\Controllers\PowerToolsController::class, 'searchCategory']);
+        Route::get('/powertools/releaseProduct/{toolsAndEquipment}',[App\Http\Controllers\PowerToolsController::class, 'releaseProduct']);
         Route::get('/powertools/destroy/{powertools}',[App\Http\Controllers\PowerToolsController::class, 'destroy']);
 
         // SCAFFOLDING 
