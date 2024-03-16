@@ -129,46 +129,94 @@
 
         <!-- RELEASE PRODUCT MODAL -->
         <ModalComponent :id="modalId" :title="modalTitle" :size="modalSize" :position="modalPosition">
-                <template #modalHeader>
-                    <div class="m-auto">
-                        <h4>Release Product</h4>
+            <template #modalHeader>
+                <div class="m-auto">
+                    <h4>Release Product</h4>
+                </div>
+            </template>
+            <template #modalBody>
+                <div class="row">
+                    <div class="col-12">
+                        <label for="">Name</label>
+                        <input type="text" class="form-control" v-model="dataValues.name" disabled>
+                        <div class="text-danger" v-if="errors.name">{{ errors.name[0] }}</div>
+                    </div> 
+                    <div class="col-12">
+                        <label for="">Category</label>
+                        <select class="form-control" v-model="category_id">
+                            <option v-for="category in categories" :value="category.id">{{ category.name }}</option>
+                        </select>  
+                        <div class="text-danger" v-if="errors.category">{{ errors.category[0] }}</div>
+                    </div>  
+                    <div class="col-12">
+                        <label for="">Supplier</label>
+                        <input type="text" class="form-control" v-model="dataValues.supplier_name" disabled>
+                    </div> 
+                    <div class="col-12">
+                        <label for="">Price</label>
+                        <input type="number" class="form-control" v-model="dataValues.price">
+                        <div class="text-danger" v-if="errors.price">{{ errors.price[0] }}</div>
+                    </div>  
+                </div>
+            </template>
+            <template #modalFooter>
+                <div class="text-right">
+                    <button class="btn btn-success" v-on:click="reviewProduct">Review</button>
+                </div>
+            </template>
+        </ModalComponent>
+
+        <!-- BORROW MODAL -->
+        <ModalComponent :id="modalIdBorrow" :title="modalTitle" :size="modalSize" :position="modalPosition">
+            <template #modalHeader>
+                <div class="m-auto">
+                    <h4>Review Product</h4>
+                </div>
+            </template>
+            <template #modalBody>
+                <div>
+                    <h5>Checklist:</h5>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="check1" v-model="isChecked1">
+                        <label class="form-check-label" for="check1">Inspect the product thoroughly to ensure it's in good condition and functions properly. </label>
                     </div>
-                </template>
-                <template #modalBody>
-                    <div class="row">
-                        <div class="col-12">
-                            <label for="">Name</label>
-                            <input type="text" class="form-control" v-model="dataValues.name" disabled>
-                            <div class="text-danger" v-if="errors.name">{{ errors.name[0] }}</div>
-                        </div>  
-                        <div class="col-12" v-if="dataValues.image">
-                            <label for="currentImage">Image</label>
-                            <img :src="'/images/' + dataValues.image" alt="Current Image" class="img-fluid">
-                        </div>
-                        <div class="col-12">
-                            <label for="">Category</label>
-                            <select class="form-control" v-model="category_id">
-                                <option v-for="category in categories" :value="category.id">{{ category.name }}</option>
-                            </select>  
-                            <div class="text-danger" v-if="errors.category">{{ errors.category[0] }}</div>
-                        </div>  
-                        <div class="col-12">
-                            <label for="">Supplier</label>
-                            <input type="text" class="form-control" v-model="dataValues.supplier_name" disabled>
-                        </div> 
-                        <div class="col-12">
-                            <label for="">Price</label>
-                            <input type="number" class="form-control" v-model="dataValues.price">
-                            <div class="text-danger" v-if="errors.price">{{ errors.price[0] }}</div>
-                        </div>  
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="check2" v-model="isChecked2">
+                        <label class="form-check-label" for="check2">Check for any damages, defects, or missing parts.</label>
                     </div>
-                </template>
-                <template #modalFooter>
-                    <div class="text-right">
-                        <button class="btn btn-success" v-on:click="storeData">Review</button>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="check3" v-model="isChecked3">
+                        <label class="form-check-label" for="check3">Clean and prepare the product to be presentable and usable for the borrower.</label>
                     </div>
-                </template>
-            </ModalComponent>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="check4" v-model="isChecked4">
+                        <label class="form-check-label" for="check3">Gather all necessary documentation related to the product, such as manuals, warranties, or user guides.</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="check5" v-model="isChecked5">
+                        <label class="form-check-label" for="check3">Ensure that all documentation is complete and up-to-date.</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="check6" v-model="isChecked6">
+                        <label class="form-check-label" for="check3">Provide clear instructions on how to use the product safely and effectively.</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="check7" v-model="isChecked7">
+                        <label class="form-check-label" for="check3">Record the product details, including serial numbers and any identifying information.</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="check8" v-model="isChecked8">
+                        <label class="form-check-label" for="check3">Update the inventory system to reflect the product's availability for borrowing.</label>
+                    </div>
+                </div>
+            </template>
+            <template #modalFooter>
+                <div class="text-right">
+                    <button class="btn btn-success" v-on:click="approveBorrowed(props)" :disabled="!allCheckboxesChecked">Approve</button>
+                </div>
+            </template>
+        </ModalComponent>
+
 
     </div>
 </template>
@@ -192,6 +240,15 @@ export default{
                 units: [],
                 suppliers: [],
                 category_id: '',
+                isApproved: false,
+                isChecked1 : false,
+                isChecked2 : false,
+                isChecked3 : false,
+                isChecked4 : false,
+                isChecked5 : false,
+                isChecked6 : false,
+                isChecked7 : false,
+                isChecked8 : false,
                 dataValues: {
                     name: '',
                     category_id: 1,
@@ -201,13 +258,21 @@ export default{
                 modalPosition: 'modal-dialog-centered',
                 modalSize : 'modal-md',
 
-                modalIdImage : 'modal-image'
+                modalIdImage : 'modal-image',
+                modalIdBorrow : 'modal-borrow'
         }
     },
     components: {
         FormComponent,
         ModalComponent,
         BreadCrumbComponent,
+    },
+    computed: {
+        allCheckboxesChecked() {
+            return this.isChecked1 && this.isChecked2 && this.isChecked3 &&
+                   this.isChecked4 && this.isChecked5 && this.isChecked6 &&
+                   this.isChecked7 && this.isChecked8;
+        }
     },
     methods: {
         onFileChange(event) {
@@ -223,7 +288,6 @@ export default{
         releaseProduct(product){
             axios.get('/powertools/releaseProduct/' + product.id).then(response => {
                 this.dataValues = response.data.data;
-                console.log(this.dataValues);
                 $('#' + this.modalId).modal('show');
             }).catch(errors => {
                 // Handle errors
@@ -237,6 +301,28 @@ export default{
                     this.errors = errors.response.data.errors;
                 }
             });
+        },
+        reviewProduct(){
+            console.log(this.dataValues.category_id);
+            if(this.dataValues.category_id == 1){
+                $('#' + this.modalIdBorrow).modal('show');
+            }
+            if(this.dataValues.category_id == 2){
+                this.modalTitle = 'Review Product';
+                $('#' + this.modalId).modal('hide');
+            }
+        },
+        approveBorrowed(){
+                this.isApproved = true;
+                Swal.fire({
+                    title: 'Success',
+                    text: 'Product has been approved for borrowing',
+                    icon: 'success',
+                    timer: 3000
+                });
+            $('#' + this.modalId).modal('hide');
+            $('#' + this.modalIdBorrow).modal('hide');
+            
         },
         searchCategory() {
             if (this.dataValues.category_id) {
