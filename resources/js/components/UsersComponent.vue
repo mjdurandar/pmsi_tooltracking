@@ -1,6 +1,6 @@
 <template>
     <div class="p-3">
-        <BreadCrumbComponent tab_title="Users Accounts"></BreadCrumbComponent>
+        <BreadCrumbComponent tab_title="Customer Data"></BreadCrumbComponent>
         <div class="card">
             <div class="card-body">
                 <FormComponent 
@@ -8,7 +8,7 @@
                     :columns="columns"
                     :options="options"
                     btnName="Add Users Account"
-                    :option3Switch="true"
+                    :option3Switch="false"
                     @deleteClicked="deleteClicked"
                     @editClicked="editClicked"
                     @optionalClicked="optionalClicked"

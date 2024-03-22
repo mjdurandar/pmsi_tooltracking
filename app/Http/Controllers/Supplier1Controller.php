@@ -81,7 +81,7 @@ class Supplier1Controller extends Controller
 
         $requestedQuantity = $request->requestedQuantity;
         $requestedId = $request->requestedId;
-        $total = $request->total;
+        $total = $request->total; 
 
         // Deduct the total from the user's balance
         $user->balance -= $total;

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ToolsAndEquipment;
 use Illuminate\Http\Request;
 use App\Models\Category;
+use App\Models\AdminHistory;
 use App\Models\PowerTools;
 use App\Models\Unit;
 use App\Models\Supplier;
@@ -72,7 +73,54 @@ class PowerToolsController extends Controller
                                 ->where('tools_and_equipment.id', $toolsAndEquipment->id)
                                 ->first();
 
+        
+
         return response()->json(['data' => $toolsAndEquipment]);
+    }
+
+    public function updateProduct(Request $request){
+        
+        $toolsAndEquipment = ToolsAndEquipment::findOrFail($request->id);
+        $selectedCategory = $request->selectedCategory;
+        $selectedPrice = $request->selectedPrice; 
+
+        $categoryName = Category::findOrFail($selectedCategory)->name;
+        
+        $adminHistory = new AdminHistory();
+        $adminHistory->tools_and_equipment_id = $toolsAndEquipment->id; 
+        $adminHistory->status = $categoryName;
+        $adminHistory->save();
+
+        $toolsAndEquipment->category_id = $selectedCategory;
+        $toolsAndEquipment->price = $selectedPrice;
+        if($selectedCategory === 1){
+            $toolsAndEquipment->is_approved = 0;
+        }
+        else{
+            $toolsAndEquipment->is_approved = 1;
+        }
+        $toolsAndEquipment->save();
+        
+    }
+
+    public function cancelProduct(Request $request){
+
+        $adminHistory = new AdminHistory();
+        $selectedId = $request->id;
+        $description = $request->description; 
+
+        $toolsAndEquipment = ToolsAndEquipment::findOrFail($selectedId);
+        $toolsAndEquipment->category_id = 1;
+        $toolsAndEquipment->price = 0;
+        $toolsAndEquipment->is_approved = 0;
+
+        $adminHistory->tools_and_equipment_id = $selectedId;
+        $adminHistory->description = $description;
+        $adminHistory->status = 'Cancelled';
+
+        $toolsAndEquipment->save();
+        $adminHistory->save();
+
     }
 
     // public function store(Request $request)

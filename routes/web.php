@@ -102,6 +102,8 @@ Route::group(['middleware' => 'auth'], function(){
         Route::post('/powertools/searchProductCode/',[App\Http\Controllers\PowerToolsController::class, 'searchProductCode']);
         Route::post('/powertools/searchCategory',[App\Http\Controllers\PowerToolsController::class, 'searchCategory']);
         Route::get('/powertools/releaseProduct/{toolsAndEquipment}',[App\Http\Controllers\PowerToolsController::class, 'releaseProduct']);
+        Route::post('/powertools/updateProduct',[App\Http\Controllers\PowerToolsController::class, 'updateProduct']);
+        Route::post('/powertools/cancelProduct',[App\Http\Controllers\PowerToolsController::class, 'cancelProduct']);
         Route::get('/powertools/destroy/{powertools}',[App\Http\Controllers\PowerToolsController::class, 'destroy']);
 
         // SCAFFOLDING 
@@ -121,6 +123,9 @@ Route::group(['middleware' => 'auth'], function(){
 
         //PRODUCT HISTORY
         Route::get('/product-history',[App\Http\Controllers\ProductHistoryController::class, 'index']);
+        Route::get('/product-history/show',[App\Http\Controllers\ProductHistoryController::class, 'show']);
+        Route::post('/product-history/releasedSearch/',[App\Http\Controllers\ProductHistoryController::class, 'releasedSearch']);
+        Route::post('/product-history/cancelledSearch/',[App\Http\Controllers\ProductHistoryController::class, 'cancelledSearch']);
 
     });
    

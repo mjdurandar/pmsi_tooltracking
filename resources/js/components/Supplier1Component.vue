@@ -20,7 +20,7 @@
             <div class="col-lg-3">
                 <div class="d-flex mb-3">
                     <input type="text" class="form-control" placeholder="Search Anything..." v-model="searchData">
-                    <button class="btn btn-primary" @click="searchProduct()">Search</button>
+                    <button class="btn btn-primary" @click="searchProduct()" style="margin-left:5px">Search</button>
                 </div>
             </div>
         </div>
@@ -193,7 +193,12 @@
                     </div>  
                     <div class="col-12">
                         <label for="">Total</label>
-                        <input type="number" class="form-control" v-model="total" disabled>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">₱</span>
+                            </div>
+                            <input type="text" class="form-control" v-model="total" disabled>
+                        </div>
                     </div>  
                     <div class="col-12">
                         <label for="">Your Balance</label>
