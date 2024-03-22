@@ -42,7 +42,12 @@ Route::group(['middleware' => 'auth'], function(){
         // DASHBOARD
         // Route::get('/',[App\Http\Controllers\DashboardController::class, 'index']);
         Route::get('/dashboard',[App\Http\Controllers\DashboardController::class, 'index']);
+        Route::get('/dashboard/productStocks',[App\Http\Controllers\DashboardController::class, 'productStocks']);
+        Route::get('/dashboard/statusCount',[App\Http\Controllers\DashboardController::class, 'statusCount']);
         Route::get('/dashboardCount/counts',[App\Http\Controllers\DashboardController::class, 'counts']);
+        Route::get('/dashboard/balanceData',[App\Http\Controllers\DashboardController::class, 'balanceData']);
+        Route::get('/dashboard/supplierCount',[App\Http\Controllers\DashboardController::class, 'supplierCount']);
+        Route::get('/dashboard/masterdataCount',[App\Http\Controllers\DashboardController::class, 'masterdataCount']);
 
         //Supplier1
         Route::get('/supplier1',[App\Http\Controllers\Supplier1Controller::class, 'index']);

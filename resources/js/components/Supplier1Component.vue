@@ -1,7 +1,8 @@
 <template>
     <div class="p-3">
         <!-- <BreadCrumbComponent tab_title="Supplier 1"></BreadCrumbComponent> -->
-
+        
+        <!-- ADD SUPPLIER1 PRODUCT -->
         <!-- <div class="card">
             <div class="card-body">
                 <FormComponent 
@@ -15,37 +16,9 @@
                 >
                 </FormComponent>
             </div>
-        </div> -->
-        <div class="row">
-            <div class="col-lg-3">
-                <div class="d-flex mb-3">
-                    <input type="text" class="form-control" placeholder="Search Anything..." v-model="searchData">
-                    <button class="btn btn-primary" @click="searchProduct()" style="margin-left:5px">Search</button>
-                </div>
-            </div>
-        </div>
-        
-        <div class="row">
-            <div class="col-md-4" v-for="(product, index) in data" :key="index">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between">
-                            <div style="width: 50%;">
-                                <h2 class="card-title" style="font-weight: bold;">{{ product.name }}</h2>
-                            </div>
-                            <div style="width: 50%;">
-                                <img v-if="product.image" :src="'/images/' + product.image" alt="Product Image" class="img-fluid" style="height: 250px;">
-                                <p v-else>No Stocks</p>
-                            </div>
-                        </div>
-                        <button class="btn btn-success" @click="requestProduct(product)">Request this Product</button>
-                    </div>
-                </div>
-            </div>
         </div>
 
-        <!-- ADD SUPPLIER1 PRODUCT -->
-        <!-- <ModalComponent :id="modalId" :title="modalTitle" :size="modalSize" :position="modalPosition">
+        <ModalComponent :id="modalId" :title="modalTitle" :size="modalSize" :position="modalPosition">
             <template #modalHeader>
                 <div class="m-auto">
                     <h4>Add Supplier Product</h4>
@@ -90,6 +63,34 @@
                 </div>
             </template>
         </ModalComponent> -->
+
+        <div class="row">
+            <div class="col-lg-3">
+                <div class="d-flex mb-3">
+                    <input type="text" class="form-control" placeholder="Search Anything..." v-model="searchData">
+                    <button class="btn btn-primary" @click="searchProduct()" style="margin-left:5px">Search</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-4" v-for="(product, index) in data" :key="index">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div style="width: 50%;">
+                                <h2 class="card-title" style="font-weight: bold;">{{ product.name }}</h2>
+                            </div>
+                            <div style="width: 50%;">
+                                <img v-if="product.image" :src="'/images/' + product.image" alt="Product Image" class="img-fluid" style="height: 250px;">
+                                <p v-else>No Stocks</p>
+                            </div>
+                        </div>
+                        <button class="btn btn-success" @click="requestProduct(product)">Request this Product</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         
         <ModalComponent :id="modalIdFinal" :title="modalTitle" :size="modalSizeFinal" :position="modalPosition">
             <template #modalHeader>
@@ -388,59 +389,59 @@ export default{
             this.imageData = null;
             this.errors = [];
         },
-        // requestProduct(props) {
-        //     this.modalTitle = 'Edit Data';
+        editClicked(props) {
+            this.modalTitle = 'Edit Data';
 
-        //     axios.get('/supplier1/edit/' + props.data.id).then(response => {
-        //         this.dataValues = response.data.data;
-        //         $('#' + this.modalId).modal('show');
-        //     }).catch(errors => {
-        //         // Handle errors
-        //         if (errors.response.data.message.length > 0) {
-        //             Swal.fire({
-        //                 title: "Failed",
-        //                 text: errors.response.data.message,
-        //                 icon: 'error',
-        //                 timer: 3000
-        //             });
-        //             this.errors = errors.response.data.errors;
-        //         }
-        //     });
-        // },
-        // deleteClicked(props) {
-        //     Swal.fire({
-        //         title: 'Are you sure?',
-        //         text: 'You will not be able to recover this data!',
-        //         icon: 'warning',
-        //         showCancelButton: true,
-        //         confirmButtonText: 'Yes, delete it!',
-        //         cancelButtonText: 'Cancel',
-        //     }).then((result) => {
-        //         if (result.isConfirmed) {
-        //             // User confirmed, proceed with deletion
-        //             axios.get('/supplier1/destroy/' + props.data.id).then(response => {
-        //                 if(response.status === 200) {
-        //                     Swal.fire({
-        //                         title: "Success",
-        //                         text: response.data.message,
-        //                         icon: 'success',
-        //                         timer: 3000
-        //                     });
-        //                 }
-        //                 this.getData();
-        //             }).catch(errors => {
-        //                 if(errors.response.data.message.length > 0) {
-        //                     Swal.fire({
-        //                         title: "Failed",
-        //                         text: errors.response.data.message,
-        //                         icon: 'error',
-        //                         timer: 3000
-        //                     });
-        //                 }
-        //             });
-        //         }
-        //     });
-        // },
+            axios.get('/supplier1/edit/' + props.data.id).then(response => {
+                this.dataValues = response.data.data;
+                $('#' + this.modalId).modal('show');
+            }).catch(errors => {
+                // Handle errors
+                if (errors.response.data.message.length > 0) {
+                    Swal.fire({
+                        title: "Failed",
+                        text: errors.response.data.message,
+                        icon: 'error',
+                        timer: 3000
+                    });
+                    this.errors = errors.response.data.errors;
+                }
+            });
+        },
+        deleteClicked(props) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'You will not be able to recover this data!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // User confirmed, proceed with deletion
+                    axios.get('/supplier1/destroy/' + props.data.id).then(response => {
+                        if(response.status === 200) {
+                            Swal.fire({
+                                title: "Success",
+                                text: response.data.message,
+                                icon: 'success',
+                                timer: 3000
+                            });
+                        }
+                        this.getData();
+                    }).catch(errors => {
+                        if(errors.response.data.message.length > 0) {
+                            Swal.fire({
+                                title: "Failed",
+                                text: errors.response.data.message,
+                                icon: 'error',
+                                timer: 3000
+                            });
+                        }
+                    });
+                }
+            });
+        },
         storeData() {
             const formData = new FormData();
             // Check if id is present and not null before appending it to the form data

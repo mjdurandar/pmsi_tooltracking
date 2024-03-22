@@ -12,8 +12,12 @@ use App\Models\BuyTools;
 use Carbon\Carbon;
 use App\Models\PowerTools;
 use App\Models\Scaffolding;
+use App\Models\ToolsAndEquipment;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use Illuminate\Support\Facades\DB; 
+use App\Models\AdminHistory;
+use App\Models\ReturnDays;
 
 class DashboardController extends Controller
 {
@@ -21,6 +25,83 @@ class DashboardController extends Controller
         return view('admin.dashboard');
     }
 
+    public function productStocks()
+    {
+        // Count the occurrences of each product name
+        $productCounts = ToolsAndEquipment::select(DB::raw("SUBSTRING_INDEX(name, ' ', 1) as first_word"), DB::raw('COUNT(*) as count'))
+            ->groupBy('first_word')
+            ->get();
+        
+        // Prepare the data for the chart
+        $labels = $productCounts->pluck('first_word');
+        $values = $productCounts->pluck('count');
+    
+        return response()->json([
+            'labels' => $labels,
+            'values' => $values,
+        ]);
+    }
+
+    public function supplierCount()
+    {
+        // Count the occurrences of each supplier
+        $supplierCounts = Supplier::select('name', DB::raw('COUNT(*) as count'))
+            ->groupBy('name')
+            ->get();
+    
+        // Prepare the data for the chart
+        $labels = $supplierCounts->pluck('name');
+        $values = $supplierCounts->pluck('count');
+
+        return response()->json([
+            'labels' => $labels,
+            'values' => $values,
+        ]);
+    }    
+    
+    public function statusCount()
+    {
+        // Count the occurrences of status 'Borrowed'
+        $borrowedCount = AdminHistory::where('status', 'Borrowing')->count();
+
+        // Count the occurrences of status 'Selling'
+        $sellingCount = AdminHistory::where('status', 'Selling')->count();
+
+
+        return response()->json([
+            'borrowedCount' => $borrowedCount,
+            'sellingCount' => $sellingCount
+        ]);
+    }
+
+    public function masterdataCount(){
+        // Count the occurrences of each category of data
+        $projectSiteCount = ProjectSite::count();
+        $returnDayCount = ReturnDays::count();
+        $categoryCount = Category::count();
+        $userCount = User::count();
+        $unitCount = Unit::count();
+
+        // Prepare the data for the bar chart
+        $labels = ['Project Sites', 'Return Days', 'Categories', 'Users', 'Units'];
+        $values = [$projectSiteCount, $returnDayCount, $categoryCount, $userCount, $unitCount];
+
+        return response()->json([
+            'labels' => $labels,
+            'values' => $values,
+        ]);
+    }
+
+    // public function balanceData(){{
+    //     $user_id = Auth::id();
+    //     $user = User::findOrFail($user_id);
+    //     $balance = $user->balance; 
+    //     $balance = User::latest()->value('balance'); // Assuming 'amount' is the column storing the balance
+
+    //     // Return the balance data as a JSON response
+    //     return response()->json(['balance' => $balance]);
+    // }}
+    
     public function counts() {
         //Get Balance
         $user_id = Auth::id();

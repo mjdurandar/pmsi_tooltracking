@@ -20363,158 +20363,321 @@ __webpack_require__.r(__webpack_exports__);
         console.error('Error fetching balance data', error);
       });
     },
-    chartSales: function chartSales() {
-      axios__WEBPACK_IMPORTED_MODULE_2__["default"].get('/dashboardCount/counts').then(function (response) {
-        var ctx = document.getElementById('salesChart');
-        var totalPerDay = response.data.salesCount;
-        var labels = totalPerDay.map(function (item) {
-          return item.date;
-        });
-        var data = totalPerDay.map(function (item) {
-          return item.total;
-        });
-        new chart_js_auto__WEBPACK_IMPORTED_MODULE_1__.Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: labels,
-            datasets: [{
-              label: 'Sales',
-              data: data,
-              borderWidth: 1,
-              backgroundColor: 'rgba(75, 192, 192, 0.2)',
-              borderColor: 'rgba(75, 192, 192, 1)'
-            }]
-          },
-          options: {
-            scales: {
-              y: {
-                beginAtZero: true
-              }
-            }
-          }
-        });
-      })["catch"](function (error) {
-        console.error('Error fetching sales data', error);
-      });
-    },
-    borrowedChart: function borrowedChart() {
-      axios__WEBPACK_IMPORTED_MODULE_2__["default"].get('/dashboardCount/counts').then(function (response) {
-        var ctx = document.getElementById('borrowedChart');
-        var totalPerDay = response.data.borrowedCount;
-        var labels = totalPerDay.map(function (item) {
-          return item.borrowed_at;
-        });
-        var data = totalPerDay.map(function (item) {
-          return item.total;
-        });
-        new chart_js_auto__WEBPACK_IMPORTED_MODULE_1__.Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: labels,
-            datasets: [{
-              label: 'Borrowed',
-              data: data,
-              borderWidth: 1,
-              backgroundColor: 'rgba(75, 192, 192, 0.2)',
-              borderColor: 'rgba(75, 192, 192, 1)'
-            }]
-          },
-          options: {
-            scales: {
-              y: {
-                beginAtZero: true
-              }
-            }
-          }
-        });
-      })["catch"](function (error) {
-        console.error('Error fetching sales data', error);
-      });
-    },
-    dashboard: function dashboard() {
-      console.log(this.data);
-      axios__WEBPACK_IMPORTED_MODULE_2__["default"].get('/dashboardCount/counts').then(function (response) {
-        var ctx = document.getElementById('myChart');
-        new chart_js_auto__WEBPACK_IMPORTED_MODULE_1__.Chart(ctx, {
+    stocksBarChart: function stocksBarChart() {
+      axios__WEBPACK_IMPORTED_MODULE_2__["default"].get('/dashboard/productStocks').then(function (response) {
+        var data = response.data;
+        var labels = data.labels;
+        var values = data.values;
+
+        // Create a bar chart using Chart.js
+        new chart_js_auto__WEBPACK_IMPORTED_MODULE_1__.Chart(document.getElementById('stocksBarChart'), {
           type: 'bar',
           data: {
-            labels: ['Project Site', 'Units', 'Category', 'Supplier'],
+            labels: labels,
             datasets: [{
-              label: 'Master Data',
-              data: [response.data.projectCount, response.data.unitCount, response.data.categoryCount, response.data.supplierCount],
-              borderWidth: 1
+              label: 'Product Stocks',
+              backgroundColor: 'rgba(54, 162, 235, 0.5)',
+              borderColor: 'rgba(54, 162, 235, 1)',
+              borderWidth: 1,
+              data: values
             }]
           },
           options: {
             scales: {
-              y: {
-                beginAtZero: true
-              }
+              yAxes: [{
+                ticks: {
+                  beginAtZero: true
+                }
+              }]
             }
           }
         });
       })["catch"](function (error) {
-        console.error('Error fetching project data', error);
+        console.error('Error fetching stock data', error);
       });
     },
-    piechart: function piechart() {
-      axios__WEBPACK_IMPORTED_MODULE_2__["default"].get('/dashboardCount/counts').then(function (response) {
-        var ctx = document.getElementById('pieChart');
-        new chart_js_auto__WEBPACK_IMPORTED_MODULE_1__.Chart(ctx, {
-          type: 'pie',
+    statusCount: function statusCount() {
+      axios__WEBPACK_IMPORTED_MODULE_2__["default"].get('/dashboard/statusCount').then(function (response) {
+        var data = response.data;
+        var borrowedCount = data.borrowedCount;
+        var sellingCount = data.sellingCount;
+        var bothCount = data.bothCount;
+
+        // Create a doughnut chart using Chart.js
+        new chart_js_auto__WEBPACK_IMPORTED_MODULE_1__.Chart(document.getElementById('doughnutChart'), {
+          type: 'doughnut',
           data: {
-            labels: ['Borrowed', 'Buying'],
+            labels: ['Borrowing', 'Selling'],
             datasets: [{
-              label: 'Count',
-              data: [response.data.borrowedCount, response.data.buyingCount],
+              label: 'Status Counts',
+              data: [borrowedCount, sellingCount],
+              backgroundColor: ['rgba(255, 99, 132, 0.5)', 'rgba(54, 162, 235, 0.5)'],
+              borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
               borderWidth: 1
             }]
           },
           options: {
-            scales: {
-              y: {
-                beginAtZero: true
-              }
-            }
+            responsive: true,
+            maintainAspectRatio: false
+            // You can add more options here as needed
           }
         });
       })["catch"](function (error) {
-        console.error('Error fetching project data', error);
+        console.error('Error fetching status counts:', error);
       });
     },
-    piecharttools: function piecharttools() {
-      axios__WEBPACK_IMPORTED_MODULE_2__["default"].get('/dashboardCount/counts').then(function (response) {
-        var ctx = document.getElementById('pieChartTools');
-        new chart_js_auto__WEBPACK_IMPORTED_MODULE_1__.Chart(ctx, {
-          type: 'pie',
-          data: {
-            labels: ['Scaffolding', 'Power Tools'],
-            datasets: [{
-              label: 'Count',
-              data: [response.data.scaffoldingCounts, response.data.powertoolsCounts],
-              borderWidth: 1
-            }]
-          },
-          options: {
-            scales: {
-              y: {
-                beginAtZero: true
-              }
+    getSupplierCounts: function getSupplierCounts() {
+      var _this2 = this;
+      axios__WEBPACK_IMPORTED_MODULE_2__["default"].get('/dashboard/supplierCount') // Make a GET request to fetch supplier counts
+      .then(function (response) {
+        var data = response.data; // Get the response data
+        _this2.createPolarAreaChart(data.labels, data.values); // Call method to create polar area chart with received data
+      })["catch"](function (error) {
+        console.error('Error fetching supplier counts:', error);
+      });
+    },
+    createPolarAreaChart: function createPolarAreaChart(labels, values) {
+      new chart_js_auto__WEBPACK_IMPORTED_MODULE_1__.Chart(document.getElementById('supplierPolarAreaChart'), {
+        type: 'polarArea',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Supplier Counts',
+            data: values,
+            backgroundColor: ['rgba(255, 99, 132, 0.5)',
+            // Example background color
+            'rgba(54, 162, 235, 0.5)',
+            // Example background color
+            'rgba(255, 206, 86, 0.5)' // Example background color
+            // Add more colors as needed
+            ]
+          }]
+        },
+
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            r: {
+              suggestedMin: 0 // Set the minimum value for the radial axis
             }
           }
-        });
-      })["catch"](function (error) {
-        console.error('Error fetching project data', error);
+        }
       });
-    }
+    },
+    getMasterDataCounts: function getMasterDataCounts() {
+      var _this3 = this;
+      axios__WEBPACK_IMPORTED_MODULE_2__["default"].get('/dashboard/masterdataCount') // Make a GET request to fetch master data counts
+      .then(function (response) {
+        var data = response.data; // Get the response data
+        _this3.createBarChart(data.labels, data.values); // Call method to create bar chart with received data
+      })["catch"](function (error) {
+        console.error('Error fetching master data counts:', error);
+      });
+    },
+    createBarChart: function createBarChart(labels, values) {
+      new chart_js_auto__WEBPACK_IMPORTED_MODULE_1__.Chart(document.getElementById('masterDataBarChart'), {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Master Data Counts',
+            data: values,
+            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+            // Example background color
+            borderColor: 'rgba(54, 162, 235, 1)',
+            // Example border color
+            borderWidth: 1
+          }]
+        },
+        options: {
+          scales: {
+            yAxes: [{
+              ticks: {
+                beginAtZero: true
+              }
+            }]
+          }
+        }
+      });
+    } // balanceLineChart() {
+    //     axios.get('/dashboard/balanceData')
+    //     .then(response => {
+    //         const data = response.data;
+    //         const balance = data.balance;
+    //         const timestamp = data.timestamp;
+    //         // Create a line chart using Chart.js
+    //         new Chart(document.getElementById('balanceLineChart'), {
+    //             type: 'line',
+    //             data: {
+    //                 labels: [timestamp], // Use the timestamp as the x-axis label
+    //                 datasets: [{
+    //                     label: 'Balance',
+    //                     data: [balance],
+    //                     borderColor: 'rgba(75, 192, 192, 1)',
+    //                     borderWidth: 2,
+    //                     fill: false
+    //                 }]
+    //             },
+    //             options: {
+    //                 responsive: true,
+    //                 maintainAspectRatio: false,
+    //                 scales: {
+    //                     x: {
+    //                         type: 'time',
+    //                         time: {
+    //                             parser: 'YYYY-MM-DD HH:mm:ss', // Format of the timestamp
+    //                             tooltipFormat: 'll HH:mm:ss' // Format of the tooltip
+    //                         },
+    //                         title: {
+    //                             display: true,
+    //                             text: 'Time'
+    //                         }
+    //                     },
+    //                     y: {
+    //                         display: true,
+    //                         title: {
+    //                             display: true,
+    //                             text: 'Balance'
+    //                         },
+    //                         ticks: {
+    //                             beginAtZero: true
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //         });
+    //     })
+    //     .catch(error => {
+    //         console.error('Error fetching balance data:', error);
+    //     });
+    // }
+    // borrowedChart(){
+    //     axios.get('/dashboardCount/counts')
+    //     .then(response => {
+    //         const ctx = document.getElementById('borrowedChart');
+    //         const totalPerDay = response.data.borrowedCount;
+    //         const labels = totalPerDay.map(item => item.borrowed_at);
+    //         const data = totalPerDay.map(item => item.total);
+    //         new Chart(ctx, {
+    //             type: 'line',
+    //             data: {
+    //                 labels: labels,
+    //                 datasets: [{
+    //                     label: 'Borrowed',
+    //                     data: data,
+    //                     borderWidth: 1,
+    //                     backgroundColor: 'rgba(75, 192, 192, 0.2)',
+    //                     borderColor: 'rgba(75, 192, 192, 1)',
+    //                 }]
+    //             },
+    //             options: {
+    //                 scales: {
+    //                     y: {
+    //                         beginAtZero: true
+    //                     }
+    //                 }
+    //             }
+    //         });
+    //     })
+    //     .catch(error => {
+    //         console.error('Error fetching sales data', error);
+    //     });
+    // },
+    // dashboard(){
+    //     console.log(this.data);
+    //     axios.get('/dashboardCount/counts')
+    //     .then(response => {
+    //     const ctx = document.getElementById('myChart');
+    //     new Chart(ctx, {
+    //     type: 'bar',
+    //     data: {
+    //         labels: ['Project Site', 'Units', 'Category', 'Supplier'],
+    //         datasets: [{
+    //         label: 'Master Data',
+    //         data: [response.data.projectCount, response.data.unitCount, response.data.categoryCount, response.data.supplierCount],
+    //         borderWidth: 1
+    //         }]
+    //     },
+    //             options: {
+    //                 scales: {
+    //                 y: {
+    //                     beginAtZero: true
+    //                 }
+    //                 }
+    //             }
+    //         });
+    //     })
+    //     .catch(error => {
+    //         console.error('Error fetching project data', error);
+    //     });
+    // },
+    // piechart(){
+    //     axios.get('/dashboardCount/counts')
+    //     .then(response => {
+    //     const ctx = document.getElementById('pieChart');
+    //     new Chart(ctx, {
+    //     type: 'pie',
+    //     data: {
+    //     labels: ['Borrowed', 'Buying'],
+    //         datasets: [{
+    //         label: 'Count',
+    //         data: [response.data.borrowedCount, response.data.buyingCount],
+    //         borderWidth: 1
+    //         }]
+    //     },
+    //             options: {
+    //                 scales: {
+    //                 y: {
+    //                     beginAtZero: true 
+    //                 }
+    //                 }
+    //             }
+    //         });
+    //     })
+    //     .catch(error => {
+    //         console.error('Error fetching project data', error);
+    //     });
+    // },
+    // piecharttools(){
+    //     axios.get('/dashboardCount/counts')
+    //     .then(response => {
+    //     const ctx = document.getElementById('pieChartTools');
+    //     new Chart(ctx, {
+    //     type: 'pie',
+    //     data: {
+    //     labels: ['Scaffolding', 'Power Tools'],
+    //         datasets: [{
+    //         label: 'Count',
+    //         data: [response.data.scaffoldingCounts, response.data.powertoolsCounts],
+    //         borderWidth: 1
+    //         }]
+    //     },
+    //             options: {
+    //                 scales: {
+    //                 y: {
+    //                     beginAtZero: true
+    //                 }
+    //                 }
+    //             }
+    //         });
+    //     })
+    //     .catch(error => {
+    //         console.error('Error fetching project data', error);
+    //     });
+    // },
   },
   mounted: function mounted() {
+    this.stocksBarChart();
+    this.statusCount();
     this.getBalance();
-    this.chartSales();
-    this.borrowedChart();
-    this.dashboard();
-    this.piechart();
-    this.piecharttools();
+    this.getSupplierCounts();
+    this.getMasterDataCounts();
+    // this.chartSales();
+    // this.borrowedChart();
+    // this.dashboard();
+    // this.piechart();
+    // this.piecharttools();
   }
 });
 
@@ -21977,60 +22140,62 @@ __webpack_require__.r(__webpack_exports__);
       this.imageData = null;
       this.errors = [];
     },
-    // requestProduct(props) {
-    //     this.modalTitle = 'Edit Data';
-    //     axios.get('/supplier1/edit/' + props.data.id).then(response => {
-    //         this.dataValues = response.data.data;
-    //         $('#' + this.modalId).modal('show');
-    //     }).catch(errors => {
-    //         // Handle errors
-    //         if (errors.response.data.message.length > 0) {
-    //             Swal.fire({
-    //                 title: "Failed",
-    //                 text: errors.response.data.message,
-    //                 icon: 'error',
-    //                 timer: 3000
-    //             });
-    //             this.errors = errors.response.data.errors;
-    //         }
-    //     });
-    // },
-    // deleteClicked(props) {
-    //     Swal.fire({
-    //         title: 'Are you sure?',
-    //         text: 'You will not be able to recover this data!',
-    //         icon: 'warning',
-    //         showCancelButton: true,
-    //         confirmButtonText: 'Yes, delete it!',
-    //         cancelButtonText: 'Cancel',
-    //     }).then((result) => {
-    //         if (result.isConfirmed) {
-    //             // User confirmed, proceed with deletion
-    //             axios.get('/supplier1/destroy/' + props.data.id).then(response => {
-    //                 if(response.status === 200) {
-    //                     Swal.fire({
-    //                         title: "Success",
-    //                         text: response.data.message,
-    //                         icon: 'success',
-    //                         timer: 3000
-    //                     });
-    //                 }
-    //                 this.getData();
-    //             }).catch(errors => {
-    //                 if(errors.response.data.message.length > 0) {
-    //                     Swal.fire({
-    //                         title: "Failed",
-    //                         text: errors.response.data.message,
-    //                         icon: 'error',
-    //                         timer: 3000
-    //                     });
-    //                 }
-    //             });
-    //         }
-    //     });
-    // },
-    storeData: function storeData() {
+    editClicked: function editClicked(props) {
       var _this5 = this;
+      this.modalTitle = 'Edit Data';
+      axios__WEBPACK_IMPORTED_MODULE_4__["default"].get('/supplier1/edit/' + props.data.id).then(function (response) {
+        _this5.dataValues = response.data.data;
+        $('#' + _this5.modalId).modal('show');
+      })["catch"](function (errors) {
+        // Handle errors
+        if (errors.response.data.message.length > 0) {
+          sweetalert2__WEBPACK_IMPORTED_MODULE_3___default().fire({
+            title: "Failed",
+            text: errors.response.data.message,
+            icon: 'error',
+            timer: 3000
+          });
+          _this5.errors = errors.response.data.errors;
+        }
+      });
+    },
+    deleteClicked: function deleteClicked(props) {
+      var _this6 = this;
+      sweetalert2__WEBPACK_IMPORTED_MODULE_3___default().fire({
+        title: 'Are you sure?',
+        text: 'You will not be able to recover this data!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+      }).then(function (result) {
+        if (result.isConfirmed) {
+          // User confirmed, proceed with deletion
+          axios__WEBPACK_IMPORTED_MODULE_4__["default"].get('/supplier1/destroy/' + props.data.id).then(function (response) {
+            if (response.status === 200) {
+              sweetalert2__WEBPACK_IMPORTED_MODULE_3___default().fire({
+                title: "Success",
+                text: response.data.message,
+                icon: 'success',
+                timer: 3000
+              });
+            }
+            _this6.getData();
+          })["catch"](function (errors) {
+            if (errors.response.data.message.length > 0) {
+              sweetalert2__WEBPACK_IMPORTED_MODULE_3___default().fire({
+                title: "Failed",
+                text: errors.response.data.message,
+                icon: 'error',
+                timer: 3000
+              });
+            }
+          });
+        }
+      });
+    },
+    storeData: function storeData() {
+      var _this7 = this;
       var formData = new FormData();
       // Check if id is present and not null before appending it to the form data
       if (this.dataValues.id !== null && this.dataValues.id !== undefined) {
@@ -22058,10 +22223,10 @@ __webpack_require__.r(__webpack_exports__);
             timer: 3000
           });
         }
-        _this5.getData();
-        $('#' + _this5.modalId).modal('hide');
+        _this7.getData();
+        $('#' + _this7.modalId).modal('hide');
       })["catch"](function (errors) {
-        _this5.errors = errors.response.data.errors;
+        _this7.errors = errors.response.data.errors;
       });
     }
   },
@@ -23398,38 +23563,34 @@ var _hoisted_1 = {
   "class": "p-3"
 };
 var _hoisted_2 = {
+  "class": "mb-3"
+};
+var _hoisted_3 = {
   "class": "input-group",
   style: {
-    "width": "10%"
+    "width": "15%"
   }
 };
-var _hoisted_3 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+var _hoisted_4 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
   "class": "input-group-prepend"
 }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
   "class": "input-group-text"
+}, "Balance"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Add \"Balance\" here "), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+  "class": "input-group-text"
 }, "₱")], -1 /* HOISTED */);
-var _hoisted_4 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
-  "class": "d-flex justify-content-center"
-}, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("img", {
-  src: "images\\under_maintenance.png",
-  alt: "Under Maintenance",
-  style: {
-    "text-align": "center"
-  }
-})], -1 /* HOISTED */);
-
+var _hoisted_5 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createStaticVNode)("<div class=\"row\"><div class=\"col-6\"><div class=\"card\" style=\"background-color:#f18f4e;color:#fff;\"><div class=\"card-body dash-title\"> Product Stocks </div></div><div class=\"card\"><div class=\"card-body\"><canvas id=\"stocksBarChart\"></canvas></div></div></div><div class=\"col-6\"><div class=\"card\" style=\"background-color:#f18f4e;color:#fff;\"><div class=\"card-body dash-title\"> Master Data </div></div><div class=\"card\"><div class=\"card-body\"><canvas id=\"masterDataBarChart\"></canvas></div></div></div></div><div class=\"row\"><div class=\"col-6\"><div class=\"card\" style=\"background-color:#f18f4e;color:#fff;\"><div class=\"card-body dash-title\"> Supplier </div></div><div class=\"card\"><div class=\"card-body\"><canvas id=\"supplierPolarAreaChart\"></canvas></div></div></div><div class=\"col-6\"><div class=\"card\" style=\"background-color:#f18f4e;color:#fff;\"><div class=\"card-body dash-title\"> Selling and Borrowing </div></div><div class=\"card\"><div class=\"card-body\"><canvas id=\"doughnutChart\"></canvas></div></div></div><!-- &lt;div class=&quot;col-6&quot;&gt;\n                &lt;div class=&quot;card&quot; style=&quot;background-color: #f18f4e; color: #fff;&quot;&gt;\n                    &lt;div class=&quot;card-body dash-title&quot; &gt;\n                        Tools\n                   &lt;/div&gt;\n                &lt;/div&gt;\n                &lt;div class=&quot;card&quot;&gt;\n                    &lt;div class=&quot;card-body&quot;&gt;\n                        &lt;canvas id=&quot;pieChartTools&quot;&gt;&lt;/canvas&gt;\n                   &lt;/div&gt;\n                &lt;/div&gt;\n            &lt;/div&gt; --></div>", 2);
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   var _component_BreadCrumbComponent = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("BreadCrumbComponent");
   return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_BreadCrumbComponent, {
     tab_title: "Dashboard"
-  }), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_2, [_hoisted_3, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+  }), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_2, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_3, [_hoisted_4, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
     type: "number",
     "class": "form-control",
     "onUpdate:modelValue": _cache[0] || (_cache[0] = function ($event) {
       return $data.data.balance = $event;
     }),
     disabled: ""
-  }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $data.data.balance]])])]), _hoisted_4, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <div class=\"row\">\n            <div class=\"col-6\">\n                <div class=\"card\" style=\"background-color: #f18f4e; color: #fff;\">\n                    <div class=\"card-body dash-title\">\n                        Sales per Day\n                    </div>\n                </div>\n                <div class=\"card\">\n                    <div class=\"card-body\">\n                        <canvas id=\"salesChart\"></canvas>\n                    </div>\n                </div>\n            </div>\n            <div class=\"col-6\">\n                <div class=\"card\" style=\"background-color: #f18f4e; color: #fff;\">\n                    <div class=\"card-body dash-title\">\n                        Borrowed per Day\n                    </div>\n                </div>\n                <div class=\"card\">\n                    <div class=\"card-body\">\n                        <canvas id=\"borrowedChart\"></canvas>\n                    </div>\n                </div>\n            </div>\n        </div>\n        <div class=\"row\">\n            <div class=\"col-6\">\n                <div class=\"card\" style=\"background-color: #f18f4e; color: #fff;\">\n                    <div class=\"card-body dash-title\" >\n                        Buying / Borrowing\n                   </div>\n                </div>\n                <div class=\"card\">\n                    <div class=\"card-body\">\n                        <canvas id=\"pieChart\"></canvas>\n                   </div>\n                </div>\n            </div>\n            <div class=\"col-6\">\n                <div class=\"card\" style=\"background-color: #f18f4e; color: #fff;\">\n                    <div class=\"card-body dash-title\" >\n                        Tools\n                   </div>\n                </div>\n                <div class=\"card\">\n                    <div class=\"card-body\">\n                        <canvas id=\"pieChartTools\"></canvas>\n                   </div>\n                </div>\n            </div>\n        </div> ")]);
+  }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $data.data.balance]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <div class=\"d-flex justify-content-center\">\n            <img src=\"images\\under_maintenance.png\" alt=\"Under Maintenance\" style=\"text-align: center;\"> \n        </div> "), _hoisted_5]);
 }
 
 /***/ }),
@@ -23803,7 +23964,10 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       key: 0,
       src: '/images/' + product.image,
       alt: "Product Image",
-      "class": "img-fluid"
+      "class": "img-fluid",
+      style: {
+        "height": "250px"
+      }
     }, null, 8 /* PROPS */, _hoisted_15)) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("p", _hoisted_16, "No Stocks"))])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
       "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["btn btn-success", {
         'btn-danger': product.category_name === 'Borrowing' || product.category_name === 'Selling'
@@ -24951,7 +25115,7 @@ var _hoisted_51 = {
 };
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   var _component_ModalComponent = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("ModalComponent");
-  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <BreadCrumbComponent tab_title=\"Supplier 1\"></BreadCrumbComponent> "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <div class=\"card\">\r\n            <div class=\"card-body\">\r\n                <FormComponent \r\n                    :data=\"data\"\r\n                    :columns=\"columns\"\r\n                    :options=\"options\"\r\n                    btnName=\"Add Supplier Product\"\r\n                    @deleteClicked=\"deleteClicked\"\r\n                    @editClicked=\"editClicked\"\r\n                    @addClicked=\"addClicked\"\r\n                >\r\n                </FormComponent>\r\n            </div>\r\n        </div> "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_2, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_3, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_4, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <BreadCrumbComponent tab_title=\"Supplier 1\"></BreadCrumbComponent> "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" ADD SUPPLIER1 PRODUCT "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <div class=\"card\">\r\n            <div class=\"card-body\">\r\n                <FormComponent \r\n                    :data=\"data\"\r\n                    :columns=\"columns\"\r\n                    :options=\"options\"\r\n                    btnName=\"Add Supplier Product\"\r\n                    @deleteClicked=\"deleteClicked\"\r\n                    @editClicked=\"editClicked\"\r\n                    @addClicked=\"addClicked\"\r\n                >\r\n                </FormComponent>\r\n            </div>\r\n        </div>\r\n\r\n        <ModalComponent :id=\"modalId\" :title=\"modalTitle\" :size=\"modalSize\" :position=\"modalPosition\">\r\n            <template #modalHeader>\r\n                <div class=\"m-auto\">\r\n                    <h4>Add Supplier Product</h4>\r\n                </div>\r\n            </template>\r\n            <template #modalBody>\r\n                <div class=\"row\">\r\n                    <div class=\"col-12\">\r\n                        <label for=\"\">Name</label>\r\n                        <input type=\"text\" class=\"form-control\" v-model=\"dataValues.name\">\r\n                        <div class=\"text-danger\" v-if=\"errors.name\">{{ errors.name[0] }}</div>\r\n                    </div>  \r\n                    <div class=\"col-12\">\r\n                        <label for=\"image\">Image</label>\r\n                        <input type=\"file\" id=\"image\" class=\"form-control\" @change=\"onFileChange\">\r\n                        <div class=\"text-danger\" v-if=\"errors.image\">{{ errors.image[0] }}</div>\r\n                    </div>\r\n                    <div class=\"col-12\" v-if=\"dataValues.image\">\r\n                        <label for=\"currentImage\">Current Image</label>\r\n                        <img :src=\"'/images/' + dataValues.image\" alt=\"Current Image\" class=\"img-fluid\">\r\n                    </div>\r\n                    <div class=\"col-12\">\r\n                        <label for=\"\">Description</label>\r\n                        <textarea class=\"form-control\" v-model=\"dataValues.description\"></textarea>\r\n                        <div class=\"text-danger\" v-if=\"errors.description\">{{ errors.description[0] }}</div>\r\n                    </div>\r\n                    <div class=\"col-12\">\r\n                        <label for=\"\">Stocks</label>\r\n                        <input type=\"number\" class=\"form-control\" v-model=\"dataValues.stocks\">\r\n                        <div class=\"text-danger\" v-if=\"errors.stocks\">{{ errors.stocks[0] }}</div>\r\n                    </div>\r\n                    <div class=\"col-12\">\r\n                        <label for=\"\">Price per pc</label>\r\n                        <input type=\"number\" class=\"form-control\" v-model=\"dataValues.price\">\r\n                        <div class=\"text-danger\" v-if=\"errors.price\">{{ errors.price[0] }}</div>\r\n                    </div>  \r\n                </div>\r\n            </template>\r\n            <template #modalFooter>\r\n                <div class=\"text-right\">\r\n                    <button class=\"btn btn-success\" v-on:click=\"storeData\">Save</button>\r\n                </div>\r\n            </template>\r\n        </ModalComponent> "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_2, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_3, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_4, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
     type: "text",
     "class": "form-control",
     placeholder: "Search Anything...",
@@ -24984,7 +25148,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
         return $options.requestProduct(product);
       }
     }, "Request this Product", 8 /* PROPS */, _hoisted_14)])])]);
-  }), 128 /* KEYED_FRAGMENT */))]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" ADD SUPPLIER1 PRODUCT "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <ModalComponent :id=\"modalId\" :title=\"modalTitle\" :size=\"modalSize\" :position=\"modalPosition\">\r\n            <template #modalHeader>\r\n                <div class=\"m-auto\">\r\n                    <h4>Add Supplier Product</h4>\r\n                </div>\r\n            </template>\r\n            <template #modalBody>\r\n                <div class=\"row\">\r\n                    <div class=\"col-12\">\r\n                        <label for=\"\">Name</label>\r\n                        <input type=\"text\" class=\"form-control\" v-model=\"dataValues.name\">\r\n                        <div class=\"text-danger\" v-if=\"errors.name\">{{ errors.name[0] }}</div>\r\n                    </div>  \r\n                    <div class=\"col-12\">\r\n                        <label for=\"image\">Image</label>\r\n                        <input type=\"file\" id=\"image\" class=\"form-control\" @change=\"onFileChange\">\r\n                        <div class=\"text-danger\" v-if=\"errors.image\">{{ errors.image[0] }}</div>\r\n                    </div>\r\n                    <div class=\"col-12\" v-if=\"dataValues.image\">\r\n                        <label for=\"currentImage\">Current Image</label>\r\n                        <img :src=\"'/images/' + dataValues.image\" alt=\"Current Image\" class=\"img-fluid\">\r\n                    </div>\r\n                    <div class=\"col-12\">\r\n                        <label for=\"\">Description</label>\r\n                        <textarea class=\"form-control\" v-model=\"dataValues.description\"></textarea>\r\n                        <div class=\"text-danger\" v-if=\"errors.description\">{{ errors.description[0] }}</div>\r\n                    </div>\r\n                    <div class=\"col-12\">\r\n                        <label for=\"\">Stocks</label>\r\n                        <input type=\"number\" class=\"form-control\" v-model=\"dataValues.stocks\">\r\n                        <div class=\"text-danger\" v-if=\"errors.stocks\">{{ errors.stocks[0] }}</div>\r\n                    </div>\r\n                    <div class=\"col-12\">\r\n                        <label for=\"\">Price per pc</label>\r\n                        <input type=\"number\" class=\"form-control\" v-model=\"dataValues.price\">\r\n                        <div class=\"text-danger\" v-if=\"errors.price\">{{ errors.price[0] }}</div>\r\n                    </div>  \r\n                </div>\r\n            </template>\r\n            <template #modalFooter>\r\n                <div class=\"text-right\">\r\n                    <button class=\"btn btn-success\" v-on:click=\"storeData\">Save</button>\r\n                </div>\r\n            </template>\r\n        </ModalComponent> "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_ModalComponent, {
+  }), 128 /* KEYED_FRAGMENT */))]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_ModalComponent, {
     id: $data.modalIdFinal,
     title: $data.modalTitle,
     size: $data.modalSizeFinal,

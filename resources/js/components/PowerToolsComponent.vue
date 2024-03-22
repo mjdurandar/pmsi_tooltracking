@@ -118,7 +118,7 @@
                                 <h6 class="card-text">{{ product.category_name }}</h6>
                             </div>
                             <div style="width: 50%;">
-                                <img v-if="product.image" :src="'/images/' + product.image" alt="Product Image" class="img-fluid">
+                                <img v-if="product.image" :src="'/images/' + product.image" alt="Product Image" class="img-fluid" style="height: 250px;">
                                 <p v-else>No Stocks</p>
                             </div>
                         </div>
