@@ -2,7 +2,7 @@
     <div class="p-3">
         <!-- <BreadCrumbComponent tab_title="Supplier 1"></BreadCrumbComponent> -->
         
-        <!-- ADD SUPPLIER1 PRODUCT -->
+        <!-- ADD supplier3 PRODUCT -->
         <!-- <div class="card">
             <div class="card-body">
                 <FormComponent 
@@ -337,7 +337,7 @@ export default{
                     price: this.priceBelow
                 };
 
-                axios.post('/supplier1/filterData', searchData)
+                axios.post('/supplier3/filterData', searchData)
                     .then(response => {
                         this.data = response.data.data;
                         if (this.data.length === 0) {
@@ -361,7 +361,7 @@ export default{
         requestProduct(product){
 
             this.agreementChecked = false;
-            axios.get('/supplier1/edit/' + product.id).then(response => {
+            axios.get('/supplier3/edit/' + product.id).then(response => {
                 this.dataValues = response.data.data;
                 $('#' + this.modalIdFinal).modal('show');
             }).catch(errors => {
@@ -396,7 +396,7 @@ export default{
                     requestedId: this.dataValues.id,
                     total: this.total
                 };
-                axios.post('/supplier1/requestproduct', requestData)
+                axios.post('/supplier3/requestproduct', requestData)
                     .then(response => {
                         this.dataValues.stocks -= this.requestedItems;
                         this.balance -= this.total;
@@ -438,7 +438,7 @@ export default{
             $('#' + this.modalId).modal('show');
         },
         getData() {
-            axios.get('/supplier1/show').then(response => {
+            axios.get('/supplier3/show').then(response => {
                 this.data = response.data.data;
                 this.suppliers = response.data.suppliers;
                 this.balance = response.data.balance;
@@ -454,7 +454,7 @@ export default{
         editClicked(props) {
             this.modalTitle = 'Edit Data';
 
-            axios.get('/supplier1/edit/' + props.data.id).then(response => {
+            axios.get('/supplier3/edit/' + props.data.id).then(response => {
                 this.dataValues = response.data.data;
                 $('#' + this.modalId).modal('show');
             }).catch(errors => {
@@ -481,7 +481,7 @@ export default{
             }).then((result) => {
                 if (result.isConfirmed) {
                     // User confirmed, proceed with deletion
-                    axios.get('/supplier1/destroy/' + props.data.id).then(response => {
+                    axios.get('/supplier3/destroy/' + props.data.id).then(response => {
                         if(response.status === 200) {
                             Swal.fire({
                                 title: "Success",
@@ -520,7 +520,7 @@ export default{
             if (this.imageData) {
                 formData.append('image', this.imageData);
             }
-                axios.post('/supplier1/store', formData, {
+                axios.post('/supplier3/store', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },

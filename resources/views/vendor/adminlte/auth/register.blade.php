@@ -53,6 +53,24 @@
             @enderror
         </div>
 
+        {{-- Contact Number field --}}
+        <div class="input-group mb-3">
+            <input type="text" name="contact_number" class="form-control @error('contact_number') is-invalid @enderror"
+                   value="{{ old('contact_number') }}" placeholder="Contact Number">
+
+            <div class="input-group-append">
+                <div class="input-group-text">
+                    <span class="fa-solid fa-hashtag {{ config('adminlte.classes_auth_icon', '') }}"></span>
+                </div>
+            </div> 
+
+            @error('contact_number')
+                <span class="invalid-feedback" role="alert">
+                    <strong>{{ $message }}</strong>
+                </span> 
+            @enderror
+        </div>
+
         {{-- Address field --}}
         <div class="input-group mb-3">
             <input type="text" name="address" class="form-control @error('address') is-invalid @enderror"

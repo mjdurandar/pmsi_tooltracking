@@ -93,17 +93,45 @@
             </template>
         </ModalComponent> -->
 
-        <div class="d-flex mb-3 justify-content-between">
-            <div class="d-flex">
-                <select class="form-control" v-model="dataValues.category_id">
-                    <option value="" disabled selected>Select a category...</option>
-                    <option v-for="category in categories" :value="category.id">{{ category.name }}</option>
-                </select> 
-                <button class="btn btn-primary" @click="searchCategory()" style="margin-left:5px">Search</button>
+        <div class="row mb-3">
+            <div class="col-lg-2">
+                <select v-model="selectedBrand" class="form-control">
+                    <option value="" disabled selected>Select Brand</option>
+                    <option value="Bosch">Bosch</option>
+                    <option value="Dewalt">Dewalt</option>
+                    <option value="Makita">Makita</option>
+                    <option value="Milwaukee">Milwaukee</option>
+                    <option value="Black+Decker">Black+Decker</option>
+                    <option value="Craftsman">Craftsman</option>
+                    <option value="Hitachi">Hitachi</option>
+                    <option value="Ingersoll">Ingersoll</option>
+                    <option value="Porter-Cable">Porter-Cable</option>
+                    <option value="Snap-on">Snap-on</option>
+                    <option value="Ridgid">Ridgid</option>
+                    <option value="Metabo">Metabo</option>
+                </select>
             </div>
-            <div class="d-flex">
-                <input type="text" class="form-control" placeholder="Search Product Code..." v-model="searchData">
-                <button class="btn btn-primary" @click="searchProductCode()" style="margin-left:5px">Search</button>
+            <div class="col-lg-2">
+                <select v-model="selectedTool" class="form-control">
+                    <option value="" disabled selected>Select Tools</option> 
+                    <option value="Drill">Drill</option>
+                    <option value="Screwdriver">Screwdriver</option>
+                    <option value="Wrench">Wrench</option>
+                    <option value="Grinder">Grinder</option>
+                    <option value="Jigsaw">Jigsaw</option>
+                    <option value="Saw">Saw</option>
+                </select>
+            </div>
+            <div class="col-lg-2">
+                <select class="form-control" v-model="productCode">
+                    <option value="" disabled selected>Select Product Code</option> 
+                    <option v-for="dataa in data" :value="dataa.id">{{ dataa.product_code }}</option>
+                </select>  
+                <div class="text-danger" v-if="errors.supplier">{{ errors.supplier[0] }}</div>
+            </div> 
+            <div>
+                <button class="btn btn-primary" @click="filterData">Search</button>
+                <button class="btn btn-success ml-1" @click="refresh"><i class="fas fa-sync-alt"></i></button>
             </div>
         </div>
 
@@ -277,11 +305,15 @@ export default{
     data(){
         return{
                 data : [],
+                dataa : [],
                 categories : [],
                 category: '',
                 errors: '',
                 searchData: '', 
                 cancelExplanation: '',
+                selectedBrand : '',
+                selectedTool : '',
+                productCode : '',
                 productData : [],
                 units: [],
                 suppliers: [],
@@ -476,39 +508,51 @@ export default{
                 }
             }
         },
-        searchCategory() {
-            if (this.dataValues.category_id) {
-                axios.post('/powertools/searchCategory', {
-                    category_id: this.dataValues.category_id,
-                    product_code: this.searchData 
-                })
-                .then(response => {
-                    this.data = response.data.data;
-                })
-                .catch(error => {
-                    console.error('Error searching by category:', error);
-                });
-            }
-        },
-        searchProductCode() {
-            if (this.searchData) {
-                axios.post('/powertools/searchProductCode', {
-                    category_id: this.dataValues.category_id, // Include the selected category ID
-                    product_code: this.searchData // Include the product code to search
-                })
-                .then(response => {
-                    this.data = response.data.data;
-                })
-                .catch(error => {
-                    console.error('Error searching by product code:', error);
-                });
-            }
-        },
         getData() {
             axios.get('/powertools/show').then(response => {
                 this.data = response.data.data;
                 this.categories = response.data.categories;
             })
+        },
+        refresh(){
+            window.location.reload();
+        },
+        filterData(){
+            if (!this.selectedBrand || !this.selectedTool || !this.productCode) {
+                    Swal.fire({
+                        title: "Please select all fields!",
+                        icon: 'warning',
+                        timer: 3000
+                    });
+                    return;
+                }
+
+                const searchData = {
+                    brand: this.selectedBrand,
+                    tool: this.selectedTool,
+                    code: this.productCode
+                };
+
+                axios.post('/powertools/filterData', searchData)
+                .then(response => {
+                    this.data = response.data.data;
+                    if (this.data.length === 0) {
+                        Swal.fire({
+                            title: "No Products available!",
+                            icon: 'warning',
+                            timer: 3000
+                        });
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        title: "Error!",
+                        text: "Failed to fetch data.",
+                        icon: 'error',
+                        timer: 3000
+                    });
+                    console.error(error);
+                });
         },
         deleteClicked(props) {
             Swal.fire({

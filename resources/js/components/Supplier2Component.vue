@@ -2,7 +2,7 @@
     <div class="p-3">
         <!-- <BreadCrumbComponent tab_title="Supplier 1"></BreadCrumbComponent> -->
         
-        <!-- ADD SUPPLIER1 PRODUCT -->
+        <!-- ADD supplier2 PRODUCT -->
         <!-- <div class="card">
             <div class="card-body">
                 <FormComponent 
@@ -321,47 +321,57 @@ export default{
         refresh(){
             window.location.reload();
         },
+        searchProduct(){
+            if(this.searchData){
+                axios.post('/supplier2/search/' + this.searchData).then(response => {
+                    this.data = response.data.data;
+                })
+            }
+            else{
+                this.getData();
+            }
+        },
         filterData(){
             if (!this.selectedBrand || !this.selectedTool || !this.priceBelow) {
-                    Swal.fire({
-                        title: "Please select all fields!",
-                        icon: 'warning',
-                        timer: 3000
-                    });
-                    return;
-                }
+                Swal.fire({
+                    title: "Please select all fields!",
+                    icon: 'warning',
+                    timer: 3000
+                });
+                return;
+            }
 
-                const searchData = {
-                    brand: this.selectedBrand,
-                    tool: this.selectedTool,
-                    price: this.priceBelow
-                };
+            const searchData = {
+                brand: this.selectedBrand,
+                tool: this.selectedTool,
+                price: this.priceBelow
+            };
 
-                axios.post('/supplier1/filterData', searchData)
-                    .then(response => {
-                        this.data = response.data.data;
-                        if (this.data.length === 0) {
-                            Swal.fire({
-                                title: "No Products available!",
-                                icon: 'warning',
-                                timer: 3000
-                            });
-                        }
-                    })
-                    .catch(error => {
+            axios.post('/supplier2/filterData', searchData)
+                .then(response => {
+                    this.data = response.data.data;
+                    if (this.data.length === 0) {
                         Swal.fire({
-                            title: "Error!",
-                            text: "Failed to fetch data.",
-                            icon: 'error',
+                            title: "No Products available!",
+                            icon: 'warning',
                             timer: 3000
                         });
-                        console.error(error);
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        title: "Error!",
+                        text: "Failed to fetch data.",
+                        icon: 'error',
+                        timer: 3000
                     });
+                    console.error(error);
+                });
         },
         requestProduct(product){
 
             this.agreementChecked = false;
-            axios.get('/supplier1/edit/' + product.id).then(response => {
+            axios.get('/supplier2/edit/' + product.id).then(response => {
                 this.dataValues = response.data.data;
                 $('#' + this.modalIdFinal).modal('show');
             }).catch(errors => {
@@ -396,7 +406,7 @@ export default{
                     requestedId: this.dataValues.id,
                     total: this.total
                 };
-                axios.post('/supplier1/requestproduct', requestData)
+                axios.post('/supplier2/requestproduct', requestData)
                     .then(response => {
                         this.dataValues.stocks -= this.requestedItems;
                         this.balance -= this.total;
@@ -438,7 +448,7 @@ export default{
             $('#' + this.modalId).modal('show');
         },
         getData() {
-            axios.get('/supplier1/show').then(response => {
+            axios.get('/supplier2/show').then(response => {
                 this.data = response.data.data;
                 this.suppliers = response.data.suppliers;
                 this.balance = response.data.balance;
@@ -454,7 +464,7 @@ export default{
         editClicked(props) {
             this.modalTitle = 'Edit Data';
 
-            axios.get('/supplier1/edit/' + props.data.id).then(response => {
+            axios.get('/supplier2/edit/' + props.data.id).then(response => {
                 this.dataValues = response.data.data;
                 $('#' + this.modalId).modal('show');
             }).catch(errors => {
@@ -481,7 +491,7 @@ export default{
             }).then((result) => {
                 if (result.isConfirmed) {
                     // User confirmed, proceed with deletion
-                    axios.get('/supplier1/destroy/' + props.data.id).then(response => {
+                    axios.get('/supplier2/destroy/' + props.data.id).then(response => {
                         if(response.status === 200) {
                             Swal.fire({
                                 title: "Success",
@@ -520,7 +530,7 @@ export default{
             if (this.imageData) {
                 formData.append('image', this.imageData);
             }
-                axios.post('/supplier1/store', formData, {
+                axios.post('/supplier2/store', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },

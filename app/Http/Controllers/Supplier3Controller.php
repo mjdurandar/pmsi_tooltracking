@@ -3,24 +3,24 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Supplier1;
+use App\Models\Supplier3;
 use App\Models\Supplier;
 use App\Models\ToolsAndEquipment;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
-class Supplier1Controller extends Controller
+class Supplier3Controller extends Controller
 {
     public function show() {
         $user_id = Auth::id();
         $user = User::findOrFail($user_id);
         $balance = $user->balance; 
 
-        $data = Supplier1::leftjoin('suppliers', 'suppliers.id', '=', 'supplier1s.supplier_id')
-                        ->select('supplier1s.*', 'suppliers.name as supplier_name')
+        $data = Supplier3::leftjoin('suppliers', 'suppliers.id', '=', 'supplier3s.supplier_id')
+                        ->select('supplier3s.*', 'suppliers.name as supplier_name')
                         ->get();
 
-        $products = Supplier1::get();
+        $products = Supplier3::get();
                         
         $suppliers = Supplier::get();
         return response()->json([ 'data' => $data, 'suppliers' => $suppliers , 'balance' => $balance, 'products' => $products]);
@@ -32,7 +32,7 @@ class Supplier1Controller extends Controller
         $tool = $request->input('tool');
         $price = $request->input('price');
 
-        $data = Supplier1::where('name', 'like', '%' . $brand . '%')
+        $data = Supplier3::where('name', 'like', '%' . $brand . '%')
                         ->where('name', 'like', '%' . $tool . '%')
                         ->where('price', '<=', $price)
                         ->get();
@@ -63,9 +63,9 @@ class Supplier1Controller extends Controller
 
         // $productCode = 'P-' . str_pad(Supplier1::count() + 1, 3, '0', STR_PAD_LEFT);
         // Create a new Supplier1 instance
-        $newSupplier1 = new Supplier1();
+        $newSupplier1 = new Supplier3();
         $newSupplier1->name = $request->name;
-        $newSupplier1->description = $request->description;
+        $newSupplier1->specifications = $request->specifications;
         // $newSupplier1->product_code = $productCode;
         $newSupplier1->price = $request->price;
         $newSupplier1->stocks =  $request->stocks; // Each record has one stock
@@ -93,7 +93,7 @@ class Supplier1Controller extends Controller
         $user->balance -= $total;
         $user->save();
 
-        $product = Supplier1::findOrFail($requestedId);
+        $product = Supplier3::findOrFail($requestedId);
         // Duplicate the product data based on the requested quantity
         for ($i = 0; $i < $requestedQuantity; $i++) {
             $productCode = 'P-' . str_pad(ToolsAndEquipment::count() + 1, 3, '0', STR_PAD_LEFT);
@@ -101,7 +101,7 @@ class Supplier1Controller extends Controller
             $tool = new ToolsAndEquipment();
             // Assign the product details to the ToolsAndEquipment instance
             $tool->name = $product->name;
-            $tool->description = $product->description;
+            $tool->specifications = $product->specifications;
             $tool->image = $product->image;
             $tool->price = $product->price;
             $tool->product_code = $productCode;
@@ -117,15 +117,15 @@ class Supplier1Controller extends Controller
         return response()->json(['message' => 'Products Requested Successfully'], 200);
     }
 
-    public function edit(Supplier1 $supplier1)
+    public function edit(Supplier3 $supplier3)
     {
-        return response()->json(['data' => $supplier1]);
+        return response()->json(['data' => $supplier3]);
     }
 
-    public function destroy(Supplier1 $supplier1)
+    public function destroy(Supplier3 $supplier3)
     {
-        $supplier1->delete();
-        return response()->json(['data' => $supplier1]);
+        $supplier3->delete();
+        return response()->json(['data' => $supplier3]);
     }
     
 }

@@ -53,10 +53,28 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('/supplier1',[App\Http\Controllers\Supplier1Controller::class, 'index']);
         Route::get('/supplier1/show',[App\Http\Controllers\Supplier1Controller::class, 'show']);
         Route::post('/supplier1/store',[App\Http\Controllers\Supplier1Controller::class, 'store']);
-        Route::post('/supplier1/search/{value}',[App\Http\Controllers\Supplier1Controller::class, 'search']);
+        Route::post('/supplier1/filterData',[App\Http\Controllers\Supplier1Controller::class, 'filterData']);
         Route::post('/supplier1/requestproduct',[App\Http\Controllers\Supplier1Controller::class, 'requestproduct']);
         Route::get('/supplier1/edit/{supplier1}',[App\Http\Controllers\Supplier1Controller::class, 'edit']);
         Route::get('/supplier1/destroy/{supplier1}',[App\Http\Controllers\Supplier1Controller::class, 'destroy']);
+
+        //Supplier2
+        Route::get('/supplier2',[App\Http\Controllers\Supplier2Controller::class, 'index']);
+        Route::get('/supplier2/show',[App\Http\Controllers\Supplier2Controller::class, 'show']);
+        Route::post('/supplier2/store',[App\Http\Controllers\Supplier2Controller::class, 'store']);
+        Route::post('/supplier2/filterData',[App\Http\Controllers\Supplier2Controller::class, 'filterData']);
+        Route::post('/supplier2/requestproduct',[App\Http\Controllers\Supplier2Controller::class, 'requestproduct']);
+        Route::get('/supplier2/edit/{supplier2}',[App\Http\Controllers\Supplier2Controller::class, 'edit']);
+        Route::get('/supplier2/destroy/{supplier2}',[App\Http\Controllers\Supplier2Controller::class, 'destroy']);
+
+        //Supplier3
+        Route::get('/supplier3',[App\Http\Controllers\Supplier3Controller::class, 'index']);
+        Route::get('/supplier3/show',[App\Http\Controllers\Supplier3Controller::class, 'show']);
+        Route::post('/supplier3/store',[App\Http\Controllers\Supplier3Controller::class, 'store']);
+        Route::post('/supplier3/filterData',[App\Http\Controllers\Supplier3Controller::class, 'filterData']);
+        Route::post('/supplier3/requestproduct',[App\Http\Controllers\Supplier3Controller::class, 'requestproduct']);
+        Route::get('/supplier3/edit/{supplier3}',[App\Http\Controllers\Supplier3Controller::class, 'edit']);
+        Route::get('/supplier3/destroy/{supplier3}',[App\Http\Controllers\Supplier3Controller::class, 'destroy']);
 
         // REQUEST A PRODUCT
         Route::get('/request-product',[App\Http\Controllers\RequestProductController::class, 'index']);
@@ -104,8 +122,7 @@ Route::group(['middleware' => 'auth'], function(){
         // POWERTOOLS 
         Route::get('/powertools',[App\Http\Controllers\PowerToolsController::class, 'index']);
         Route::post('/powertools/store',[App\Http\Controllers\PowerToolsController::class, 'store']);
-        Route::post('/powertools/searchProductCode/',[App\Http\Controllers\PowerToolsController::class, 'searchProductCode']);
-        Route::post('/powertools/searchCategory',[App\Http\Controllers\PowerToolsController::class, 'searchCategory']);
+        Route::post('/powertools/filterData',[App\Http\Controllers\PowerToolsController::class, 'filterData']);
         Route::get('/powertools/releaseProduct/{toolsAndEquipment}',[App\Http\Controllers\PowerToolsController::class, 'releaseProduct']);
         Route::post('/powertools/updateProduct',[App\Http\Controllers\PowerToolsController::class, 'updateProduct']);
         Route::post('/powertools/cancelProduct',[App\Http\Controllers\PowerToolsController::class, 'cancelProduct']);

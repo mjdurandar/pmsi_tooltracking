@@ -35,6 +35,8 @@ import DashbboardComponent from './components/DashboardComponent.vue';
 import RequestProductComponent from './components/RequestProductComponent.vue';
 import Supplier1Component from './components/Supplier1Component.vue';
 import ProductHistoryComponent from './components/ProductHistoryComponent.vue';
+import Supplier2Component from './components/Supplier2Component.vue';
+import Supplier3Component from './components/Supplier3Component.vue';
 
 app.config.globalProperties.$swal = Swal;
 app.use(ServerTable, {}, 'bootstrap4')
@@ -59,6 +61,8 @@ app.component('dashboard-component', DashbboardComponent);
 app.component('request-product-component', RequestProductComponent);
 app.component('supplier1-component', Supplier1Component);
 app.component('product-history-component', ProductHistoryComponent);
+app.component('supplier2-component', Supplier2Component);
+app.component('supplier3-component', Supplier3Component);
 
 /**
  * The following block of code may be used to automatically register your

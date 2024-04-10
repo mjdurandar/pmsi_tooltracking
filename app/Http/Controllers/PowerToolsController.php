@@ -28,43 +28,20 @@ class PowerToolsController extends Controller
         return response()->json([ 'data' => $data, 'categories' => $categories ]);
     }
 
-    public function searchCategory(Request $request) {
-        $category_id = $request->category_id;
-        
-        $data = ToolsAndEquipment::leftjoin('categories', 'tools_and_equipment.category_id', '=', 'categories.id')
-                                ->leftjoin('suppliers', 'tools_and_equipment.supplier_id', '=', 'suppliers.id')
-                                ->select('tools_and_equipment.*', 'categories.name as category_name', 'suppliers.name as supplier_name')
-                                ->where('category_id', $category_id)->get();
-        
-        if ($data->isEmpty()) {
-            return response()->json(['data' => []]);
-        }
-        
+    public function filterData(Request $request){
+
+        $brand = $request->input('brand');
+        $tool = $request->input('tool');
+        $code = $request->input('code');
+
+        $data = ToolsAndEquipment::where('name', 'like', '%' . $brand . '%')
+                        ->where('name', 'like', '%' . $tool . '%')
+                        ->where('product_code', '<=', $code)
+                        ->get();
+
         return response()->json(['data' => $data]);
-    }    
-
-    public function searchProductCode(Request $request){
-        $category_id = $request->category_id;
-        $product_code = $request->product_code;
-    
-        $data = ToolsAndEquipment::leftjoin('categories', 'tools_and_equipment.category_id', '=', 'categories.id')
-                                ->leftjoin('suppliers', 'tools_and_equipment.supplier_id', '=', 'suppliers.id')
-                                ->select('tools_and_equipment.*', 'categories.name as category_name', 'suppliers.name as supplier_name')
-                                ->newQuery();
-    
-        if ($category_id) {
-            $data->where('category_id', $category_id);
-        }
-    
-        if ($product_code) {
-            $data->where('product_code', 'like', '%' . $product_code . '%');
-        }
-    
-        $result = $data->get();
-    
-        return response()->json(['data' => $result]);
-    }    
-
+        
+    }
     public function releaseProduct(ToolsAndEquipment $toolsAndEquipment){
         
         $toolsAndEquipment = ToolsAndEquipment::leftjoin('categories', 'tools_and_equipment.category_id', '=', 'categories.id')
