@@ -99,6 +99,7 @@
             <div>
                 <button class="btn btn-primary" @click="filterData">Search</button>
                 <button class="btn btn-success ml-1" @click="refresh"><i class="fas fa-sync-alt"></i></button>
+                <button class="btn btn-warning ml-1" @click="information"><i class="fas fa-info-circle"></i></button>
             </div>
         </div>
         
@@ -248,6 +249,36 @@
                 </div>
             </template>
         </ModalComponent>
+        
+        <!-- Information MODAL -->
+        <ModalComponent :id="modalIdInfo" :title="modalTitle" :size="modalSizeFinal" :position="modalPosition">
+            <template #modalHeader>
+                <div class="m-auto">
+                    <h4>Genesis Hardware: General Construction Supply</h4>
+                </div>
+            </template>
+            <template #modalBody>
+                <div>
+                    <p>Welcome to Genesis Hardware: Your Partner in Building Excellence</p>
+                    <p>Genesis Hardware: General Construction Supply is your premier destination for all your construction and building material needs. With a commitment to quality, reliability, and customer satisfaction, we have earned a reputation as a trusted provider of construction supplies and solutions.</p>
+                    <p>Why Choose Genesis Hardware?</p>
+                    <ol>
+                        <li>Quality Products</li>
+                        <li>Expert Guidance</li>
+                        <li>Competitive Pricing</li>
+                        <li>Convenience and Efficiency</li>
+                        <li>Customer Satisfaction</li>
+                    </ol>
+                    <p>Experience the Genesis Hardware Difference</p>
+                    <p>Whether you're embarking on a new construction project, renovating your home, or tackling a DIY project, Genesis Hardware: General Construction Supply is here to support you every step of the way. With our quality products, expert guidance, competitive pricing, and exceptional service, we're your partner in building excellence. Contact us today to experience the Genesis Hardware difference for yourself!</p>
+                </div>
+            </template>
+            <template #modalFooter>
+                <div class="text-right">
+                    <button style="margin-left: 5px;" class="btn btn-dark" v-on:click="noProduct">Close</button>
+                </div>
+            </template>
+        </ModalComponent>
 
     </div>
 </template>
@@ -301,6 +332,8 @@ export default{
 
                 modalIdFinal : 'modal-final-product',
                 modalSizeFinal : 'modal-lg',
+
+                modalIdInfo : 'modal-info',
         }
     },
     components: {
@@ -320,6 +353,9 @@ export default{
         },
         refresh(){
             window.location.reload();
+        },
+        information(){
+            $('#' + this.modalIdInfo).modal('show');
         },
         filterData(){
             if (!this.selectedBrand || !this.selectedTool || !this.priceBelow) {
@@ -430,6 +466,8 @@ export default{
         },
         noProduct(){
             $('#' + this.modalId).modal('hide');
+            $('#' + this.modalIdFinal).modal('hide');
+            $('#' + this.modalIdInfo).modal('hide');
         },
         getProduct(){
             this.requestedItems = 0;

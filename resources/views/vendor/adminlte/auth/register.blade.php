@@ -14,6 +14,15 @@
 @section('auth_header', __('adminlte::adminlte.register_message'))
 
 @section('auth_body')
+@if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
     <form action="{{ $register_url }}" method="post">
         @csrf
 
@@ -55,8 +64,8 @@
 
         {{-- Contact Number field --}}
         <div class="input-group mb-3">
-            <input type="text" name="contact_number" class="form-control @error('contact_number') is-invalid @enderror"
-                   value="{{ old('contact_number') }}" placeholder="Contact Number">
+            <input type="text" name="contact_address" class="form-control @error('contact_address') is-invalid @enderror"
+                   value="{{ old('contact_address') }}" placeholder="Contact Number">
 
             <div class="input-group-append">
                 <div class="input-group-text">
@@ -64,28 +73,96 @@
                 </div>
             </div> 
 
-            @error('contact_number')
+            @error('contact_address')
                 <span class="invalid-feedback" role="alert">
                     <strong>{{ $message }}</strong>
                 </span> 
             @enderror
         </div>
 
-        {{-- Address field --}}
+        {{-- Region dropdown --}}
         <div class="input-group mb-3">
-            <input type="text" name="address" class="form-control @error('address') is-invalid @enderror"
-                   value="{{ old('address') }}" placeholder="Complete Address">
+            <select name="region_id" class="form-control">
+                <option value="" selected disabled>Select Region</option>
+                @foreach($regions as $region)
+                    <option value="{{ $region->id }}">{{ $region->name }}</option>
+                @endforeach
+            </select>
 
             <div class="input-group-append">
                 <div class="input-group-text">
-                    <span class="fa-solid fa-location-dot {{ config('adminlte.classes_auth_icon', '') }}"></span>
+                    <span class="fas fa-map-marker-alt"></span>
                 </div>
-            </div> 
+            </div>
+        </div>
 
-            @error('address')
+        {{-- Province dropdown --}}
+        <div class="input-group mb-3">
+            <select name="province_id" class="form-control">
+                <option value="" selected disabled>Select Province</option>
+                @foreach($provinces as $province)
+                    <option value="{{ $province->id }}">{{ $province->name }}</option>
+                @endforeach
+            </select>
+
+            <div class="input-group-append">
+                <div class="input-group-text">
+                    <span class="fas fa-map-marker-alt"></span>
+                </div>
+            </div>
+        </div>
+
+        {{-- City field --}}
+        <div class="input-group mb-3">
+            <input type="text" name="city" class="form-control @error('city') is-invalid @enderror"
+                   value="{{ old('city') }}" placeholder="City">
+
+            <div class="input-group-append">
+                <div class="input-group-text">
+                    <span class="fas fa-map-marker-alt"></span>
+                </div>
+            </div>
+
+            @error('city')
                 <span class="invalid-feedback" role="alert">
                     <strong>{{ $message }}</strong>
-                </span> 
+                </span>
+            @enderror
+        </div>
+
+        {{-- Barangay field --}}
+        <div class="input-group mb-3">
+            <input type="text" name="barangay" class="form-control @error('barangay') is-invalid @enderror"
+                   value="{{ old('barangay') }}" placeholder="Barangay">
+
+            <div class="input-group-append">
+                <div class="input-group-text">
+                    <span class="fas fa-map-marker-alt"></span>
+                </div>
+            </div>
+
+            @error('barangay')
+                <span class="invalid-feedback" role="alert">
+                    <strong>{{ $message }}</strong>
+                </span>
+            @enderror
+        </div>
+
+        {{-- House Number field --}}
+        <div class="input-group mb-3">
+            <input type="text" name="house_number" class="form-control @error('house_number') is-invalid @enderror"
+                   value="{{ old('house_number') }}" placeholder="House Number">
+
+            <div class="input-group-append">
+                <div class="input-group-text">
+                    <span class="fas fa-map-marker-alt"></span>
+                </div>
+            </div>
+
+            @error('house_number')
+                <span class="invalid-feedback" role="alert">
+                    <strong>{{ $message }}</strong>
+                </span>
             @enderror
         </div>
 
@@ -133,6 +210,7 @@
         </button>
 
     </form>
+    
 @stop
 
 @section('auth_footer')

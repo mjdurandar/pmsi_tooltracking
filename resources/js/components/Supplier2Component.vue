@@ -99,6 +99,7 @@
             <div>
                 <button class="btn btn-primary" @click="filterData">Search</button>
                 <button class="btn btn-success ml-1" @click="refresh"><i class="fas fa-sync-alt"></i></button>
+                <button class="btn btn-warning ml-1" @click="information"><i class="fas fa-info-circle"></i></button>
             </div>
         </div>
         
@@ -249,6 +250,37 @@
             </template>
         </ModalComponent>
 
+        <!-- Information MODAL -->
+        <ModalComponent :id="modalIdInfo" :title="modalTitle" :size="modalSizeFinal" :position="modalPosition">
+            <template #modalHeader>
+                <div class="m-auto">
+                    <h4>Grace Hardware: General Construction Supply</h4>
+                </div>
+            </template>
+            <template #modalBody>
+                <div>
+                    <p>Welcome to Grace Hardware: Your Partner in Building Success</p>
+                    <p>Grace Hardware: General Construction Supply is your one-stop destination for all your construction and building material needs. With a legacy of excellence spanning decades, we have become synonymous with reliability, quality, and innovation in the construction industry.</p>
+                    <p>Why Choose Grace Hardware?</p>
+                    <ol>
+                        <li>Extensive Product Range</li>
+                        <li>Unmatched Quality</li>
+                        <li>Expert Guidance</li>
+                        <li>Competitive Pricing</li>
+                        <li>Convenient Ordering and Delivery</li>
+                        <li>Commitment to Sustainability</li>
+                    </ol>
+                    <p>Experience the Grace Hardware Difference</p>
+                    <p>Whether you're building a new home, renovating an existing property, or undertaking a large-scale construction project, Grace Hardware: General Construction Supply is your trusted partner for quality materials, expert guidance, and unparalleled service. Contact us today to experience the Grace Hardware difference and take your construction projects to new heights of success.</p>
+                </div>
+            </template>
+            <template #modalFooter>
+                <div class="text-right">
+                    <button style="margin-left: 5px;" class="btn btn-dark" v-on:click="noProduct">Close</button>
+                </div>
+            </template>
+        </ModalComponent>
+
     </div>
 </template>
 
@@ -301,6 +333,8 @@ export default{
 
                 modalIdFinal : 'modal-final-product',
                 modalSizeFinal : 'modal-lg',
+
+                modalIdInfo : 'modal-info',
         }
     },
     components: {
@@ -317,6 +351,9 @@ export default{
         },
         addClicked(){
             $('#' + this.modalId).modal('show');
+        },
+        information(){
+            $('#' + this.modalIdInfo).modal('show');
         },
         refresh(){
             window.location.reload();
@@ -440,6 +477,8 @@ export default{
         },
         noProduct(){
             $('#' + this.modalId).modal('hide');
+            $('#' + this.modalIdFinal).modal('hide');
+            $('#' + this.modalIdInfo).modal('hide');
         },
         getProduct(){
             this.requestedItems = 0;

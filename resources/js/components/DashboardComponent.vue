@@ -15,7 +15,7 @@
             <img src="images\under_maintenance.png" alt="Under Maintenance" style="text-align: center;"> 
         </div> -->
         <div class="row">
-            <div class="col-6">
+            <div class="col-lg-6">
                 <div class="card" style="background-color: #f18f4e; color: #fff;">
                     <div class="card-body dash-title">
                         Product Stocks
@@ -27,7 +27,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-6">
+            <div class="col-lg-6">
                 <div class="card" style="background-color: #f18f4e; color: #fff;">
                     <div class="card-body dash-title">
                         Master Data
@@ -41,7 +41,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-6">
+            <div class="col-lg-6">
                 <div class="card" style="background-color: #f18f4e; color: #fff;">
                     <div class="card-body dash-title">
                         Supplier
@@ -53,7 +53,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-6">
+            <div class="col-lg-6">
                 <div class="card" style="background-color: #f18f4e; color: #fff;">
                     <div class="card-body dash-title">
                         Selling and Borrowing
@@ -65,7 +65,7 @@
                     </div>
                 </div>
             </div>
-            <!-- <div class="col-6">
+            <!-- <div class="col-lg-6">
                 <div class="card" style="background-color: #f18f4e; color: #fff;">
                     <div class="card-body dash-title" >
                         Tools

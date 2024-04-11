@@ -99,6 +99,7 @@
             <div>
                 <button class="btn btn-primary" @click="filterData">Search</button>
                 <button class="btn btn-success ml-1" @click="refresh"><i class="fas fa-sync-alt"></i></button>
+                <button class="btn btn-warning ml-1" @click="information"><i class="fas fa-info-circle"></i></button>
             </div>
         </div>
         
@@ -249,6 +250,36 @@
             </template>
         </ModalComponent>
 
+        <!-- Information MODAL -->
+        <ModalComponent :id="modalIdInfo" :title="modalTitle" :size="modalSizeFinal" :position="modalPosition">
+            <template #modalHeader>
+                <div class="m-auto">
+                    <h4>Twinbar Metal Industries</h4>
+                </div>
+            </template>
+            <template #modalBody>
+            <div>
+                <p>Introducing Twinbar Metal Industries: Your Partner in Precision Engineering Solutions</p>
+                <p>At Twinbar Metal Industries, we pride ourselves on being a premier provider of precision engineering solutions in the hardware industry. With decades of experience and a commitment to excellence, we have established ourselves as a trusted partner for businesses seeking high-quality metal components and products.</p>
+                <p>What sets us apart is our relentless dedication to innovation, precision, and customer satisfaction. Here's why you should choose Twinbar Metal Industries for your hardware needs:</p>
+                <ul>
+                    <li>Cutting-Edge Technology</li>
+                    <li>Customization and Flexibility</li>
+                    <li>Quality Assurance</li>
+                    <li>Responsive Customer Support</li>
+                    <li>Sustainable Practices</li>
+                    <li>Proven Track Record</li>
+                </ul>
+                <p>Whether you're in need of precision metal components for automotive, aerospace, electronics, or any other industry, Twinbar Metal Industries is your trusted partner for quality, reliability, and innovation. Contact us today to learn more about how we can help you achieve your goals and bring your projects to life with precision-engineered solutions.</p>
+            </div>
+            </template>
+            <template #modalFooter>
+                <div class="text-right">
+                    <button style="margin-left: 5px;" class="btn btn-dark" v-on:click="noProduct">Close</button>
+                </div>
+            </template>
+        </ModalComponent>
+
     </div>
 </template>
 
@@ -301,6 +332,8 @@ export default{
 
                 modalIdFinal : 'modal-final-product',
                 modalSizeFinal : 'modal-lg',
+
+                modalIdInfo : 'modal-info-product',
         }
     },
     components: {
@@ -320,6 +353,9 @@ export default{
         },
         refresh(){
             window.location.reload();
+        },
+        information(){
+            $('#' + this.modalIdInfo).modal('show');
         },
         filterData(){
             if (!this.selectedBrand || !this.selectedTool || !this.priceBelow) {
@@ -430,6 +466,8 @@ export default{
         },
         noProduct(){
             $('#' + this.modalId).modal('hide');
+            $('#' + this.modalIdFinal).modal('hide');
+            $('#' + this.modalIdInfo).modal('hide');
         },
         getProduct(){
             this.requestedItems = 0;
