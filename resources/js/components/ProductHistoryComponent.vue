@@ -36,20 +36,20 @@
                     <option v-for="supplier in suppliers" :value="supplier.id">{{ supplier.name }}</option>
                 </select>  
             </div>
-            <div class="col-lg-2">
+            <!-- <div class="col-lg-2">
                 <select class="form-control" v-model="status_id">
                     <option value="" disabled selected>Select Status</option>
                     <option value="Unreleased">Unreleased</option>
                     <option value="Selling">Selling</option>
                     <option value="Borrowing">Borrowing</option>
                 </select>  
-            </div>
-            <!-- <div class="col-lg-2">
+            </div> -->
+            <div class="col-lg-2">
                 <select class="form-control" v-model="status_id">
                     <option value="" disabled selected>Select Status</option>
                     <option v-for="status in statuses" :value="status.id">{{ status.name }}</option>
                 </select>  
-            </div> -->
+            </div>
             <div>
                 <button class="btn btn-primary" @click="filterData">Search</button>
                 <button class="btn btn-success ml-1" @click="refresh"><i class="fas fa-sync-alt"></i></button>

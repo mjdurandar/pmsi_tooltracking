@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ProjectSite;
 use Illuminate\Http\Request;
 use App\Models\Supplier1;
 use App\Models\Supplier;
@@ -19,24 +20,23 @@ class Supplier1Controller extends Controller
         $data = Supplier1::leftjoin('suppliers', 'suppliers.id', '=', 'supplier1s.supplier_id')
                         ->select('supplier1s.*', 'suppliers.name as supplier_name')
                         ->get();
-
+        
+        $projects = ProjectSite::get();
         $products = Supplier1::get();
                         
         $suppliers = Supplier::get();
-        return response()->json([ 'data' => $data, 'suppliers' => $suppliers , 'balance' => $balance, 'products' => $products]);
+        return response()->json([ 'data' => $data, 'suppliers' => $suppliers , 'balance' => $balance, 'products' => $products, 'projects' => $projects]);
     }
 
     public function filterData(Request $request){
 
         $brand = $request->input('brand');
         $tool = $request->input('tool');
-        $price = $request->input('price');
         $specs = $request->input('specs');
 
         $data = Supplier1::where('name', 'like', '%' . $brand . '%')
                         ->where('name', 'like', '%' . $tool . '%')
                         ->where('specifications', 'like', '%' . $specs . '%')
-                        ->where('price', '<=', $price)
                         ->get();
 
         return response()->json(['data' => $data]);

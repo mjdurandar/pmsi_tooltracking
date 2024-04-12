@@ -94,9 +94,9 @@
                     <option value="Saw">Saw</option>
                 </select>
             </div>
-            <div class="col-lg-2">
+            <!-- <div class="col-lg-2">
                 <input v-model="priceBelow" type="number" class="form-control" placeholder="Enter Price Below">
-            </div>
+            </div> -->
             <div class="col-lg-2">
                 <select v-model="selectedSpecs" class="form-control">
                     <option value="" disabled selected>Select Specifications</option> 
@@ -221,6 +221,13 @@
                         <div class="text-danger" v-if="errors.supplier">{{ errors.supplier[0] }}</div>
                     </div> 
                     <div class="col-12">
+                        <label for="">Project Sites</label>
+                        <select class="form-control" v-model="dataValues.project_site_id">
+                            <option v-for="project in projects" :value="project.id">{{ project.name }}</option>
+                        </select>
+                        <div class="text-danger" v-if="errors.project_site_id">{{ errors.project_site_id[0] }}</div>
+                    </div>
+                    <div class="col-12">
                         <label for="">Price per pc</label>
                         <input type="number" class="form-control" v-model="dataValues.price" disabled>
                         <div class="text-danger" v-if="errors.price">{{ errors.price[0] }}</div>
@@ -307,12 +314,12 @@ export default{
                 data : [],
                 categories : [],
                 units : [],
+                projects : [],  
                 searchData : '',
                 requestData : [],
                 countRequestProduct : [],
                 selectedBrand : '',
                 selectedTool : '',
-                priceBelow : '',
                 selectedSpecs : '',
                 agreementChecked: false,
                 suppliers : [],
@@ -370,7 +377,7 @@ export default{
             $('#' + this.modalIdInfo).modal('show');
         },
         filterData(){
-            if (!this.selectedBrand || !this.selectedTool || !this.priceBelow || !this.selectedSpecs) {
+            if (!this.selectedBrand || !this.selectedTool || !this.selectedSpecs) {
                     Swal.fire({
                         title: "Please select all fields!",
                         icon: 'warning',
@@ -382,7 +389,6 @@ export default{
                 const searchData = {
                     brand: this.selectedBrand,
                     tool: this.selectedTool,
-                    price: this.priceBelow,
                     specs: this.selectedSpecs
                 };
 
@@ -494,6 +500,7 @@ export default{
                 this.data = response.data.data;
                 this.suppliers = response.data.suppliers;
                 this.balance = response.data.balance;
+                this.projects = response.data.projects;
             })
         },
         clearInputs() {

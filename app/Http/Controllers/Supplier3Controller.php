@@ -8,6 +8,7 @@ use App\Models\Supplier;
 use App\Models\ToolsAndEquipment;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use App\Models\ProjectSite;
 
 class Supplier3Controller extends Controller
 {
@@ -21,21 +22,21 @@ class Supplier3Controller extends Controller
                         ->get();
 
         $products = Supplier3::get();
+
+        $projects = ProjectSite::get();
                         
         $suppliers = Supplier::get();
-        return response()->json([ 'data' => $data, 'suppliers' => $suppliers , 'balance' => $balance, 'products' => $products]);
+        return response()->json([ 'data' => $data, 'suppliers' => $suppliers , 'balance' => $balance, 'products' => $products, 'projects' => $projects]);
     }
 
     public function filterData(Request $request){
 
         $brand = $request->input('brand');
         $tool = $request->input('tool');
-        $price = $request->input('price');
         $specs = $request->input('specs');
 
         $data = Supplier3::where('name', 'like', '%' . $brand . '%')
                         ->where('name', 'like', '%' . $tool . '%')
-                        ->where('price', '<=', $price)
                         ->where('specifications', 'like', '%' . $specs . '%')
                         ->get();
 

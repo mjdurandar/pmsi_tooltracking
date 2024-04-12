@@ -32,12 +32,12 @@ class PowerToolsController extends Controller
 
         $brand = $request->input('brand');
         $tool = $request->input('tool');
-        $code = $request->input('code');
+        $category_id = $request->input('category_id');
 
         $data = ToolsAndEquipment::where('name', 'like', '%' . $brand . '%')
-                        ->where('name', 'like', '%' . $tool . '%')
-                        ->where('product_code', '<=', $code)
-                        ->get();
+                                ->orWhere('name', 'like', '%' . $tool . '%')
+                                ->where('category_id', '=', $category_id)
+                                ->get();
 
         return response()->json(['data' => $data]);
         

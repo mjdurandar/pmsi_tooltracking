@@ -123,12 +123,12 @@
                 </select>
             </div>
             <div class="col-lg-2">
-                <select class="form-control" v-model="productCode">
-                    <option value="" disabled selected>Select Product Code</option> 
-                    <option v-for="dataa in data" :value="dataa.id">{{ dataa.product_code }}</option>
+                <select class="form-control" v-model="category_id">
+                    <option value="" disabled selected>Select Category</option>
+                    <option v-for="category in categories" :value="category.id">{{ category.name }}</option>
                 </select>  
-                <div class="text-danger" v-if="errors.supplier">{{ errors.supplier[0] }}</div>
-            </div> 
+                <div class="text-danger" v-if="errors.category">{{ errors.category[0] }}</div>
+            </div>
             <div>
                 <button class="btn btn-primary" @click="filterData">Search</button>
                 <button class="btn btn-success ml-1" @click="refresh"><i class="fas fa-sync-alt"></i></button>
@@ -137,7 +137,7 @@
 
         <div class="row">
             <div class="col-md-4" v-for="(product, index) in data" :key="index">
-                <div class="card" :class="{ 'borrowed-card': product.category_name === 'Borrowing' || product.category_name === 'Selling' }">
+                <div class="card" :class="{ 'borrowed-card': product.category_name === 'For Borrowing' || product.category_name === 'For Sale' || product.category_id === 2 || product.category_id === 3}">
                     <div class="card-body">
                         <div class="d-flex justify-content-between">
                             <div style="width: 50%;">
@@ -150,9 +150,9 @@
                                 <p v-else>No Stocks</p>
                             </div>
                         </div>
-                        <button class="btn btn-success" :class="{ 'btn-danger': product.category_name === 'Borrowing' || product.category_name === 'Selling' }" 
+                        <button class="btn btn-success" :class="{ 'btn-danger': product.category_name === 'For Borrowing' || product.category_name === 'For Sale' || product.category_id === 2 || product.category_id === 3 }" 
                         @click="product.is_approved === 1 ? cancelProduct(product) : releaseProduct(product)">
-                            {{ product.category_name === 'Borrowing' || product.category_name === 'Selling' ? 'Cancel' : 'Release Product' }}
+                            {{ product.category_name === 'Borrowing' || product.category_name === 'For Sale' || product.category_id === 2  || product.category_id === 3 ? 'Cancel' : 'Release Product' }}
                         </button>
                     </div>
                 </div>
@@ -310,6 +310,7 @@ export default{
                 category: '',
                 errors: '',
                 searchData: '', 
+                statuses: [],
                 cancelExplanation: '',
                 selectedBrand : '',
                 selectedTool : '',
@@ -518,7 +519,7 @@ export default{
             window.location.reload();
         },
         filterData(){
-            if (!this.selectedBrand || !this.selectedTool || !this.productCode) {
+            if (!this.selectedBrand || !this.selectedTool || !this.category_id) {
                     Swal.fire({
                         title: "Please select all fields!",
                         icon: 'warning',
@@ -530,7 +531,7 @@ export default{
                 const searchData = {
                     brand: this.selectedBrand,
                     tool: this.selectedTool,
-                    code: this.productCode
+                    category_id: this.category_id
                 };
 
                 axios.post('/powertools/filterData', searchData)
