@@ -31,10 +31,12 @@ class Supplier3Controller extends Controller
         $brand = $request->input('brand');
         $tool = $request->input('tool');
         $price = $request->input('price');
+        $specs = $request->input('specs');
 
         $data = Supplier3::where('name', 'like', '%' . $brand . '%')
                         ->where('name', 'like', '%' . $tool . '%')
                         ->where('price', '<=', $price)
+                        ->where('specifications', 'like', '%' . $specs . '%')
                         ->get();
 
         return response()->json(['data' => $data]);
@@ -44,13 +46,13 @@ class Supplier3Controller extends Controller
     public function store(Request $request) {
         $request->validate([
             'name' => 'required|string',
-            'description' => 'required:description',
+            'specifications' => 'required:specifications',
             'price' => 'required:price',
             'stocks' => 'required:stocks',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ], [
             'name.required' => "The Name field is required",
-            'description.required' => "The Description field is required",
+            'specifications.required' => "The specifications field is required",
             'price.required' => "The Price field is required",
             'stocks.required' => "The Stocks field is required",
         ]);

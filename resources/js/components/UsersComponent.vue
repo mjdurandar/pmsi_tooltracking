@@ -42,9 +42,38 @@
                         <div class="text-danger" v-if="errors.balance">{{ errors.balance[0] }}</div>
                     </div>
                     <div class="col-12 mb-2">
-                        <label for="">Address</label>
-                        <input type="text" class="form-control" v-model="dataValues.address">
-                        <div class="text-danger" v-if="errors.address">{{ errors.address[0] }}</div>
+                        <label for="">Contact Number</label>
+                        <input type="number" class="form-control" v-model="dataValues.contact_address">
+                        <div class="text-danger" v-if="errors.contact_address">{{ errors.contact_address[0] }}</div>
+                    </div>  
+                    <div class="col-12 pb-2">
+                        <label for="">Region</label>
+                        <select class="form-control" v-model="dataValues.region_id">
+                            <option v-for="region in regions" :value="region.id">{{ region.name }}</option>
+                        </select>
+                        <div class="text-danger" v-if="errors.region_id">{{ errors.region_id[0] }}</div>
+                    </div> 
+                    <div class="col-12 pb-2">
+                        <label for="">Province</label>
+                        <select class="form-control" v-model="dataValues.province_id">
+                            <option v-for="province in provinces" :value="province.id">{{ province.name }}</option>
+                        </select>
+                        <div class="text-danger" v-if="errors.province_id">{{ errors.province_id[0] }}</div>
+                    </div> 
+                    <div class="col-12 mb-2">
+                        <label for="">City</label>
+                        <input type="text" class="form-control" v-model="dataValues.city">
+                        <div class="text-danger" v-if="errors.city">{{ errors.city[0] }}</div>
+                    </div>  
+                    <div class="col-12 mb-2">
+                        <label for="">Barangay</label>
+                        <input type="text" class="form-control" v-model="dataValues.barangay">
+                        <div class="text-danger" v-if="errors.barangay">{{ errors.barangay[0] }}</div>
+                    </div>  
+                    <div class="col-12 mb-2">
+                        <label for="">House Number</label>
+                        <input type="number" class="form-control" v-model="dataValues.house_number">
+                        <div class="text-danger" v-if="errors.house_number">{{ errors.house_number[0] }}</div>
                     </div>  
                     <div class="col-12 mb-2">
                         <label for="">Role</label>
@@ -66,53 +95,6 @@
                 </div>
             </template>
         </ModalComponent>
-
-        <!-- Purchased -->
-        <ModalComponent :id="modalIdReceipts" :title="modalTitle" :size="modalSizeReceipts" :position="modalPosition">
-            <template #modalBody>
-                <div class="row">
-                    <div class="col-lg-6 text-center">
-                        <label for="">Purchased</label>
-                        <div class="card">
-                            <div class="card-body">
-                                <FormComponent 
-                                    :data="dataReceipts"
-                                    :columns="columnsReceipts"
-                                    :options="optionsReceipts"
-                                    :addButton="false"
-                                    :option1Switch="false"
-                                    :option2Switch="false"
-                                >
-                                </FormComponent>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 text-center">
-                        <label for="">Borrowed</label>
-                        <div class="card">
-                            <div class="card-body">
-                                <FormComponent 
-                                    :data="dataBorrowed"
-                                    :columns="columnsBorrowed"
-                                    :options="optionsBorrowed"
-                                    :addButton="false"
-                                    :option1Switch="false"
-                                    :option2Switch="false"
-                                >
-                                </FormComponent>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-            </template>
-            <template #modalFooter>
-                <div class="text-right">
-                    <button class="btn btn-dark" v-on:click="dismissModal">Close</button>
-                </div>
-            </template>
-        </ModalComponent>
-
         
     </div>
 </template>
@@ -129,39 +111,22 @@ export default{
     data(){
         return{
                 data : [],
-                columns : ['name', 'email', 'balance' ,'address' ,'action'],
+                regions : [],
+                provinces : [],
+                columns : ['name', 'email', 'balance', 'contact_address', 'region_name', 'province_name', 'city', 'barangay', 'house_number' ,'action'],
                 errors: [],
                 options : {
                     headings : {
                         name : 'Name',
                         email : 'Email',
                         balance : 'Balance',
-                        address : 'Complete Address',
+                        contact_address : 'Contact Address',
+                        region_name : 'Region',
+                        province_name : 'Province',
+                        city : 'City',
+                        barangay : 'Barangay',
+                        house_number : 'House Number',
                         action : 'Action',
-                    },
-                    filterable: false,
-                    sortable: []
-                },
-                dataReceipts : [],
-                columnsReceipts : ['users_name', 'power_tools_name' ,'price', 'purchased_at'],
-                optionsReceipts : {
-                    headings : {
-                        users_name : 'Name',
-                        power_tools_name : 'Tools',
-                        price : 'Price',
-                        purchased_at : 'Purchased Date',
-                    },
-                    filterable: false,
-                    sortable: []
-                },
-                dataBorrowed : [],
-                columnsBorrowed : ['users_name', 'scaffoldings_name' ,'price', 'borrowed_at'],
-                optionsBorrowed : {
-                    headings : {
-                        users_name : 'Name',
-                        scaffoldings_name : 'Tools',
-                        price : 'Price',
-                        borrowed_at : 'Borrowed Date',
                     },
                     filterable: false,
                     sortable: []
@@ -193,6 +158,8 @@ export default{
         getData() {
             axios.get('/users/show').then(response => {
                 this.data = response.data.data;
+                this.regions = response.data.regions;
+                this.provinces = response.data.provinces;
             })
         },
         clearInputs() {

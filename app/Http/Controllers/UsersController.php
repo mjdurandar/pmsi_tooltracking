@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\BuyTools;
 use App\Models\BorrowTools;
+use App\Models\Region;
+use App\Models\Province;
 
 class UsersController extends Controller
 {
@@ -15,8 +17,15 @@ class UsersController extends Controller
 
     public function show() {
         // $data = User::where('role', '!=', 1)->get(); 
-        $data = User::get();
-        return response()->json([ 'data' => $data ]);
+        $data = User::leftjoin('regions', 'users.region_id', '=', 'regions.id')
+                    ->leftjoin('provinces', 'users.province_id', '=', 'provinces.id')
+                    ->select('users.*','regions.name as region_name', 'provinces.name as province_name')
+                    ->get();
+                    
+        $regions = Region::get();
+        $provinces = Province::get();
+        
+        return response()->json([ 'data' => $data, 'regions' => $regions, 'provinces' => $provinces ]);
     }
 
     public function store(Request $request) {
@@ -24,12 +33,22 @@ class UsersController extends Controller
         $request->validate([
             'name' => 'required',
             'email' => 'required',
-            'address' => 'required',
+            'region_id' => 'required',
+            'province_id' => 'required',
+            'city' => 'required',
+            'barangay' => 'required',
+            'contact_address' => 'required',
+            'house_number' => 'required',
             'password' => 'required',
         ], [
             'name.required' => "The Name field is required",
             'email.required' => "The Email field is required",
-            'address.required' => "The Address field is required",
+            'region_id.required' => "The Region field is required",
+            'province_id.required' => "The Province field is required",
+            'city.required' => "The City field is required",
+            'barangay.required' => "The Barangay field is required",
+            'house_number.required' => "The House Number field is required",
+            'contact_address.required' => "The Contact Address field is required",
             'password.required' => "The Password field is required",
         ]);
 
@@ -37,28 +56,15 @@ class UsersController extends Controller
         $data->name = $request->name;
         $data->email = $request->email;
         $data->balance = $request->balance;
-        $data->address = $request->address;
+        $data->region_id = $request->region_id;
+        $data->province_id = $request->province_id;
+        $data->city = $request->city;
+        $data->barangay = $request->barangay;
+        $data->house_number = $request->house_number;
+        $data->contact_address = $request->contact_address;
         $data->password = $request->password;
         $data->save();
         return response()->json(['message' => 'Data Successfully Saved']);
-    }
-
-    public function showBuyingHistory($id) {
-
-        $data = BuyTools::where('user_id', $id)
-            ->leftJoin('power_tools', 'power_tools.id', '=', 'buy_tools.power_tools_id')
-            ->leftjoin('users', 'users.id', '=', 'buy_tools.user_id')
-            ->select('buy_tools.*', 'power_tools.name as power_tools_name', 'power_tools.price as price' ,'users.name as users_name')
-            ->get();
-
-        $dataBorrow = BorrowTools::where('user_id', $id)
-            ->leftJoin('scaffoldings', 'scaffoldings.id', '=', 'borrow_tools.scaffoldings_id')
-            ->leftjoin('users', 'users.id', '=', 'borrow_tools.user_id')
-            ->select('borrow_tools.*', 'scaffoldings.name as scaffoldings_name', 'scaffoldings.price as price' ,'users.name as users_name')
-            ->get();
-
-        return response()->json([ 'data' => $data, 'dataBorrow' => $dataBorrow]);
-        
     }
 
     public function edit(User $users) {

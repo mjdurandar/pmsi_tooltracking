@@ -80,6 +80,7 @@
                     <option value="Snap-on">Snap-on</option>
                     <option value="Ridgid">Ridgid</option>
                     <option value="Metabo">Metabo</option>
+                    <option value="Ryobi">Ryobi</option> 
                 </select>
             </div>
             <div class="col-lg-2">
@@ -95,6 +96,13 @@
             </div>
             <div class="col-lg-2">
                 <input v-model="priceBelow" type="number" class="form-control" placeholder="Enter Price Below">
+            </div>
+            <div class="col-lg-2">
+                <select v-model="selectedSpecs" class="form-control">
+                    <option value="" disabled selected>Select Specifications</option> 
+                    <option value="Battery">Battery</option>
+                    <option value="Corded">Corded</option>
+                </select>
             </div>
             <div>
                 <button class="btn btn-primary" @click="filterData">Search</button>
@@ -271,6 +279,8 @@
                     </ol>
                     <p>Experience the Genesis Hardware Difference</p>
                     <p>Whether you're embarking on a new construction project, renovating your home, or tackling a DIY project, Genesis Hardware: General Construction Supply is here to support you every step of the way. With our quality products, expert guidance, competitive pricing, and exceptional service, we're your partner in building excellence. Contact us today to experience the Genesis Hardware difference for yourself!</p>
+                
+                    <div><i class="fas fa-map-marker-alt"></i> Location: <b>217-C General Kalentong, Daang Bakal, Mandaluyong, 1550 Metro Manila</b> </div>
                 </div>
             </template>
             <template #modalFooter>
@@ -298,10 +308,12 @@ export default{
                 categories : [],
                 units : [],
                 searchData : '',
+                requestData : [],
                 countRequestProduct : [],
                 selectedBrand : '',
                 selectedTool : '',
                 priceBelow : '',
+                selectedSpecs : '',
                 agreementChecked: false,
                 suppliers : [],
                 balance: 0,
@@ -358,7 +370,7 @@ export default{
             $('#' + this.modalIdInfo).modal('show');
         },
         filterData(){
-            if (!this.selectedBrand || !this.selectedTool || !this.priceBelow) {
+            if (!this.selectedBrand || !this.selectedTool || !this.priceBelow || !this.selectedSpecs) {
                     Swal.fire({
                         title: "Please select all fields!",
                         icon: 'warning',
@@ -370,7 +382,8 @@ export default{
                 const searchData = {
                     brand: this.selectedBrand,
                     tool: this.selectedTool,
-                    price: this.priceBelow
+                    price: this.priceBelow,
+                    specs: this.selectedSpecs
                 };
 
                 axios.post('/supplier3/filterData', searchData)
@@ -395,11 +408,9 @@ export default{
                     });
         },
         requestProduct(product){
-
-            this.agreementChecked = false;
             axios.get('/supplier3/edit/' + product.id).then(response => {
                 this.dataValues = response.data.data;
-                $('#' + this.modalIdFinal).modal('show');
+                $('#' + this.modalId).modal('show');
             }).catch(errors => {
                 // Handle errors
                 if (errors.response.data.message.length > 0) {
@@ -412,7 +423,6 @@ export default{
                     this.errors = errors.response.data.errors;
                 }
             });
-            
         },
         calculateTotal() {
             this.total = this.requestedItems * this.dataValues.price;
@@ -432,22 +442,10 @@ export default{
                     requestedId: this.dataValues.id,
                     total: this.total
                 };
-                axios.post('/supplier3/requestproduct', requestData)
-                    .then(response => {
-                        this.dataValues.stocks -= this.requestedItems;
-                        this.balance -= this.total;
-                        Swal.fire({
-                            title: "Request Product Successfully!",
-                            icon: 'success',
-                            timer: 3000
-                        });
-                        // Close the modal or perform any other action
-                        $('#' + this.modalId).modal('hide');
-                    })
-                    .catch(error => {
-                        // Handle errors from the backend
-                        console.error('Error requesting product:', error);
-                    });
+
+                this.requestData = requestData;
+                $('#' + this.modalIdFinal).modal('show');
+                $('#' + this.modalId).modal('hide');
             } 
             else if (this.requestedItems > this.dataValues.stocks) {
                 Swal.fire({
@@ -472,8 +470,24 @@ export default{
         getProduct(){
             this.requestedItems = 0;
             this.total = 0;
-            $('#' + this.modalIdFinal).modal('hide');
-            $('#' + this.modalId).modal('show');
+            this.agreementChecked = false;
+            axios.post('/supplier3/requestproduct', this.requestData)
+                    .then(response => {
+                        this.dataValues.stocks -= this.requestedItems;
+                        this.balance -= this.total;
+                        Swal.fire({
+                            title: "Request Product Successfully!",
+                            icon: 'success',
+                            timer: 3000
+                        });
+                        $('#' + this.modalId).modal('hide');
+                        $('#' + this.modalIdFinal).modal('hide');
+                        window.location.reload();
+                    })
+                    .catch(error => {
+                        // Handle errors from the backend
+                        console.error('Error requesting product:', error);
+                    });
         },
         getData() {
             axios.get('/supplier3/show').then(response => {

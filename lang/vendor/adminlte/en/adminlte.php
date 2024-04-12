@@ -2,15 +2,15 @@
 
 return [
 
-    'full_name'                   => 'Company Name',
+    'full_name'                   => 'Name',
     'email'                       => 'Email',
     'password'                    => 'Password',
     'retype_password'             => 'Retype password',
     'remember_me'                 => 'Remember Me',
     'register'                    => 'Register',
-    'register_a_new_membership'   => 'Register your Company',
+    'register_a_new_membership'   => 'Create an account',
     'i_forgot_my_password'        => 'I forgot my password',
-    'i_already_have_a_membership' => 'I already have a membership',
+    'i_already_have_a_membership' => 'I already have a account',
     'sign_in'                     => 'Sign In',
     'log_out'                     => 'Log Out',
     'toggle_navigation'           => 'Toggle navigation',

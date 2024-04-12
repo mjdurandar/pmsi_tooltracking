@@ -31,9 +31,11 @@ class Supplier1Controller extends Controller
         $brand = $request->input('brand');
         $tool = $request->input('tool');
         $price = $request->input('price');
+        $specs = $request->input('specs');
 
         $data = Supplier1::where('name', 'like', '%' . $brand . '%')
                         ->where('name', 'like', '%' . $tool . '%')
+                        ->where('specifications', 'like', '%' . $specs . '%')
                         ->where('price', '<=', $price)
                         ->get();
 
@@ -44,13 +46,13 @@ class Supplier1Controller extends Controller
     public function store(Request $request) {
         $request->validate([
             'name' => 'required|string',
-            'description' => 'required:description',
+            'specifications' => 'required:specifications',
             'price' => 'required:price',
             'stocks' => 'required:stocks',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ], [
             'name.required' => "The Name field is required",
-            'description.required' => "The Description field is required",
+            'specifications.required' => "The Specifications field is required",
             'price.required' => "The Price field is required",
             'stocks.required' => "The Stocks field is required",
         ]);
@@ -65,7 +67,7 @@ class Supplier1Controller extends Controller
         // Create a new Supplier1 instance
         $newSupplier1 = new Supplier1();
         $newSupplier1->name = $request->name;
-        $newSupplier1->description = $request->description;
+        $newSupplier1->specifications = $request->specifications;
         // $newSupplier1->product_code = $productCode;
         $newSupplier1->price = $request->price;
         $newSupplier1->stocks =  $request->stocks; // Each record has one stock
@@ -101,7 +103,7 @@ class Supplier1Controller extends Controller
             $tool = new ToolsAndEquipment();
             // Assign the product details to the ToolsAndEquipment instance
             $tool->name = $product->name;
-            $tool->description = $product->description;
+            $tool->specifications = $product->specifications;
             $tool->image = $product->image;
             $tool->price = $product->price;
             $tool->product_code = $productCode;

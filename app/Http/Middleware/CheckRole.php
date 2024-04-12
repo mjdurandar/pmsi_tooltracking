@@ -35,5 +35,6 @@ class CheckRole
             }
         }
         return redirect('/unauthorized');
+        
     }
 }

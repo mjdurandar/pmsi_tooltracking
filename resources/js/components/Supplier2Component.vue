@@ -80,6 +80,7 @@
                     <option value="Snap-on">Snap-on</option>
                     <option value="Ridgid">Ridgid</option>
                     <option value="Metabo">Metabo</option>
+                    <option value="Ryobi">Ryobi</option> 
                 </select>
             </div>
             <div class="col-lg-2">
@@ -95,6 +96,13 @@
             </div>
             <div class="col-lg-2">
                 <input v-model="priceBelow" type="number" class="form-control" placeholder="Enter Price Below">
+            </div>
+            <div class="col-lg-2">
+                <select v-model="selectedSpecs" class="form-control">
+                    <option value="" disabled selected>Select Specifications</option> 
+                    <option value="Battery">Battery</option>
+                    <option value="Corded">Corded</option>
+                </select>
             </div>
             <div>
                 <button class="btn btn-primary" @click="filterData">Search</button>
@@ -272,6 +280,9 @@
                     </ol>
                     <p>Experience the Grace Hardware Difference</p>
                     <p>Whether you're building a new home, renovating an existing property, or undertaking a large-scale construction project, Grace Hardware: General Construction Supply is your trusted partner for quality materials, expert guidance, and unparalleled service. Contact us today to experience the Grace Hardware difference and take your construction projects to new heights of success.</p>
+                
+                    <div><i class="fas fa-map-marker-alt"></i> Location: <b>123 Jupiter Street, Barangay Miranda, Quezon City, Philippines</b> </div>
+
                 </div>
             </template>
             <template #modalFooter>
@@ -299,10 +310,12 @@ export default{
                 categories : [],
                 units : [],
                 searchData : '',
+                requestData : [],
                 countRequestProduct : [],
                 selectedBrand : '',
                 selectedTool : '',
                 priceBelow : '',
+                selectedSpecs : '',
                 agreementChecked: false,
                 suppliers : [],
                 balance: 0,
@@ -369,7 +382,7 @@ export default{
             }
         },
         filterData(){
-            if (!this.selectedBrand || !this.selectedTool || !this.priceBelow) {
+            if (!this.selectedBrand || !this.selectedTool || !this.priceBelow || !this.selectedSpecs) {
                 Swal.fire({
                     title: "Please select all fields!",
                     icon: 'warning',
@@ -381,7 +394,8 @@ export default{
             const searchData = {
                 brand: this.selectedBrand,
                 tool: this.selectedTool,
-                price: this.priceBelow
+                price: this.priceBelow,
+                specs: this.selectedSpecs
             };
 
             axios.post('/supplier2/filterData', searchData)
@@ -406,11 +420,9 @@ export default{
                 });
         },
         requestProduct(product){
-
-            this.agreementChecked = false;
             axios.get('/supplier2/edit/' + product.id).then(response => {
                 this.dataValues = response.data.data;
-                $('#' + this.modalIdFinal).modal('show');
+                $('#' + this.modalId).modal('show');
             }).catch(errors => {
                 // Handle errors
                 if (errors.response.data.message.length > 0) {
@@ -423,7 +435,6 @@ export default{
                     this.errors = errors.response.data.errors;
                 }
             });
-            
         },
         calculateTotal() {
             this.total = this.requestedItems * this.dataValues.price;
@@ -443,22 +454,10 @@ export default{
                     requestedId: this.dataValues.id,
                     total: this.total
                 };
-                axios.post('/supplier2/requestproduct', requestData)
-                    .then(response => {
-                        this.dataValues.stocks -= this.requestedItems;
-                        this.balance -= this.total;
-                        Swal.fire({
-                            title: "Request Product Successfully!",
-                            icon: 'success',
-                            timer: 3000
-                        });
-                        // Close the modal or perform any other action
-                        $('#' + this.modalId).modal('hide');
-                    })
-                    .catch(error => {
-                        // Handle errors from the backend
-                        console.error('Error requesting product:', error);
-                    });
+
+                this.requestData = requestData;
+                $('#' + this.modalIdFinal).modal('show');
+                $('#' + this.modalId).modal('hide');
             } 
             else if (this.requestedItems > this.dataValues.stocks) {
                 Swal.fire({
@@ -483,8 +482,24 @@ export default{
         getProduct(){
             this.requestedItems = 0;
             this.total = 0;
-            $('#' + this.modalIdFinal).modal('hide');
-            $('#' + this.modalId).modal('show');
+            this.agreementChecked = false;
+            axios.post('/supplier2/requestproduct', this.requestData)
+                    .then(response => {
+                        this.dataValues.stocks -= this.requestedItems;
+                        this.balance -= this.total;
+                        Swal.fire({
+                            title: "Request Product Successfully!",
+                            icon: 'success',
+                            timer: 3000
+                        });
+                        $('#' + this.modalId).modal('hide');
+                        $('#' + this.modalIdFinal).modal('hide');
+                        window.location.reload();
+                    })
+                    .catch(error => {
+                        // Handle errors from the backend
+                        console.error('Error requesting product:', error);
+                    });
         },
         getData() {
             axios.get('/supplier2/show').then(response => {
