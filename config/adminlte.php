@@ -329,6 +329,32 @@ return [
         //     'url'  => 'admin/settings',
         //     'icon' => 'fas fa-fw fa-lock',
         // ],
+        
+        [
+            'text'    => 'Dashboard',
+            'icon'    => 'fa-solid fa-chart-simple',
+            'can' => ['supplier'],
+            'url' => '/' 
+        ],
+        [
+            'text'    => 'Profile',
+            'icon'    => 'fa-solid fa-user',
+            'can' => ['supplier'], 
+            'url' => '/profile' 
+        ],
+        [
+            'text'    => 'Products',
+            'icon'    => 'fa-solid fa-box',
+            'can' => ['supplier'], 
+            'url' => '/products' 
+        ],
+        [
+            'text'    => 'Orders',
+            'icon'    => 'fa-solid fa-truck', 
+            'can' => ['supplier'], 
+            'url' => '/' 
+        ],
+
         [
             'text'    => 'Dashboard',
             'icon'    => 'fa-solid fa-chart-simple',
@@ -365,11 +391,6 @@ return [
                 //     'url'  => '/scaffolding',
                 // ],
                 [
-                    'text' => 'Project Site',
-                    'icon'    => '',
-                    'url'  => '/project-site',
-                ],
-                [
                     'text' => 'Return Days',
                     'icon'    => '',
                     'url'  => '/returndays',
@@ -378,11 +399,6 @@ return [
                     'text' => 'Category',
                     'icon'    => '',
                     'url'  => '/category',
-                ],
-                [
-                    'text' => 'Unit',
-                    'icon'    => '',
-                    'url'  => '/unit',
                 ],
                 [
                     'text' => 'Customer Data',

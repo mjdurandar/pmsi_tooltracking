@@ -22,12 +22,11 @@ class User extends Authenticatable
         'email',
         'password',
         'contact_address',
-        'region_id',
-        'province_id',
-        'city',
-        'barangay',
-        'house_number',
+        'contact_person',
+        'location',
+        'accounts',
         'role',
+        'company_description'
     ];
 
     /**
@@ -53,11 +52,12 @@ class User extends Authenticatable
     public function getRoleNameAttribute() {
         $role_name = '';
         if($this->role == '1') {
-            $role_name = 'Admin';
+            $role_name = 'admin';
         }
         else{
-            $role_name = 'User';
+            $role_name = 'user';
         }
         return $role_name;
     }
+
 }

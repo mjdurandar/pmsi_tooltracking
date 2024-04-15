@@ -4,7 +4,7 @@
 @section('content')
 
     <div id="app">
-        <supplier1-component></supplier1-component>
+        <product-component></product-component>
     </div>
 
 

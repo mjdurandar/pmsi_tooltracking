@@ -29,7 +29,7 @@
             <div class="btn-position" v-if="addButton">
                 <button class="btn btn-primary" @click="addClicked(props)">{{ btnName }}</button>
             </div>
-            <v-client-table :data="data" :columns="columns" :options="options">
+            <v-client-table :data="data" :columns="columns" :options="options" v-if="tableSwitch">
                 <template #action="props">
                     <div class="text-center m-auto">
                         <button class="btn" @click="editClicked(props)" :style="option1Color" v-if="option1Switch">
@@ -87,6 +87,11 @@
                 default : ()=>{
                     return {message:'Hello'}
                 }
+            },
+            //TABLE Switch
+            tableSwitch: {
+                type: Boolean,
+                default: true
             },
             //OPTION 1 NAME ICON AND SWICTH
             option1Name:{

@@ -12,11 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->foreignId('region_id')->nullable();
-            $table->foreignId('province_id')->nullable();
-            $table->string('city');
-            $table->string('barangay');
-            $table->string('house_number');
+            $table->text('company_description')->after('accounts')->nullable();
         });
     }
 
@@ -26,11 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropForeign(['region_id']);
-            $table->dropForeign(['province_id']);
-            $table->dropColumn('city');
-            $table->dropColumn('barangay');
-            $table->dropColumn('house_number');
+            $table->dropColumn('company_description');
         });
     }
 };

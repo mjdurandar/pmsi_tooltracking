@@ -49,33 +49,6 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('/dashboard/supplierCount',[App\Http\Controllers\DashboardController::class, 'supplierCount']);
         Route::get('/dashboard/masterdataCount',[App\Http\Controllers\DashboardController::class, 'masterdataCount']);
 
-        //Supplier1
-        Route::get('/supplier1',[App\Http\Controllers\Supplier1Controller::class, 'index']);
-        Route::get('/supplier1/show',[App\Http\Controllers\Supplier1Controller::class, 'show']);
-        Route::post('/supplier1/store',[App\Http\Controllers\Supplier1Controller::class, 'store']);
-        Route::post('/supplier1/filterData',[App\Http\Controllers\Supplier1Controller::class, 'filterData']);
-        Route::post('/supplier1/requestproduct',[App\Http\Controllers\Supplier1Controller::class, 'requestproduct']);
-        Route::get('/supplier1/edit/{supplier1}',[App\Http\Controllers\Supplier1Controller::class, 'edit']);
-        Route::get('/supplier1/destroy/{supplier1}',[App\Http\Controllers\Supplier1Controller::class, 'destroy']);
-
-        //Supplier2
-        Route::get('/supplier2',[App\Http\Controllers\Supplier2Controller::class, 'index']);
-        Route::get('/supplier2/show',[App\Http\Controllers\Supplier2Controller::class, 'show']);
-        Route::post('/supplier2/store',[App\Http\Controllers\Supplier2Controller::class, 'store']);
-        Route::post('/supplier2/filterData',[App\Http\Controllers\Supplier2Controller::class, 'filterData']);
-        Route::post('/supplier2/requestproduct',[App\Http\Controllers\Supplier2Controller::class, 'requestproduct']);
-        Route::get('/supplier2/edit/{supplier2}',[App\Http\Controllers\Supplier2Controller::class, 'edit']);
-        Route::get('/supplier2/destroy/{supplier2}',[App\Http\Controllers\Supplier2Controller::class, 'destroy']);
-
-        //Supplier3
-        Route::get('/supplier3',[App\Http\Controllers\Supplier3Controller::class, 'index']);
-        Route::get('/supplier3/show',[App\Http\Controllers\Supplier3Controller::class, 'show']);
-        Route::post('/supplier3/store',[App\Http\Controllers\Supplier3Controller::class, 'store']);
-        Route::post('/supplier3/filterData',[App\Http\Controllers\Supplier3Controller::class, 'filterData']);
-        Route::post('/supplier3/requestproduct',[App\Http\Controllers\Supplier3Controller::class, 'requestproduct']);
-        Route::get('/supplier3/edit/{supplier3}',[App\Http\Controllers\Supplier3Controller::class, 'edit']);
-        Route::get('/supplier3/destroy/{supplier3}',[App\Http\Controllers\Supplier3Controller::class, 'destroy']);
-
         // REQUEST A PRODUCT
         Route::get('/request-product',[App\Http\Controllers\RequestProductController::class, 'index']);
         Route::get('/request-product/show',[App\Http\Controllers\RequestProductController::class, 'show']);
@@ -115,9 +88,7 @@ Route::group(['middleware' => 'auth'], function(){
         // SUPPLIER 
         Route::get('/supplier',[App\Http\Controllers\SupplierController::class, 'index']);
         Route::get('/supplier/show',[App\Http\Controllers\SupplierController::class, 'show']);
-        Route::post('/supplier/store',[App\Http\Controllers\SupplierController::class, 'store']);
-        Route::get('/supplier/edit/{supplier}',[App\Http\Controllers\SupplierController::class, 'edit']);
-        Route::get('/supplier/destroy/{supplier}',[App\Http\Controllers\SupplierController::class, 'destroy']);
+        Route::post('/supplier/filterData',[App\Http\Controllers\SupplierController::class, 'filterData']);
 
         // POWERTOOLS 
         Route::get('/powertools',[App\Http\Controllers\PowerToolsController::class, 'index']);
@@ -166,6 +137,18 @@ Route::group(['middleware' => 'auth'], function(){
 
         Route::get('/delivery',[App\Http\Controllers\DeliveryController::class, 'index']);
         Route::get('/delivery/show',[App\Http\Controllers\DeliveryController::class, 'show']);
+    });
+
+    Route::middleware(['CheckRole:supplier'])->group(function() {
+        Route::get('profile', [App\Http\Controllers\ProfileController::class, 'index']);
+        Route::get('profile/show', [App\Http\Controllers\ProfileController::class, 'show']);
+        Route::post('profile/store', [App\Http\Controllers\ProfileController::class, 'store']);
+
+        Route::get('products', [App\Http\Controllers\ProductController::class, 'index']);
+        Route::get('products/show', [App\Http\Controllers\ProductController::class, 'show']);
+        Route::post('products/store', [App\Http\Controllers\ProductController::class, 'store']);
+        Route::get('products/edit/{product}', [App\Http\Controllers\ProductController::class, 'edit']);
+        Route::get('products/destroy/{product}', [App\Http\Controllers\ProductController::class, 'destroy']);
     });
 
 });

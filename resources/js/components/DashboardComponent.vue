@@ -1,15 +1,6 @@
 <template>
     <div class="p-3">
         <BreadCrumbComponent tab_title="Dashboard"></BreadCrumbComponent>
-        <div class="mb-3">
-    <div class="input-group" style="width: 15%;">
-        <div class="input-group-prepend">
-            <span class="input-group-text">Balance</span> <!-- Add "Balance" here -->
-            <span class="input-group-text">₱</span>
-        </div>
-        <input type="number" class="form-control" v-model="data.balance" disabled>
-    </div>
-</div>
 
         <!-- <div class="d-flex justify-content-center">
             <img src="images\under_maintenance.png" alt="Under Maintenance" style="text-align: center;"> 

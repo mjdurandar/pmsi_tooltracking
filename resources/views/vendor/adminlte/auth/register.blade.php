@@ -26,6 +26,21 @@
     <form action="{{ $register_url }}" method="post">
         @csrf
 
+        {{-- Account Type --}}
+        <div class="input-group mb-3">
+            <select name="accounts" id="accounts" class="form-control">
+                <option value="" selected disabled>Account Type</option>
+                <option value="User">User</option>
+                <option value="Supplier">Supplier</option>
+            </select>
+
+            <div class="input-group-append">
+                <div class="input-group-text">
+                    <span class="fas fa-map-marker-alt"></span>
+                </div>
+            </div>
+        </div>
+
         {{-- Name field --}}
         <div class="input-group mb-3">
             <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
@@ -62,9 +77,27 @@
             @enderror
         </div>
 
+        {{-- Contact Person field --}}
+        <div class="input-group mb-3">
+            <input type="text" name="contact_person" class="form-control @error('contact_person') is-invalid @enderror"
+                   value="{{ old('contact_person') }}" placeholder="Contact Person">
+
+            <div class="input-group-append">
+                <div class="input-group-text">
+                    <span class="fa-solid fa-users {{ config('adminlte.classes_auth_icon', '') }}"></span>
+                </div>
+            </div> 
+
+            @error('contact_person')
+                <span class="invalid-feedback" role="alert">
+                    <strong>{{ $message }}</strong>
+                </span> 
+            @enderror
+        </div>
+
         {{-- Contact Number field --}}
         <div class="input-group mb-3">
-            <input type="text" name="contact_address" class="form-control @error('contact_address') is-invalid @enderror"
+            <input type="number" name="contact_address" maxlength="12" class="form-control @error('contact_address') is-invalid @enderror"
                    value="{{ old('contact_address') }}" placeholder="Contact Number">
 
             <div class="input-group-append">
@@ -80,90 +113,27 @@
             @enderror
         </div>
 
-        {{-- Region dropdown --}}
-        <div class="input-group mb-3">
-            <select name="region_id" class="form-control">
-                <option value="" selected disabled>Select Region</option>
-                @foreach($regions as $region)
-                    <option value="{{ $region->id }}">{{ $region->name }}</option>
-                @endforeach
-            </select>
+        {{-- Location --}}
+        <!-- <div class="input-group mb-3">
+            <input type="text" name="location" id="location" class="form-control @error('location') is-invalid @enderror"
+                   value="{{ old('location') }}" placeholder="Enter your Location">
 
             <div class="input-group-append">
                 <div class="input-group-text">
-                    <span class="fas fa-map-marker-alt"></span>
+                    <span class="fa-solid fa-location {{ config('adminlte.classes_auth_icon', '') }}"></span>
                 </div>
-            </div>
-        </div>
+            </div> 
 
-        {{-- Province dropdown --}}
-        <div class="input-group mb-3">
-            <select name="province_id" class="form-control">
-                <option value="" selected disabled>Select Province</option>
-                @foreach($provinces as $province)
-                    <option value="{{ $province->id }}">{{ $province->name }}</option>
-                @endforeach
-            </select>
-
-            <div class="input-group-append">
-                <div class="input-group-text">
-                    <span class="fas fa-map-marker-alt"></span>
-                </div>
-            </div>
-        </div>
-
-        {{-- City field --}}
-        <div class="input-group mb-3">
-            <input type="text" name="city" class="form-control @error('city') is-invalid @enderror"
-                   value="{{ old('city') }}" placeholder="City">
-
-            <div class="input-group-append">
-                <div class="input-group-text">
-                    <span class="fas fa-map-marker-alt"></span>
-                </div>
-            </div>
-
-            @error('city')
+            @error('location')
                 <span class="invalid-feedback" role="alert">
                     <strong>{{ $message }}</strong>
-                </span>
+                </span> 
             @enderror
-        </div>
+        </div> -->
 
-        {{-- Barangay field --}}
-        <div class="input-group mb-3">
-            <input type="text" name="barangay" class="form-control @error('barangay') is-invalid @enderror"
-                   value="{{ old('barangay') }}" placeholder="Barangay">
-
-            <div class="input-group-append">
-                <div class="input-group-text">
-                    <span class="fas fa-map-marker-alt"></span>
-                </div>
-            </div>
-
-            @error('barangay')
-                <span class="invalid-feedback" role="alert">
-                    <strong>{{ $message }}</strong>
-                </span>
-            @enderror
-        </div>
-
-        {{-- House Number field --}}
-        <div class="input-group mb-3">
-            <input type="text" name="house_number" class="form-control @error('house_number') is-invalid @enderror"
-                   value="{{ old('house_number') }}" placeholder="House Number">
-
-            <div class="input-group-append">
-                <div class="input-group-text">
-                    <span class="fas fa-map-marker-alt"></span>
-                </div>
-            </div>
-
-            @error('house_number')
-                <span class="invalid-feedback" role="alert">
-                    <strong>{{ $message }}</strong>
-                </span>
-            @enderror
+        {{-- Company Description --}}
+        <div id="descriptionField" class="mb-3" style="display: none;">
+            <textarea name="company_description" class="form-control" placeholder="Company Description" rows="4" cols="40"></textarea>
         </div>
 
         {{-- Password field --}}
@@ -220,3 +190,32 @@
         </a>
     </p>
 @stop
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+            // Listen for changes in the select element
+            document.getElementById('accounts').addEventListener('change', function() {
+                var descriptionField = document.getElementById('descriptionField');
+                // If the selected value is 'Supplier', show the description input; otherwise, hide it
+                if (this.value === 'Supplier') {
+                    descriptionField.style.display = 'block';
+                } else {
+                    descriptionField.style.display = 'none';
+                }
+            });
+        });
+    // Define the initialize function
+    function initialize() {
+        var input = document.getElementById('location');
+        var options = {
+            types: ['address'], // Limit results to addresses
+            componentRestrictions: {country: 'PH'} // Restrict results to a specific country (e.g., United States)
+        };
+        var autocomplete = new google.maps.places.Autocomplete(input, options);
+        
+        autocomplete.addListener('place_changed', function() {
+            var place = autocomplete.getPlace();
+            console.log('Selected Place:', place);
+            // Handle the selected place
+        });
+    }
+</script>

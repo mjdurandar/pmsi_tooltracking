@@ -8,8 +8,7 @@ use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use App\Models\Region; 
-use App\Models\Province;
+use App\Models\Supplier;
 
 class RegisterController extends Controller
 {
@@ -56,11 +55,9 @@ class RegisterController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'contact_address' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'region_id' => ['required', 'exists:regions,id'],
-            'province_id' => ['required', 'exists:provinces,id'],
-            'city' => ['required', 'max:255'],
-            'barangay' => ['required', 'max:255'],
-            'house_number' => ['required', 'max:255'],
+            'contact_person' => ['required', 'string', 'max:255'],
+            // 'location' => ['required', 'string', 'max:255'],
+            'accounts' => ['required', 'string', 'max:255'],
         ]);
     }
 
@@ -72,23 +69,27 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {   
-        return User::create([
+        $role = $data['accounts'] === 'Supplier' ? 2 : 0;
+
+        $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'contact_address' => $data['contact_address'],
-            'region_id' => $data['region_id'],
-            'province_id' => $data['province_id'],
-            'city' => $data['city'],
-            'barangay' => $data['barangay'],
-            'house_number' => $data['house_number'],
+            'contact_person' => $data['contact_person'],
+            // 'location' => $data['location'],
+            'accounts' => $data['accounts'],
             'password' => Hash::make($data['password']),
+            'role' => $role,
+            'company_description' => $data['company_description'],
         ]);
-    }
-
-    public function showRegistrationForm()
-    {
-        $regions = Region::all(); // Retrieve all regions
-        $provinces = Province::all(); // Retrieve all provinces
-        return view('auth.register', compact('regions', 'provinces'));
+    
+        // If role is 2 (Supplier), associate the user's name with the supplier
+        if ($role === 2) {
+            $supplier = new Supplier();
+            $supplier->name = $data['name']; 
+            $supplier->save();
+        }
+    
+        return $user;
     }
 }

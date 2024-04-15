@@ -1,103 +1,73 @@
-<style scoped> 
-    .form-spacing-test{
-        padding: 15px 15px 0px 15px;
-    }
-    .supplier1{
-        font-weight: 800;
-        border: 1px solid #f18f4e;
-        border-radius: 8px;
-        padding: 12px;
-        letter-spacing: 1px;
-        cursor: pointer;
-    }
-    .supplier2{
-        font-weight: 800;
-        border: 1px solid  #f18f4e;
-        border-radius: 8px;
-        padding: 12px;
-        letter-spacing: 1px;
-        cursor: pointer;
-    }
-    .supplier3{
-        font-weight: 800;
-        border: 1px solid #f18f4e;
-        border-radius: 8px;
-        padding: 12px;
-        letter-spacing: 1px;
-        cursor: pointer;
-    }
-
-    .spacing{
-        padding: 0px 10px 10px 0px;
-    }
-    
-    .spacing div:hover{
-        background-color: #f18f4e;
-        color: #fff;
-    }
-
-    .active[data-v-e490b594]{
-        background: #f18f4e !important; 
-        color: #fff !important;
-    }
-    .title-design{
-        color: #2D2D2D;
-        font-weight: 800;
-        font-size: 25px;
-        padding: 0px 0px 10px 0px;
- 
-    }
-
-</style>
-
 <template>
     <div class="p-3">
-        <div class="card">
+        <BreadCrumbComponent tab_title="Supplier"></BreadCrumbComponent>
+        <div class="row mb-3">
+            <div class="col-lg-2">
+                <select class="form-control" v-model="dataValues.supplier_id">
+                    <option value="" disabled selected>Select Supplier</option>
+                    <option v-for="supplier in suppliers" :value="supplier.id">{{ supplier.name }}</option>
+                </select>
+            </div>
+            <div class="col-lg-2">
+                <select v-model="selectedBrand" class="form-control">
+                    <option value="" disabled selected>Select Brand</option>
+                    <option value="Bosch">Bosch</option>
+                    <option value="Dewalt">Dewalt</option>
+                    <option value="Makita">Makita</option>
+                    <option value="Milwaukee">Milwaukee</option>
+                    <option value="Black+Decker">Black+Decker</option>
+                    <option value="Craftsman">Craftsman</option>
+                    <option value="Hitachi">Hitachi</option>
+                    <option value="Ingersoll">Ingersoll</option>
+                    <option value="Porter-Cable">Porter-Cable</option>
+                    <option value="Snap-on">Snap-on</option>
+                    <option value="Ridgid">Ridgid</option>
+                    <option value="Metabo">Metabo</option> 
+                    <option value="Ryobi">Ryobi</option> 
+                </select>
+            </div>
+            <div class="col-lg-2">
+                <select v-model="selectedTool" class="form-control">
+                    <option value="" disabled selected>Select Tools</option> 
+                    <option value="Drill">Drill</option>
+                    <option value="Screwdriver">Screwdriver</option>
+                    <option value="Wrench">Wrench</option>
+                    <option value="Grinder">Grinder</option>
+                    <option value="Jigsaw">Jigsaw</option>
+                    <option value="Saw">Saw</option>
+                </select>
+            </div>
+            <div class="col-lg-2">
+                <select v-model="selectedSpecs" class="form-control">
+                    <option value="" disabled selected>Select Specifications</option> 
+                    <option value="battery">Battery</option>
+                    <option value="corded">Corded</option>
+                </select>
+            </div>
             <div>
-                <div class="form-spacing-test">
-                    <div class="tab-cho d-flex">
-                        <div class="spacing">
-                            <div v-on:click="onClickSelection(1)" class="supplier1" :class="pageSelected === 1 ? 'active' : '' ">Twinbar Metal Industries</div>
+                <button class="btn btn-primary" @click="filterData">Search</button>
+                <button class="btn btn-success ml-1" @click="refresh"><i class="fas fa-sync-alt"></i></button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4" v-for="(product, index) in products" :key="index">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div style="width: 50%;">
+                                <h2 class="card-title" style="font-weight: bold;">{{ product.brand + ' ' + product.tool }}</h2>
+                                <p class="card-title">{{ product.supplier_name }}</p>
+                            </div>
+                            <div style="width: 50%;">
+                                <img v-if="product.image" :src="'/images/' + product.image" alt="Product Image" class="img-fluid" style="height: 250px;">
+                                <p v-else>No Stocks</p>
+                            </div>
                         </div>
-                        <div class="spacing">
-                            <div v-on:click="onClickSelection(2)" class="supplier2" :class="pageSelected === 2 ? 'active' : '' ">Grace Hardware: General Construction Supply</div>
-                        </div>
-                        <div class="spacing">
-                            <div v-on:click="onClickSelection(3)" class="supplier3" :class="pageSelected === 3 ? 'active' : '' ">Genesis Hardware: General Construction Supply</div>
-                        </div>
+                        <button class="btn btn-success" @click="requestProduct(product)">Purhase Product</button>
                     </div>
-                    <!-- <request-product-component v-if="pageSelected === 1"></request-product-component> -->
-                    <supplier1-component v-if="pageSelected === 1"></supplier1-component>
-                    <supplier2-component v-if="pageSelected === 2"></supplier2-component>
-                    <supplier3-component v-if="pageSelected === 3"></supplier3-component>
                 </div>
             </div>
         </div>
-<!-- 
-        <ModalComponent :id="modalId" :title="modalTitle" :size="modalSize" :position="modalPosition">
-            <template #modalHeader>
-                <div class="m-auto">
-                    <h4>Add Supplier</h4>
-                </div>
-            </template>
-            <template #modalBody>
-                <div class="row">
-                    <div class="col-12">
-                        <label for="">Name</label>
-                        <input type="text" class="form-control" v-model="dataValues.name">
-                        <div class="text-danger" v-if="errors.name">{{ errors.name[0] }}</div>
-                    </div>  
-                </div>
-            </template>
-            <template #modalFooter>
-                <div class="text-right">
-                    <button class="btn btn-success" v-on:click="storeData">Save</button>
-                </div>
-            </template>
-        </ModalComponent> -->
-
-
-
     </div>
 </template>
 
@@ -105,7 +75,6 @@
 import FormComponent from "./partials/FormComponent.vue";   
 import ModalComponent from "./partials/ModalComponent.vue";
 import BreadCrumbComponent from "./partials/BreadCrumbComponent.vue";
-import Supplier1Component from "./Supplier1Component.vue";
 import RequestProductComponent from "./RequestProductComponent.vue";
 import Swal from 'sweetalert2'
 import axios from 'axios';
@@ -115,7 +84,12 @@ export default{
     data(){
         return{
                 data : [],
-                pageSelected : 1,
+                selectedBrand : '',
+                selectedTool : '',
+                selectedSpecs : '',
+                suppliers : [],
+                supplier_id : '',
+                products : [],  
                 columns : ['name' ,'action'],
                 errors: [],
                 options : {
@@ -128,6 +102,7 @@ export default{
                 },
                 dataValues: {
                     name: '',
+                    supplier_id: '',    
                 },
                 modalId : 'modal-supplier',
                 modalTitle : 'Supplier',
@@ -139,27 +114,45 @@ export default{
         FormComponent,
         ModalComponent,
         BreadCrumbComponent,
-        Supplier1Component,
         RequestProductComponent
     },
     methods: {
-        addClicked(props){
-            $('#' + this.modalId).modal('show');
-            this.clearInputs();
-        },
+
         getData() {
             axios.get('/supplier/show').then(response => {
                 this.data = response.data.data;
+                this.suppliers = response.data.suppliers;
+                this.products = response.data.products;
             })
         },
-        onClickSelection(page) {
-            this.pageSelected = page;
-        },
-        clearInputs() {
-            this.dataValues = {
-                name: '',
-            }
-            this.errors = [];
+        filterData() {
+            const searchData = {
+                supplier_id: this.dataValues.supplier_id,
+                brand: this.selectedBrand,
+                tool: this.selectedTool,
+                specs: this.selectedSpecs
+            };
+
+            axios.post('/supplier/filterData', searchData)
+                .then(response => {
+                    this.products = response.data.products;
+                    if (this.products.length === 0) {
+                        Swal.fire({
+                            title: "No Products available!",
+                            icon: 'warning',
+                            timer: 3000
+                        });
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        title: "Error!",
+                        text: "Failed to fetch data.",
+                        icon: 'error',
+                        timer: 3000
+                    });
+                    console.error(error);
+                });
         },
         editClicked(props) {
             this.dataValues = props.data;

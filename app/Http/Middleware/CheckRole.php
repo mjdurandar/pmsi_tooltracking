@@ -17,7 +17,7 @@ class CheckRole
      */
     public function handle(Request $request, Closure $next, ...$roles)
     {
-        $roleIds = ['admin' => 1, 'user' => 0];
+        $roleIds = ['supplier' => 2, 'admin' => 1, 'user' => 0];
 
         $allowedRoleIds = [];
         foreach ($roles as $role)
