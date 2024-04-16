@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\AdminHistory;
-use App\Models\Supplier;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Category;
+use Illuminate\Support\Facades\Auth;
 use PDO;
 
 class ProductHistoryController extends Controller
@@ -16,42 +17,49 @@ class ProductHistoryController extends Controller
 
     public function show(){
 
-        $data = AdminHistory::leftjoin('tools_and_equipment', 'admin_histories.tools_and_equipment_id', '=', 'tools_and_equipment.id')
-        ->leftjoin('suppliers', 'tools_and_equipment.supplier_id', '=', 'suppliers.id')
-        ->select('admin_histories.*', 'tools_and_equipment.name as tools_and_equipment_name', 'tools_and_equipment.product_code as product_code', 'tools_and_equipment.price as price', 'suppliers.name as supplier_name')
-        ->orderBy('admin_histories.created_at', 'desc')
-        ->get()
-        ->map(function ($item) {
-            $item->created_at = $item->created_at->format('Y-m-d H:i:s');
-            return $item;
-        });
+        $userName = Auth::user()->name;
 
-        $suppliers = Supplier::get();
+        $data = AdminHistory::leftjoin('tools_and_equipment', 'admin_histories.tools_and_equipment_id', '=', 'tools_and_equipment.id')
+        ->leftjoin('products', 'tools_and_equipment.product_id', '=', 'products.id')
+        ->leftjoin('users', 'products.user_id', '=', 'users.id')
+        ->select('admin_histories.*', 'products.brand as product_brand', 'products.tool as product_tool', 'users.name as supplier_name')
+        ->orderBy('admin_histories.created_at', 'desc')
+        ->get();
+
+        $suppliers = User::where('role', 2)->get();
+
         $statuses = Category::get();
 
-        return response()->json([ 'data' => $data, 'suppliers' => $suppliers , 'statuses' => $statuses]);
+        return response()->json([ 'data' => $data, 'suppliers' => $suppliers , 'statuses' => $statuses, 'userName' => $userName ]);
     }
 
     public function viewHistory(Request $request){
         
-        $brand = $request->input('brand');
-        $tool = $request->input('tool');
-        $supplier_id = $request->input('supplier_id');
-        $status_id = $request->input('status_id');
+        $brand = $request->brand;
+        $tool = $request->tool;
+        $supplier_id = $request->supplier_id;
 
-        $data = AdminHistory::leftjoin('tools_and_equipment', 'admin_histories.tools_and_equipment_id', '=', 'tools_and_equipment.id')
-        ->leftjoin('suppliers', 'tools_and_equipment.supplier_id', '=', 'suppliers.id')
-        ->select('admin_histories.*', 'tools_and_equipment.name as tools_and_equipment_name', 'tools_and_equipment.product_code as product_code', 'tools_and_equipment.price as price', 'suppliers.name as supplier_name')
-        ->orderBy('admin_histories.created_at', 'desc')
-        ->where('tools_and_equipment.name', 'like', '%' . $tool . '%')
-        ->where('tools_and_equipment.name', 'like', '%' . $brand . '%')
-        ->where('tools_and_equipment.supplier_id', $supplier_id)
-        ->where('admin_histories.status', $status_id)
-        ->get()
-        ->map(function ($item) {
-            $item->created_at = $item->created_at->format('Y-m-d H:i:s');
-            return $item;
-        });
+        $query = AdminHistory::query();
+
+        $query->leftJoin('tools_and_equipment', 'admin_histories.tools_and_equipment_id', '=', 'tools_and_equipment.id')
+        ->leftjoin('products', 'tools_and_equipment.product_id', '=', 'products.id')
+        ->leftjoin('users', 'products.user_id', '=', 'users.id')
+        ->select('admin_histories.*', 'products.brand as product_brand', 'products.tool as product_tool', 'users.name as supplier_name');
+        
+            
+        if (!empty($brand)) {
+            $query->where('products.brand', $brand);
+        }
+
+        if (!empty($tool)) {
+            $query->where('products.tool', $tool);
+        }
+    
+        if (!empty($supplier_id)) {
+            $query->where('products.user_id', $supplier_id);
+        }
+
+        $data = $query->get();
 
         return response()->json([ 'data' => $data ]);
     }

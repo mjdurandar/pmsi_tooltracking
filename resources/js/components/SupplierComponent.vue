@@ -63,11 +63,145 @@
                                 <p v-else>No Stocks</p>
                             </div>
                         </div>
-                        <button class="btn btn-success" @click="requestProduct(product)">Purhase Product</button>
+                        <button class="btn btn-success" @click="purchaseProduct(product)">Purhase Product</button>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- PURCHASE PRODUCT MODAL -->
+        <ModalComponent :id="modalIdPurchaseProduct" :title="modalTitle" :size="modalSize" :position="modalPosition">
+            <template #modalHeader>
+                <div class="m-auto">
+                    <h4>Purchase this Product</h4>
+                </div>
+            </template>
+            <template #modalBody>
+                <div class="row">
+                    <div class="col-6">
+                        <label for="">Brand</label>
+                        <input type="text" class="form-control" v-model="dataValues.brand" disabled>
+                    </div> 
+                    <div class="col-6">
+                        <label for="">Tool</label>
+                        <input type="text" class="form-control" v-model="dataValues.tool" disabled>
+                    </div> 
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <label for="">Power Source</label>
+                        <input type="text" class="form-control" v-model="dataValues.powerSources" disabled>
+                    </div> 
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <label for="">Voltage</label>
+                        <input type="text" class="form-control" v-model="dataValues.voltage" disabled>
+                    </div> 
+                    <div class="col-6">
+                        <label for="">Weight</label>
+                        <input type="text" class="form-control" v-model="dataValues.weight" disabled>
+                    </div> 
+                    <div class="col-6">
+                        <label for="">Dimension</label>
+                        <input type="text" class="form-control" v-model="dataValues.dimensions" disabled>
+                    </div> 
+                    <div class="col-6">
+                        <label for="">Material</label>
+                        <input type="text" class="form-control" v-model="dataValues.material" disabled>
+                    </div> 
+                    <div class="col-12">
+                        <label for="">Supplier</label>
+                        <input type="text" class="form-control" v-model="dataValues.supplier_name" disabled>
+                    </div>
+                    <div class="col-12">
+                        <label for="">Price per pc</label>
+                        <input type="number" class="form-control" v-model="dataValues.price" disabled>
+                    </div>  
+                    <div class="col-12">
+                        <label for="">How many?</label>
+                        <input type="number" class="form-control" v-model="requestedItems" @input="calculateTotal">
+                        <div class="text-danger" v-if="errors.requestedItems">{{ errors.requestedItems[0] }}</div>
+                    </div>  
+                    <div class="col-12">
+                        <label for="">Total</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">₱</span>
+                            </div>
+                            <input type="text" class="form-control" v-model="total" disabled>
+                        </div>
+                    </div>
+                </div>
+            </template>
+            <template #modalFooter>
+                <div class="text-right">
+                    <button class="btn btn-success" v-on:click="yesProduct(props)">Yes</button>
+                    <button style="margin-left: 5px;" class="btn btn-danger" v-on:click="noProduct">No</button>
+                </div>
+            </template>
+        </ModalComponent>
+
+        <!-- TERMS AND CONDITION MODAL -->
+        <ModalComponent :id="modalIdTermsandCondition" :title="modalTitle" :size="modalSizeTermsandCondition" :position="modalPosition">
+            <template #modalHeader>
+                <div class="m-auto">
+                    <h4>Terms and Conditions</h4>
+                </div>
+            </template>
+            <template #modalBody>
+                <div class="container">
+                <div class="row">
+                    <div class="col-md-6">
+                        <ol>
+                            <li>
+                                <strong>PRODUCT DESCRIPTION:</strong> The Seller agrees to supply, and the Buyer agrees to purchase the product(s) described as follows ([provide detailed description of the product(s), including specifications, quality standards, and any other relevant details]).
+                            </li>
+                            <li>
+                                <strong>QUANTITY:</strong> The total quantity of the product(s) to be supplied under this Contract is [Quantity], as detailed in the attached Schedule A.
+                            </li>
+                            <li>
+                                <strong>PRICE AND PAYMENT TERMS:</strong> The total purchase price for the product(s) shall be [Total Price] payable by the Buyer to the Seller. Payment shall be made according to the following terms: [Payment Terms, e.g., payment schedule, due dates, acceptable methods of payment].
+                            </li>
+                            <li>
+                                <strong>DELIVERY TERMS:</strong> The Seller shall deliver the product(s) to [Delivery Address] on or before [Delivery Date]. The Seller is responsible for all shipping costs and insurance until the product(s) is delivered to the specified address.
+                            </li>
+                        </ol>
+                    </div>
+                        <div class="col-md-6">
+                            <ol start="6">
+                                <li>
+                                    <strong>WARRANTY:</strong> The Seller warrants that the product(s) shall be free from defects in material and workmanship for a period of [Warranty Period] from the date of delivery.
+                                </li>
+                                <li>
+                                    <strong>LIMITATION OF LIABILITY:</strong> The Seller's liability under this Contract shall be limited to the replacement of defective products or refund of the purchase price, at the Seller's option. In no event shall the Seller be liable for any incidental or consequential damages.
+                                </li>
+                                <li>
+                                    <strong>TERMINATION:</strong> This Contract may be terminated by either party upon [Number of Days] days written notice if the other party breaches any of its obligations under this Contract and fails to cure such breach within said notice period.
+                                </li>
+                                <li>
+                                    <strong>ENTIRE AGREEMENT:</strong> This Contract constitutes the entire agreement between the parties and supersedes all prior negotiations, understandings, and agreements between the parties.
+                                </li>
+                            </ol>
+                        </div>
+                    </div>
+                    <div class="d-flex">
+                        <div>
+                            <input type="checkbox" v-model="agreementChecked">
+                        </div>
+                        <div style="margin-left:5px">
+                            <strong>Please check the box if you agree to the terms and conditions above.</strong>
+                        </div>
+                    </div>
+                </div>
+            </template>
+            <template #modalFooter>
+                <div class="text-right">
+                    <button class="btn btn-success" v-on:click="getProduct" :disabled="!agreementChecked">Purchase</button>
+                </div>
+            </template>
+        </ModalComponent>
+
     </div>
 </template>
 
@@ -75,7 +209,6 @@
 import FormComponent from "./partials/FormComponent.vue";   
 import ModalComponent from "./partials/ModalComponent.vue";
 import BreadCrumbComponent from "./partials/BreadCrumbComponent.vue";
-import RequestProductComponent from "./RequestProductComponent.vue";
 import Swal from 'sweetalert2'
 import axios from 'axios';
 
@@ -87,9 +220,14 @@ export default{
                 selectedBrand : '',
                 selectedTool : '',
                 selectedSpecs : '',
+                requestedItems : '',
                 suppliers : [],
                 supplier_id : '',
                 products : [],  
+                requestData : [],
+                agreementChecked: false,
+                requestedItems : 0,
+                total: 0,
                 columns : ['name' ,'action'],
                 errors: [],
                 options : {
@@ -105,6 +243,9 @@ export default{
                     supplier_id: '',    
                 },
                 modalId : 'modal-supplier',
+                modalIdPurchaseProduct : 'modal-purchase-product',
+                modalIdTermsandCondition : 'modal-terms-and-condition',
+                modalSizeTermsandCondition : 'modal-lg',
                 modalTitle : 'Supplier',
                 modalPosition: 'modal-dialog-centered',
                 modalSize : 'modal-md',
@@ -113,17 +254,21 @@ export default{
     components: {
         FormComponent,
         ModalComponent,
-        BreadCrumbComponent,
-        RequestProductComponent
+        BreadCrumbComponent
     },
     methods: {
-
         getData() {
             axios.get('/supplier/show').then(response => {
                 this.data = response.data.data;
                 this.suppliers = response.data.suppliers;
                 this.products = response.data.products;
             })
+        },
+        clearInputs() {
+            this.dataValues = '';
+        },
+        refresh() {
+            window.location.reload();
         },
         filterData() {
             const searchData = {
@@ -152,6 +297,56 @@ export default{
                         timer: 3000
                     });
                     console.error(error);
+                });
+        },
+        purchaseProduct(product){
+            this.dataValues = product;
+            this.requestedItems = '';
+            this.total = '';
+            $('#' + this.modalIdPurchaseProduct).modal('show');
+        },
+        yesProduct() {
+            this.agreementChecked = false;
+            if(this.requestedItems == 0){
+                Swal.fire({
+                    title: "Insufficient Stocks!",
+                    icon: 'warning',
+                    timer: 3000
+                });
+                return;
+            }
+            const requestData = {
+                id: this.dataValues.id,
+                requestedItems: this.requestedItems,
+                total: this.total
+            }
+
+            this.requestData = requestData;
+
+            $('#' + this.modalIdPurchaseProduct).modal('hide');
+            $('#' + this.modalIdTermsandCondition).modal('show');
+        },
+        calculateTotal() {
+            this.total = this.requestedItems * this.dataValues.price;
+        },
+        getProduct(){
+            this.requestedItems = 0;
+            this.total = 0;
+            this.agreementChecked = false;
+            axios.post('/supplier/purchaseProduct', this.requestData)
+                .then(response => {
+                    // this.dataValues.stocks -= this.requestedItems;
+                    // this.balance -= this.total;
+                    Swal.fire({
+                        title: "Product Purchased Successfully!",
+                        icon: 'success',
+                        timer: 3000
+                    });
+                    $('#' + this.modalIdPurchaseProduct).modal('hide');
+                    $('#' + this.modalIdTermsandCondition).modal('hide');
+                })
+                .catch(error => {
+                    console.error('Error requesting product:', error);
                 });
         },
         editClicked(props) {

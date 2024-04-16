@@ -6,10 +6,13 @@ use App\Models\ToolsAndEquipment;
 use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Models\AdminHistory;
+use App\Models\CancelHistory;
 use App\Models\PowerTools;
 use App\Models\Unit;
 use App\Models\Supplier;
 use Validator;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class PowerToolsController extends Controller
 {
@@ -19,29 +22,63 @@ class PowerToolsController extends Controller
     
     public function show(){
         $data = ToolsAndEquipment::leftjoin('categories', 'tools_and_equipment.category_id', '=', 'categories.id')
-                                ->leftjoin('suppliers', 'tools_and_equipment.supplier_id', '=', 'suppliers.id')
-                                ->select('tools_and_equipment.*', 'categories.name as category_name', 'suppliers.name as supplier_name')
+                                ->leftjoin('products', 'tools_and_equipment.product_id', '=', 'products.id')
+                                ->leftjoin('users', 'users.id', '=', 'products.user_id')
+                                ->select('tools_and_equipment.*', 'categories.name as category_name', 'products.brand as product_brand', 'products.tool as product_tool', 
+                                'products.image as product_image', 'products.powerSources as product_powerSources', 'products.voltage as product_voltage',
+                                'products.weight as product_weight', 'products.dimensions as product_dimensions', 'products.material as product_material', 'users.name as supplier_name')
                                 ->get();
 
         $categories = Category::get();
 
-        return response()->json([ 'data' => $data, 'categories' => $categories ]);
+        $suppliers = User::where('role', 2)->get();
+
+        return response()->json([ 'data' => $data, 'categories' => $categories, 'suppliers' => $suppliers ]);
     }
 
     public function filterData(Request $request){
 
-        $brand = $request->input('brand');
-        $tool = $request->input('tool');
-        $category_id = $request->input('category_id');
-
-        $data = ToolsAndEquipment::where('name', 'like', '%' . $brand . '%')
-                                ->orWhere('name', 'like', '%' . $tool . '%')
-                                ->where('category_id', '=', $category_id)
-                                ->get();
-
-        return response()->json(['data' => $data]);
+        $supplier_name = $request->supplier_name;
+        $category_number = $request->category_number;
+        $brand = $request->brand;
+        $tool = $request->tool;
+        $specs = $request->specs;
         
-    }
+        $query = ToolsAndEquipment::query();
+    
+        $query->leftJoin('products', 'products.id', '=', 'tools_and_equipment.product_id')
+            ->leftJoin('users', 'users.id', '=', 'products.user_id')
+            ->leftjoin('categories', 'tools_and_equipment.category_id', '=', 'categories.id')
+            ->select('tools_and_equipment.*', 'categories.name as category_name', 'products.brand as product_brand', 'products.tool as product_tool', 
+            'products.image as product_image', 'products.powerSources as product_powerSources', 'products.voltage as product_voltage',
+            'products.weight as product_weight', 'products.dimensions as product_dimensions', 'products.material as product_material', 'users.name as supplier_name');
+            
+        if (!empty($category_number)) {
+            $query->where('tools_and_equipment.category_id', $category_number);
+        }
+
+        if (!empty($supplier_name)) {
+            $query->where('products.user_id', $supplier_name);
+        }
+    
+        if (!empty($brand)) {
+            $query->where('products.brand', 'like', '%' . $brand . '%');
+        }
+    
+        if (!empty($tool)) {
+            $query->where('products.tool', 'like', '%' . $tool . '%');
+        }
+    
+        if (!empty($specs)) {
+            $query->where('products.powerSources', 'like', '%' . $specs . '%');
+        }
+    
+        $products = $query->get();
+    
+        return response()->json(['products' => $products]);
+    
+    }    
+
     public function releaseProduct(ToolsAndEquipment $toolsAndEquipment){
         
         $toolsAndEquipment = ToolsAndEquipment::leftjoin('categories', 'tools_and_equipment.category_id', '=', 'categories.id')
@@ -49,8 +86,6 @@ class PowerToolsController extends Controller
                                 ->select('tools_and_equipment.*', 'categories.name as category_name', 'suppliers.name as supplier_name')
                                 ->where('tools_and_equipment.id', $toolsAndEquipment->id)
                                 ->first();
-
-        
 
         return response()->json(['data' => $toolsAndEquipment]);
     }
@@ -61,28 +96,32 @@ class PowerToolsController extends Controller
         $selectedCategory = $request->selectedCategory;
         $selectedPrice = $request->selectedPrice; 
 
-        $categoryName = Category::findOrFail($selectedCategory)->name;
+        // $categoryName = Category::findOrFail($selectedCategory)->name;
         
-        $adminHistory = new AdminHistory();
-        $adminHistory->tools_and_equipment_id = $toolsAndEquipment->id; 
-        $adminHistory->status = $categoryName;
-        $adminHistory->save();
+        // $adminHistory = new AdminHistory();
+        // $adminHistory->tools_and_equipment_id = $toolsAndEquipment->id; 
+        // $adminHistory->status = $categoryName;
+        // $adminHistory->save();
 
         $toolsAndEquipment->category_id = $selectedCategory;
         $toolsAndEquipment->price = $selectedPrice;
+
         if($selectedCategory === 1){
             $toolsAndEquipment->is_approved = 0;
         }
         else{
             $toolsAndEquipment->is_approved = 1;
         }
+
         $toolsAndEquipment->save();
         
     }
 
     public function cancelProduct(Request $request){
+        $userId = Auth::user()->id;
 
-        $adminHistory = new AdminHistory();
+        $adminHistory = new CancelHistory();
+        
         $selectedId = $request->id;
         $description = $request->description; 
 
@@ -92,8 +131,8 @@ class PowerToolsController extends Controller
         $toolsAndEquipment->is_approved = 0;
 
         $adminHistory->tools_and_equipment_id = $selectedId;
-        $adminHistory->description = $description;
-        $adminHistory->status = 'Cancelled';
+        $adminHistory->user_id = $userId;
+        $adminHistory->cancel_reason = $description;
 
         $toolsAndEquipment->save();
         $adminHistory->save();

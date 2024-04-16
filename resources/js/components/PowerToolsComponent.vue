@@ -95,6 +95,12 @@
 
         <div class="row mb-3">
             <div class="col-lg-2">
+                <select class="form-control" v-model="supplier_name">
+                    <option value="" disabled selected>Select Supplier</option>
+                    <option v-for="supplier in suppliers" :value="supplier.id">{{ supplier.name }}</option>
+                </select>
+            </div>
+            <div class="col-lg-2">
                 <select v-model="selectedBrand" class="form-control">
                     <option value="" disabled selected>Select Brand</option>
                     <option value="Bosch">Bosch</option>
@@ -123,7 +129,7 @@
                 </select>
             </div>
             <div class="col-lg-2">
-                <select class="form-control" v-model="category_id">
+                <select class="form-control" v-model="category_number">
                     <option value="" disabled selected>Select Category</option>
                     <option v-for="category in categories" :value="category.id">{{ category.name }}</option>
                 </select>  
@@ -141,12 +147,13 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between">
                             <div style="width: 50%;">
-                                <h2 class="card-title" style="font-weight: bold;">{{ product.name }}</h2>
+                                <h2 class="card-title" style="font-weight: bold;">{{ product.product_brand }} {{ product.product_tool }}</h2>
                                 <h4 class="card-text">{{ product.product_code }}</h4>
                                 <h6 class="card-text">{{ product.category_name }}</h6>
+                                <h6 class="card-text">{{ product.supplier_name }}</h6>
                             </div>
                             <div style="width: 50%;">
-                                <img v-if="product.image" :src="'/images/' + product.image" alt="Product Image" class="img-fluid" style="height: 250px;">
+                                <img v-if="product.product_image" :src="'/images/' + product.product_image" alt="Product Image" class="img-fluid" style="height: 250px;">
                                 <p v-else>No Stocks</p>
                             </div>
                         </div>
@@ -169,9 +176,12 @@
             <template #modalBody>
                 <div class="row">
                     <div class="col-12">
-                        <label for="">Name</label>
-                        <input type="text" class="form-control" v-model="dataValues.name" disabled>
-                        <div class="text-danger" v-if="errors.name">{{ errors.name[0] }}</div>
+                        <label for="">Brand</label>
+                        <input type="text" class="form-control" v-model="dataValues.product_brand" disabled>
+                    </div> 
+                    <div class="col-12">
+                        <label for="">Tool</label>
+                        <input type="text" class="form-control" v-model="dataValues.product_tool" disabled>
                     </div> 
                     <div class="col-12">
                         <label for="">Product Code</label>
@@ -194,7 +204,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text">₱</span>
                             </div>
-                            <input type="text" class="form-control" v-model="selectedPrice">
+                            <input type="number" class="form-control" v-model="selectedPrice">
                         </div>
                     </div>  
                     <div class="col-12" v-if="category_id === 3">
@@ -203,7 +213,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text">₱</span>
                             </div>
-                            <input type="text" class="form-control" v-model="selectedPrice">
+                            <input type="number" class="form-control" v-model="selectedPrice">
                         </div>
                     </div>  
                 </div>
@@ -318,7 +328,9 @@ export default{
                 productData : [],
                 units: [],
                 suppliers: [],
+                category_number: '',
                 category_id: '',
+                supplier_name: '',
                 selectedPrice : 0,
                 isApproved: false,
                 isChecked1 : false,
@@ -332,6 +344,7 @@ export default{
                 dataValues: {
                     name: '',
                     category_id: '',
+                    supplier_id: '',
                 },
                 modalId : 'modal-powertools',
                 modalTitle : 'Power Tools',
@@ -376,12 +389,10 @@ export default{
         releaseProduct(product){
             this.category_id = '';
             this.selectedPrice = 0;
+            
             axios.get('/powertools/releaseProduct/' + product.id).then(response => {
-                this.dataValues = response.data.data;
+                this.dataValues = product;
                 $('#' + this.modalId).modal('show');
-                if(this.dataValues.category_id == 1){
-                    this.modalTitle = 'Release Product';
-                }
             }).catch(errors => {
                 // Handle errors
                 if (errors.response.data.message.length > 0) {
@@ -513,47 +524,41 @@ export default{
             axios.get('/powertools/show').then(response => {
                 this.data = response.data.data;
                 this.categories = response.data.categories;
+                this.suppliers = response.data.suppliers;
             })
         },
         refresh(){
             window.location.reload();
         },
         filterData(){
-            if (!this.selectedBrand || !this.selectedTool || !this.category_id) {
+            const searchData = {
+                supplier_name: this.supplier_name,
+                category_number: this.category_number,
+                brand: this.selectedBrand,
+                tool: this.selectedTool,
+                specs: this.selectedSpecs
+            };
+
+            axios.post('/powertools/filterData', searchData)
+            .then(response => {
+                this.data = response.data.products;
+                if (this.data.length === 0) {
                     Swal.fire({
-                        title: "Please select all fields!",
+                        title: "No Products available!",
                         icon: 'warning',
                         timer: 3000
                     });
-                    return;
                 }
-
-                const searchData = {
-                    brand: this.selectedBrand,
-                    tool: this.selectedTool,
-                    category_id: this.category_id
-                };
-
-                axios.post('/powertools/filterData', searchData)
-                .then(response => {
-                    this.data = response.data.data;
-                    if (this.data.length === 0) {
-                        Swal.fire({
-                            title: "No Products available!",
-                            icon: 'warning',
-                            timer: 3000
-                        });
-                    }
-                })
-                .catch(error => {
-                    Swal.fire({
-                        title: "Error!",
-                        text: "Failed to fetch data.",
-                        icon: 'error',
-                        timer: 3000
-                    });
-                    console.error(error);
+            })
+            .catch(error => {
+                Swal.fire({
+                    title: "Error!",
+                    text: "Failed to fetch data.",
+                    icon: 'error',
+                    timer: 3000
                 });
+                console.error(error);
+            });
         },
         deleteClicked(props) {
             Swal.fire({

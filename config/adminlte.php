@@ -437,10 +437,16 @@ return [
             ],
         ],
         [
-            'text' => 'Product History',
+            'text' => 'Purhased History',
             'icon'    => 'fa-solid fa-book',
             'can' => ['admin'], 
             'url'  => '/product-history',
+        ],
+        [
+            'text' => 'Canceled History',
+            'icon'    => 'fa-solid fa-x', 
+            'can' => ['admin'], 
+            'url'  => '/cancel-history',
         ],
         [
             'text' => 'Buy Tools',

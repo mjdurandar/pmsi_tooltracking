@@ -1,6 +1,6 @@
 <template>
     <div class="p-3">
-        <BreadCrumbComponent tab_title="Purchased History"></BreadCrumbComponent>
+        <BreadCrumbComponent tab_title="Canceled History"></BreadCrumbComponent>
         <div class="row mb-3">
             <div class="col-lg-2">
                 <select v-model="selectedBrand" class="form-control">
@@ -41,90 +41,73 @@
                 <button class="btn btn-success ml-1" @click="refresh"><i class="fas fa-sync-alt"></i></button>
             </div>
         </div>
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="card">
-                    <div class="card-body">
-                        <FormComponent 
-                            :data="data"
-                            :columns="columns"
-                            :options="options"
-                            :option1Switch="false"
-                            :option2Switch="false"
-                            :option3Switch="true"
-                            :addButton="false"
-                            option3Name="View"
-                            option3Icon="fa-regular fa-eye"
-                            @optionalClicked="optionalClicked"
-                        >
-                        </FormComponent>
-                    </div>
-                </div>
+        <div class="card">
+            <div class="card-body">
+                <FormComponent 
+                    :data="data"
+                    :columns="columns"
+                    :options="options"
+                    :addButton="false"
+                    :option2Switch="false"
+                    option1Color = "color: #089000"
+                    option1Icon="fa fa-eye mr-2"
+                    option1Name="View"
+                    @editClicked="editClicked"
+                >
+                </FormComponent>
             </div>
         </div>
 
-        <!-- MODAL VIEW HISTORY -->
         <ModalComponent :id="modalId" :title="modalTitle" :size="modalSize" :position="modalPosition">
             <template #modalHeader>
                 <div class="m-auto">
-                    <h4>View History</h4>
+                    <h4>View</h4>
                 </div>
             </template>
             <template #modalBody>
-                <div class="row">
-                    <div class="col-12">
-                        <label for="">Purchased By</label>
-                        <input type="text" class="form-control" v-model="userName" disabled>
-                    </div> 
-                    <div class="col-12">
-                        <label for="">Brand</label>
-                        <input type="text" class="form-control" v-model="dataValues.product_brand" disabled>
-                    </div> 
-                    <div class="col-12">
-                        <label for="">Tool</label>
-                        <input type="text" class="form-control" v-model="dataValues.product_tool" disabled>
-                    </div> 
-                    <div class="col-12">
-                        <label for="">Supplier</label>
-                        <input type="text" class="form-control" v-model="dataValues.supplier_name" disabled>
-                    </div> 
-                    <div class="col-12">
-                        <label for="">Items</label>
-                        <input type="text" class="form-control" v-model="dataValues.items" disabled>
-                    </div> 
-                    <div class="col-12">
-                        <label for="">Total</label>
-                        <input type="text" class="form-control" v-model="dataValues.total_price" disabled>
-                    </div> 
-                    <div class="col-12">
-                        <label for="">Purchased At</label>
-                        <input type="text" class="form-control" v-model="dataValues.created_at" disabled>
-                    </div>
-                </div>
+                <div class="col-12 pb-2">
+                    <label for="">Canceled By</label>
+                        <input class="form-control" v-model="dataValues.user_name" disabled>
+                </div> 
+                <div class="col-12 pb-2">
+                    <label for="">Brand</label>
+                        <input class="form-control" v-model="dataValues.brand_name" disabled>
+                </div> 
+                <div class="col-12 pb-2">
+                    <label for="">Tools</label>
+                        <input class="form-control" v-model="dataValues.tool_name" disabled>
+                </div> 
+                <div class="col-12 pb-2">
+                    <label for="">Product Code</label>
+                        <input class="form-control" v-model="dataValues.product_code" disabled>
+                </div> 
+                <div class="col-12 pb-2">
+                    <label for="">Supplier</label>
+                        <input class="form-control" v-model="dataValues.supplier_name" disabled>
+                </div> 
+                <div class="col-12 pb-2">
+                    <label for="">Cancel Reason</label>
+                        <textarea class="form-control" v-model="dataValues.cancel_reason" disabled></textarea>
+                </div> 
+                <div class="col-12 pb-2">
+                    <label for="">Canceled At</label>
+                        <input class="form-control" v-model="dataValues.created_at" disabled>
+                </div> 
             </template>
             <template #modalFooter>
                 <div class="text-right">
-                    <button class="btn btn-dark" v-on:click="dismissModal()">Close</button>
+                    <button class="btn btn-dark" v-on:click="closeModal">Close</button>
                 </div>
             </template>
         </ModalComponent>
 
-
     </div>
 </template>
 
-<style>
-    .dash-title{
-        font-size: 20px;
-        font-weight: bold;
-        text-align: center;
-    }
-</style>
-
 <script>    
+import BreadCrumbComponent from "./partials/BreadCrumbComponent.vue";   
 import FormComponent from "./partials/FormComponent.vue";   
 import ModalComponent from "./partials/ModalComponent.vue";
-import BreadCrumbComponent from "./partials/BreadCrumbComponent.vue";
 import Swal from 'sweetalert2'
 import axios from 'axios';
 
@@ -133,18 +116,17 @@ export default{
     data(){
         return{
                 data : [],
+                errors: [],
                 selectedBrand: '',
                 selectedTool: '',
                 status_id: '',
                 supplier_id: '',
-                statuses: [],
                 suppliers: [],
-                userName: '',
-                columns : ['product_brand', 'product_tool', 'supplier_name' ,'action'],
+                columns : ['brand_name', 'tool_name','supplier_name','action'],
                 options : {
                     headings : {
-                        product_brand : 'Brand',
-                        product_tool : 'Tool',
+                        brand_name : 'Brand',
+                        tool_name : 'Tool',
                         supplier_name : 'Supplier',
                         action : 'Action',
                     },
@@ -154,8 +136,8 @@ export default{
                 dataValues: {
                     name: '',
                 },
-                modalId : 'modal-view',
-                modalTitle : 'View',
+                modalId : 'modal-borrowedhistory',
+                modalTitle : 'Borrowed History',
                 modalPosition: 'modal-dialog-centered',
                 modalSize : 'modal-md',
         }
@@ -163,46 +145,41 @@ export default{
     components: {
         FormComponent,
         ModalComponent,
-        BreadCrumbComponent,
+        BreadCrumbComponent
     },
     methods: {
-        dismissModal(){
-            $('#' + this.modalId).modal('hide');
-            $('#' + this.modalIdCancel).modal('hide');
+        addClicked(props){
+            $('#' + this.modalId).modal('show');
+            this.clearInputs();
         },
         refresh(){
             window.location.reload();
         },
+        closeModal(){
+            $('#' + this.modalId).modal('hide');
+        },
         getData() {
-            axios.get('/product-history/show').then(response => {
+            axios.get('/cancel-history/show').then(response => {
                 this.data = response.data.data;
-                this.userName = response.data.userName
                 this.suppliers = response.data.suppliers;
-                this.statuses = response.data.statuses;
                 this.data.forEach(item => {
                     item.created_at = new Date(item.created_at).toLocaleString(); // Format to the user's locale
                 })
             })
         },
-        clearInputs() {
-            this.dataValues = {
-                name: '',
-            }
-            this.errors = [];
-        },
-        optionalClicked(props){
+        editClicked(props) {
             this.dataValues = props.data;
+            this.modalTitle= 'View Data';
             $('#' + this.modalId).modal('show');
         },
         filterData(){
-
             const searchData = {
                     brand: this.selectedBrand,
                     tool: this.selectedTool,
                     supplier_id: this.supplier_id,
                 };
 
-            axios.post('/product-history/viewHistory', searchData)
+            axios.post('/cancel-history/viewHistory', searchData)
                 .then(response => {
                     this.data = response.data.data;
                     if (this.data.length === 0) {
@@ -222,9 +199,9 @@ export default{
                     });
                     console.error(error);
                 });
-        }
-    },
-    mounted() {
+            },
+        },
+        mounted() {
             this.getData();
         }
 }

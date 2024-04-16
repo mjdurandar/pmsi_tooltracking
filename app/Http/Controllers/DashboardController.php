@@ -28,7 +28,8 @@ class DashboardController extends Controller
     public function productStocks()
     {
         // Count the occurrences of each product name
-        $productCounts = ToolsAndEquipment::select(DB::raw("SUBSTRING_INDEX(name, ' ', 1) as first_word"), DB::raw('COUNT(*) as count'))
+        $productCounts = ToolsAndEquipment::leftjoin('products', 'products.id', '=', 'tools_and_equipment.product_id')
+            ->select(DB::raw("SUBSTRING_INDEX(products.brand, ' ', 1) as first_word"), DB::raw('COUNT(*) as count'))
             ->groupBy('first_word')
             ->get();
         

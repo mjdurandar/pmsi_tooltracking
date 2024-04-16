@@ -1,6 +1,19 @@
 <template>
     <div class="p-3">
         <BreadCrumbComponent tab_title="Customer Data"></BreadCrumbComponent>
+        <div class="row mb-3">
+            <div class="col-lg-2">
+                <select class="form-control" v-model="account_type">
+                    <option value="" disabled selected>Account Type</option>
+                    <option value="User">User</option>
+                    <option value="Supplier">Supplier</option>
+                </select>
+            </div>
+            <div>
+                <button class="btn btn-primary" @click="filterData">Search</button>
+                <button class="btn btn-success ml-1" @click="refresh"><i class="fas fa-sync-alt"></i></button>
+            </div>
+        </div>
         <div class="card">
             <div class="card-body">
                 <FormComponent 
@@ -8,7 +21,8 @@
                     :columns="columns"
                     :options="options"
                     btnName="Add Users Account"
-                    :option3Switch="false"
+                    :option3Switch="true"
+                    option3Name="Transactions"
                     @deleteClicked="deleteClicked"
                     @editClicked="editClicked"
                     @optionalClicked="optionalClicked"
@@ -37,43 +51,19 @@
                         <div class="text-danger" v-if="errors.email">{{ errors.email[0] }}</div>
                     </div>  
                     <div class="col-12 mb-2">
-                        <label for="">Balance</label>
-                        <input type="text" class="form-control" v-model="dataValues.balance">
-                        <div class="text-danger" v-if="errors.balance">{{ errors.balance[0] }}</div>
-                    </div>
+                        <label for="">Contact Person</label>
+                        <input type="text" class="form-control" v-model="dataValues.contact_person">
+                        <div class="text-danger" v-if="errors.contact_person">{{ errors.contact_person[0] }}</div>
+                    </div>  
                     <div class="col-12 mb-2">
                         <label for="">Contact Number</label>
                         <input type="number" class="form-control" v-model="dataValues.contact_address">
                         <div class="text-danger" v-if="errors.contact_address">{{ errors.contact_address[0] }}</div>
                     </div>  
-                    <div class="col-12 pb-2">
-                        <label for="">Region</label>
-                        <select class="form-control" v-model="dataValues.region_id">
-                            <option v-for="region in regions" :value="region.id">{{ region.name }}</option>
-                        </select>
-                        <div class="text-danger" v-if="errors.region_id">{{ errors.region_id[0] }}</div>
-                    </div> 
-                    <div class="col-12 pb-2">
-                        <label for="">Province</label>
-                        <select class="form-control" v-model="dataValues.province_id">
-                            <option v-for="province in provinces" :value="province.id">{{ province.name }}</option>
-                        </select>
-                        <div class="text-danger" v-if="errors.province_id">{{ errors.province_id[0] }}</div>
-                    </div> 
                     <div class="col-12 mb-2">
-                        <label for="">City</label>
-                        <input type="text" class="form-control" v-model="dataValues.city">
-                        <div class="text-danger" v-if="errors.city">{{ errors.city[0] }}</div>
-                    </div>  
-                    <div class="col-12 mb-2">
-                        <label for="">Barangay</label>
-                        <input type="text" class="form-control" v-model="dataValues.barangay">
-                        <div class="text-danger" v-if="errors.barangay">{{ errors.barangay[0] }}</div>
-                    </div>  
-                    <div class="col-12 mb-2">
-                        <label for="">House Number</label>
-                        <input type="number" class="form-control" v-model="dataValues.house_number">
-                        <div class="text-danger" v-if="errors.house_number">{{ errors.house_number[0] }}</div>
+                        <label for="">Location</label>
+                        <input type="location" class="form-control" v-model="dataValues.location">
+                        <div class="text-danger" v-if="errors.location">{{ errors.location[0] }}</div>
                     </div>  
                     <div class="col-12 mb-2">
                         <label for="">Role</label>
@@ -113,19 +103,16 @@ export default{
                 data : [],
                 regions : [],
                 provinces : [],
-                columns : ['name', 'email', 'balance', 'contact_address', 'region_name', 'province_name', 'city', 'barangay', 'house_number' ,'action'],
+                account_type : '',
+                columns : ['name', 'email', 'accounts' ,'contact_address', 'contact_person' ,'action'],
                 errors: [],
                 options : {
                     headings : {
                         name : 'Name',
                         email : 'Email',
-                        balance : 'Balance',
+                        accounts : 'Account Type',
                         contact_address : 'Contact Address',
-                        region_name : 'Region',
-                        province_name : 'Province',
-                        city : 'City',
-                        barangay : 'Barangay',
-                        house_number : 'House Number',
+                        contact_person : 'Contact Person',
                         action : 'Action',
                     },
                     filterable: false,
@@ -158,8 +145,6 @@ export default{
         getData() {
             axios.get('/users/show').then(response => {
                 this.data = response.data.data;
-                this.regions = response.data.regions;
-                this.provinces = response.data.provinces;
             })
         },
         clearInputs() {
@@ -188,9 +173,36 @@ export default{
                 }
             })
         },
+        refresh(){
+            window.location.reload();
+        },
+        filterData(){
+            const searchData = {
+                account_type: this.account_type,
+            };
+            axios.post('/users/filterData', searchData).then(response => {
+                    this.data = response.data.data;
+                    if (this.data.length === 0) {
+                        Swal.fire({
+                            title: "No Data available!",
+                            icon: 'warning',
+                            timer: 3000
+                        });
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        title: "Error!",
+                        text: "Failed to fetch data.",
+                        icon: 'error',
+                        timer: 3000
+                    });
+                    console.error(error);
+                });
+        },
         optionalClicked(props) {
             const userId = props.data.id;
-
+            
             axios.get(`/users/showBuyingHistory/${userId}`)
                 .then(response => {
                     this.dataReceipts = response.data.data;

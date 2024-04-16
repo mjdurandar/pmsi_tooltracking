@@ -16,16 +16,18 @@ class UsersController extends Controller
     }
 
     public function show() {
-        // $data = User::where('role', '!=', 1)->get(); 
-        $data = User::leftjoin('regions', 'users.region_id', '=', 'regions.id')
-                    ->leftjoin('provinces', 'users.province_id', '=', 'provinces.id')
-                    ->select('users.*','regions.name as region_name', 'provinces.name as province_name')
-                    ->get();
-                    
-        $regions = Region::get();
-        $provinces = Province::get();
+        $data = User::where('role', '!=', 1)->get(); 
+
+        return response()->json([ 'data' => $data]);
+    }
+
+    public function filterData(Request $request){
+        $account_type = $request->account_type;
         
-        return response()->json([ 'data' => $data, 'regions' => $regions, 'provinces' => $provinces ]);
+        $data = User::where('accounts', 'like', '%' . $account_type . '%')
+                ->get();
+
+        return response()->json(['data' => $data]);
     }
 
     public function store(Request $request) {
