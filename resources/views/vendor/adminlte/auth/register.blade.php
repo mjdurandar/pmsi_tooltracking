@@ -114,7 +114,7 @@
         </div>
 
         {{-- Location --}}
-        <!-- <div class="input-group mb-3">
+        <div class="input-group mb-3">
             <input type="text" name="location" id="location" class="form-control @error('location') is-invalid @enderror"
                    value="{{ old('location') }}" placeholder="Enter your Location">
 
@@ -129,7 +129,7 @@
                     <strong>{{ $message }}</strong>
                 </span> 
             @enderror
-        </div> -->
+        </div>
 
         {{-- Company Description --}}
         <div id="descriptionField" class="mb-3" style="display: none;">
@@ -204,7 +204,7 @@
             });
         });
     // Define the initialize function
-    function initialize() {
+    function initMap() {
         var input = document.getElementById('location');
         var options = {
             types: ['address'], // Limit results to addresses

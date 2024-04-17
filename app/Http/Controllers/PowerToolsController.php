@@ -108,9 +108,15 @@ class PowerToolsController extends Controller
 
         if($selectedCategory === 1){
             $toolsAndEquipment->is_approved = 0;
+            $toolsAndEquipment->status = 'Unrealeased';
         }
-        else{
+        else if ($selectedCategory === 2){
             $toolsAndEquipment->is_approved = 1;
+            $toolsAndEquipment->status = 'For Sale';
+        }
+        else if ($selectedCategory === 3){
+            $toolsAndEquipment->is_approved = 1;
+            $toolsAndEquipment->status = 'For Borrowing';
         }
 
         $toolsAndEquipment->save();
@@ -129,6 +135,7 @@ class PowerToolsController extends Controller
         $toolsAndEquipment->category_id = 1;
         $toolsAndEquipment->price = 0;
         $toolsAndEquipment->is_approved = 0;
+        $toolsAndEquipment->status = 'Canceled';
 
         $adminHistory->tools_and_equipment_id = $selectedId;
         $adminHistory->user_id = $userId;

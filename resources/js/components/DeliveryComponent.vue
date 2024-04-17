@@ -1,6 +1,41 @@
 <template>
     <div class="p-3">
         <BreadCrumbComponent tab_title="Delivery"></BreadCrumbComponent>
+        <div class="row mb-3">
+            <div class="col-lg-2">
+                <select v-model="selectedBrand" class="form-control">
+                    <option value="" disabled selected>Select Brand</option>
+                    <option value="Bosch">Bosch</option>
+                    <option value="Dewalt">Dewalt</option>
+                    <option value="Makita">Makita</option>
+                    <option value="Milwaukee">Milwaukee</option>
+                    <option value="Black+Decker">Black+Decker</option>
+                    <option value="Craftsman">Craftsman</option>
+                    <option value="Hitachi">Hitachi</option>
+                    <option value="Ingersoll">Ingersoll</option>
+                    <option value="Porter-Cable">Porter-Cable</option>
+                    <option value="Snap-on">Snap-on</option>
+                    <option value="Ridgid">Ridgid</option>
+                    <option value="Metabo">Metabo</option> 
+                    <option value="Ryobi">Ryobi</option> 
+                </select>
+            </div>
+            <div class="col-lg-2">
+                <select v-model="selectedTool" class="form-control">
+                    <option value="" disabled selected>Select Tools</option> 
+                    <option value="Drill">Drill</option>
+                    <option value="Screwdriver">Screwdriver</option>
+                    <option value="Wrench">Wrench</option>
+                    <option value="Grinder">Grinder</option>
+                    <option value="Jigsaw">Jigsaw</option>
+                    <option value="Saw">Saw</option>
+                </select>
+            </div>
+            <div>
+                <button class="btn btn-primary" @click="filterData">Search</button>
+                <button class="btn btn-success ml-1" @click="refresh"><i class="fas fa-sync-alt"></i></button>
+            </div>
+        </div>
         <div class="card">
             <div class="card-body">
                 <FormComponent 
@@ -63,11 +98,16 @@ export default{
                 data : [],
                 errors: [],
                 qrCodeUrl: '',
-                columns : [ 'user_name' , 'power_tools_name', 'action'],
+                selectedBrand : '',
+                selectedTool : '',
+                columns : [ 'brand_name', 'tool_name', 'product_code' ,'price',  , 'status', 'action'],
                 options : {
                     headings : {
-                        user_name : 'Name',
-                        power_tools_name : 'Power Tools',
+                        brand_name : 'Brand',
+                        tool_name : 'Tool',
+                        product_code : 'Product Code',
+                        price : 'Price',
+                        status : 'Status',
                         action : 'Action',
                     },
                     filterable: false,
@@ -96,6 +136,36 @@ export default{
             axios.get('/delivery/show').then(response => {
                 this.data = response.data.data;
             })
+        },
+        refresh(){
+            window.location.reload();
+        },
+        filterData() {
+            const searchData = {
+                brand: this.selectedBrand,
+                tool: this.selectedTool
+            };
+
+            axios.post('/delivery/filterData', searchData)
+                .then(response => {
+                    this.data = response.data.data;
+                    if (this.data.length === 0) {
+                        Swal.fire({
+                            title: "No Products available!",
+                            icon: 'warning',
+                            timer: 3000
+                        });
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        title: "Error!",
+                        text: "Failed to fetch data.",
+                        icon: 'error',
+                        timer: 3000
+                    });
+                    console.error(error);
+                });
         },
         generateQrCode(props) {
             const qr = QRCode(0, 'L'); // Create a QRCode object

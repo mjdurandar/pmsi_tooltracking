@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\DeliverHistory;
 use App\Models\Delivery;
 
 class DeliveryController extends Controller
@@ -12,11 +13,38 @@ class DeliveryController extends Controller
     }
 
     public function show() {
-        $data = Delivery::leftjoin('power_tools', 'power_tools.id', '=', 'deliveries.power_tools_id')
-                            ->leftjoin('users', 'users.id', '=', 'deliveries.user_id')
-                            ->select('deliveries.*','power_tools.name as power_tools_name', 'users.name as user_name')
-                            ->get();
+        
+        $data = DeliverHistory::leftjoin('tools_and_equipment', 'tools_and_equipment.id', 'deliver_histories.tools_and_equipment_id')
+                                ->leftjoin('products', 'products.id', 'tools_and_equipment.product_id')
+                                ->select('deliver_histories.*', 'products.brand as brand_name', 'products.tool as tool_name',
+                                'tools_and_equipment.product_code as product_code', 'tools_and_equipment.price as price')
+                                ->get();
+
         return response()->json([ 'data' => $data ]);
+    }
+
+    public function filterData(Request $request) {
+        $brand = $request->brand;
+        $tool = $request->tool;
+    
+        $query = DeliverHistory::query();
+
+        $query->leftjoin('tools_and_equipment', 'tools_and_equipment.id', 'deliver_histories.tools_and_equipment_id')
+                ->leftjoin('products', 'products.id', 'tools_and_equipment.product_id')
+                ->select('deliver_histories.*', 'products.brand as brand_name', 'products.tool as tool_name',
+                'tools_and_equipment.product_code as product_code', 'tools_and_equipment.price as price');
+
+        if (!empty($brand)) {
+            $query->where('products.brand', 'like', '%' . $brand . '%');
+        }
+    
+        if (!empty($tool)) {
+            $query->where('products.tool', 'like', '%' . $tool . '%');
+        }
+
+        $data = $query->get();
+        
+        return response()->json(['data' => $data]);
     }
 
 }

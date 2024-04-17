@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\BorrowTools;
 use Illuminate\Http\Request;
 use App\Models\Category;
-use App\Models\Unit;
-use App\Models\Supplier;
-use App\Models\Scaffolding;
+use App\Models\DeliverHistory;
+use App\Models\BorrowHistory;
+use App\Models\Borrowed;
 use App\Models\ReturnDays;
+use App\Models\ToolsAndEquipment;
 use Illuminate\Support\Facades\Auth;
 
 class BorrowToolsController extends Controller
@@ -37,16 +38,45 @@ class BorrowToolsController extends Controller
 
     public function show(){
 
-        $categories = Category::get();
-        $units = Unit::get();
-        $suppliers = Supplier::get();
+        $data = ToolsAndEquipment::leftjoin('products', 'products.id', '=', 'tools_and_equipment.product_id')
+        ->select('tools_and_equipment.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as product_image',
+         'products.powerSources as powerSources', 'products.voltage as voltage', 'products.weight as weight', 'products.dimensions as dimensions', 'products.material as material')
+        ->where('category_id', 3)
+        ->get();
+
         $returndays = ReturnDays::get();
-        $data = Scaffolding::leftjoin('categories', 'categories.id', '=', 'scaffoldings.category_id')
-                            ->leftjoin('units', 'units.id', '=', 'scaffoldings.unit_id')
-                            ->leftjoin('suppliers', 'suppliers.id', '=', 'scaffoldings.supplier_id')
-                            ->select('scaffoldings.*','categories.name as category_name', 'units.name as unit_name', 'suppliers.name as supplier_name')
-                            ->get();
-        return response()->json([ 'data' => $data, 'categories' => $categories, 'units' => $units, 'suppliers' => $suppliers, 'returndays' => $returndays ]);
+
+        return response()->json([ 'data' => $data, 'returndays' => $returndays]);
+    }
+
+    public function filterData(Request $request)
+    {
+        $brand = $request->brand;
+        $tool = $request->tool;
+        $specs = $request->specs;
+    
+        $query = ToolsAndEquipment::query();
+
+        $query->leftJoin('products', 'products.id', '=', 'tools_and_equipment.product_id')
+        ->select('tools_and_equipment.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as product_image',
+                 'products.powerSources as powerSources', 'products.voltage as voltage', 'products.weight as weight', 'products.dimensions as dimensions', 'products.material as material')
+                 ->where('category_id', 3);
+    
+        if (!empty($brand)) {
+            $query->where('products.brand', 'like', '%' . $brand . '%');
+        }
+    
+        if (!empty($tool)) {
+            $query->where('products.tool', 'like', '%' . $tool . '%');
+        }
+    
+        if (!empty($specs)) {
+            $query->where('products.powerSources', 'like', '%' . $specs . '%');
+        }
+
+        $data = $query->get();
+        
+        return response()->json(['data' => $data]);
     }
 
     public function store(Request $request) {
@@ -58,17 +88,29 @@ class BorrowToolsController extends Controller
         ]);
         
         $user_id = auth()->user()->id;
-        // Update is_sold_out field for the purchased tool
-        $tool = Scaffolding::findOrFail($request->scaffoldings_id);
-        $tool->is_borrowed = true; // Assuming is_sold_out is a boolean field
-        $tool->save();
-        // Proceed with storing BuyTools data
-        $data = new BorrowTools();
-        $data->user_id = $user_id;
-        $data->scaffoldings_id = $request->scaffoldings_id;
-        $data->return_days_id = $request->return_days_id;
-        $data->borrowed_at = now();
-        $data->save();
+
+        $tools = ToolsAndEquipment::findOrFail($request->id);
+        $tools->status = 'Borrowed';
+        $tools->save();
+        
+        $borrowed = new Borrowed();
+        $borrowed->user_id = $user_id;
+        $borrowed->tools_and_equipment_id = $request->id;
+        $borrowed->return_days_id = $request->return_days_id;
+        $borrowed->status = 'Preparing';
+        $borrowed->save();
+
+        // $borrowHistory = new BorrowHistory();
+        // $borrowHistory->user_id = $user_id;
+        // $borrowHistory->tools_and_equipment_id = $request->id;
+        // $borrowHistory->status = 'Preparing';
+        // $borrowHistory->save();
+
+        $delivery = new DeliverHistory();
+        $delivery->user_id = $user_id;
+        $delivery->tools_and_equipment_id = $request->id;
+        $delivery->status = 'Preparing';
+        $delivery->save();
     
         return response()->json(['message' => 'Data Successfully Saved']);
     }

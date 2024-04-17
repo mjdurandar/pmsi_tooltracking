@@ -333,8 +333,8 @@ return [
         [
             'text'    => 'Dashboard',
             'icon'    => 'fa-solid fa-chart-simple',
-            'can' => ['supplier'],
-            'url' => '/' 
+            'can' => ['supplier', 'admin'],
+            'url' => '/dashboard' 
         ],
         [
             'text'    => 'Profile',
@@ -348,19 +348,12 @@ return [
             'can' => ['supplier'], 
             'url' => '/products' 
         ],
-        [
-            'text'    => 'Orders',
-            'icon'    => 'fa-solid fa-truck', 
-            'can' => ['supplier'], 
-            'url' => '/' 
-        ],
-
-        [
-            'text'    => 'Dashboard',
-            'icon'    => 'fa-solid fa-chart-simple',
-            'can' => ['admin'],
-            'url' => '/dashboard' 
-        ],
+        // [
+        //     'text'    => 'Orders',
+        //     'icon'    => 'fa-solid fa-truck', 
+        //     'can' => ['supplier'], 
+        //     'url' => '/' 
+        // ],
         [
             'text' => 'Supplier',
             'icon'    => 'fa-solid fa-truck-field',

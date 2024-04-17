@@ -30,24 +30,25 @@ Route::group(['middleware' => 'auth'], function(){
         return view('home');
     });
 
-    Route::get('/powertools/show',[App\Http\Controllers\PowerToolsController::class, 'show']);
+    // Route::get('/powertools/show',[App\Http\Controllers\PowerToolsController::class, 'show']);
 
-    Route::get('/buyinghistory',[App\Http\Controllers\BuyToolsController::class, 'history']);
-    Route::get('/buyinghistory/showHistory',[App\Http\Controllers\BuyToolsController::class, 'showHistory']);
+    // Route::get('/buyinghistory',[App\Http\Controllers\BuyToolsController::class, 'history']);
+    // Route::get('/buyinghistory/showHistory',[App\Http\Controllers\BuyToolsController::class, 'showHistory']);
 
-    Route::get('/borrowedhistory',[App\Http\Controllers\BorrowToolsController::class, 'history']);
-    Route::get('/borrowedhistory/showHistory',[App\Http\Controllers\BorrowToolsController::class, 'showHistory']);
+    // Route::get('/borrowedhistory',[App\Http\Controllers\BorrowToolsController::class, 'history']);
+    // Route::get('/borrowedhistory/showHistory',[App\Http\Controllers\BorrowToolsController::class, 'showHistory']);
+    // Route::get('/',[App\Http\Controllers\DashboardController::class, 'index']);
+    Route::get('/dashboard',[App\Http\Controllers\DashboardController::class, 'index']);
+    Route::get('/dashboard/productStocks',[App\Http\Controllers\DashboardController::class, 'productStocks']);
+    Route::get('/dashboard/statusCount',[App\Http\Controllers\DashboardController::class, 'statusCount']);
+    Route::get('/dashboardCount/counts',[App\Http\Controllers\DashboardController::class, 'counts']);
+    Route::get('/dashboard/balanceData',[App\Http\Controllers\DashboardController::class, 'balanceData']);
+    Route::get('/dashboard/supplierCount',[App\Http\Controllers\DashboardController::class, 'supplierCount']);
+    Route::get('/dashboard/masterdataCount',[App\Http\Controllers\DashboardController::class, 'masterdataCount']);
+
 
     Route::middleware(['CheckRole:admin'])->group(function() {
         // DASHBOARD
-        // Route::get('/',[App\Http\Controllers\DashboardController::class, 'index']);
-        Route::get('/dashboard',[App\Http\Controllers\DashboardController::class, 'index']);
-        Route::get('/dashboard/productStocks',[App\Http\Controllers\DashboardController::class, 'productStocks']);
-        Route::get('/dashboard/statusCount',[App\Http\Controllers\DashboardController::class, 'statusCount']);
-        Route::get('/dashboardCount/counts',[App\Http\Controllers\DashboardController::class, 'counts']);
-        Route::get('/dashboard/balanceData',[App\Http\Controllers\DashboardController::class, 'balanceData']);
-        Route::get('/dashboard/supplierCount',[App\Http\Controllers\DashboardController::class, 'supplierCount']);
-        Route::get('/dashboard/masterdataCount',[App\Http\Controllers\DashboardController::class, 'masterdataCount']);
 
         // PROJECT SITE
         Route::get('/project-site',[App\Http\Controllers\ProjectSiteController::class, 'index']);
@@ -85,6 +86,7 @@ Route::group(['middleware' => 'auth'], function(){
 
         // POWERTOOLS 
         Route::get('/powertools',[App\Http\Controllers\PowerToolsController::class, 'index']);
+        Route::get('/powertools/show',[App\Http\Controllers\PowerToolsController::class, 'show']);
         Route::post('/powertools/store',[App\Http\Controllers\PowerToolsController::class, 'store']);
         Route::post('/powertools/filterData',[App\Http\Controllers\PowerToolsController::class, 'filterData']);
         Route::get('/powertools/releaseProduct/{toolsAndEquipment}',[App\Http\Controllers\PowerToolsController::class, 'releaseProduct']);
@@ -92,12 +94,12 @@ Route::group(['middleware' => 'auth'], function(){
         Route::post('/powertools/cancelProduct',[App\Http\Controllers\PowerToolsController::class, 'cancelProduct']);
         Route::get('/powertools/destroy/{powertools}',[App\Http\Controllers\PowerToolsController::class, 'destroy']);
 
-        // SCAFFOLDING 
-        Route::get('/scaffolding',[App\Http\Controllers\ScaffoldingController::class, 'index']);
-        Route::get('/scaffolding/show',[App\Http\Controllers\ScaffoldingController::class, 'show']);
-        Route::post('/scaffolding/store',[App\Http\Controllers\ScaffoldingController::class, 'store']);
-        Route::get('/scaffolding/edit/{scaffolding}',[App\Http\Controllers\ScaffoldingController::class, 'edit']);
-        Route::get('/scaffolding/destroy/{scaffolding}',[App\Http\Controllers\ScaffoldingController::class, 'destroy']);
+        // // SCAFFOLDING 
+        // Route::get('/scaffolding',[App\Http\Controllers\ScaffoldingController::class, 'index']);
+        // Route::get('/scaffolding/show',[App\Http\Controllers\ScaffoldingController::class, 'show']);
+        // Route::post('/scaffolding/store',[App\Http\Controllers\ScaffoldingController::class, 'store']);
+        // Route::get('/scaffolding/edit/{scaffolding}',[App\Http\Controllers\ScaffoldingController::class, 'edit']);
+        // Route::get('/scaffolding/destroy/{scaffolding}',[App\Http\Controllers\ScaffoldingController::class, 'destroy']);
 
         // USER
         Route::get('/users',[App\Http\Controllers\UsersController::class, 'index']);
@@ -127,18 +129,33 @@ Route::group(['middleware' => 'auth'], function(){
         Route::post('/buytools/store',[App\Http\Controllers\BuyToolsController::class, 'store']);
         Route::get('/buytools/edit/{buytools}',[App\Http\Controllers\BuyToolsController::class, 'edit']);
         Route::get('/buytools/destroy/{buytools}',[App\Http\Controllers\BuyToolsController::class, 'destroy']);
+        Route::post('/buytools/filterData',[App\Http\Controllers\BuyToolsController::class, 'filterData']);
 
         Route::get('/borrowtools',[App\Http\Controllers\BorrowToolsController::class, 'index']);
         Route::get('/borrowtools/show',[App\Http\Controllers\BorrowToolsController::class, 'show']);
         Route::post('/borrowtools/store',[App\Http\Controllers\BorrowToolsController::class, 'store']);
         Route::get('/borrowtools/edit/{borrowtools}',[App\Http\Controllers\BorrowToolsController::class, 'edit']);
         Route::get('/borrowtools/destroy/{borrowtools}',[App\Http\Controllers\BorrowToolsController::class, 'destroy']);
+        Route::post('/borrowtools/filterData',[App\Http\Controllers\BorrowToolsController::class, 'filterData']); 
 
+        //BUYING HISTORY
+        Route::get('/buyinghistory',[App\Http\Controllers\BuyingHistoryController::class, 'index']);
+        Route::get('/buyinghistory/show',[App\Http\Controllers\BuyingHistoryController::class, 'show']);
+        Route::post('/buyinghistory/filterData',[App\Http\Controllers\BuyingHistoryController::class, 'filterData']);
+
+        //BORROW HISTORY
+        Route::get('/borrowedhistory',[App\Http\Controllers\BorrowHistoryController::class, 'index']);
+        Route::get('/borrowedhistory/show',[App\Http\Controllers\BorrowHistoryController::class, 'show']);
+        Route::post('/borrowedhistory/filterData',[App\Http\Controllers\BorrowHistoryController::class, 'filterData']);
+
+        //DELIVERY
         Route::get('/delivery',[App\Http\Controllers\DeliveryController::class, 'index']);
         Route::get('/delivery/show',[App\Http\Controllers\DeliveryController::class, 'show']);
+        Route::post('/delivery/filterData',[App\Http\Controllers\DeliveryController::class, 'filterData']);
     });
 
     Route::middleware(['CheckRole:supplier'])->group(function() {
+
         Route::get('profile', [App\Http\Controllers\ProfileController::class, 'index']);
         Route::get('profile/show', [App\Http\Controllers\ProfileController::class, 'show']);
         Route::post('profile/store', [App\Http\Controllers\ProfileController::class, 'store']);

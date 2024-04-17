@@ -61,7 +61,7 @@
         <ModalComponent :id="modalId" :title="modalTitle" :size="modalSize" :position="modalPosition">
             <template #modalHeader>
                 <div class="m-auto">
-                    <h4>View</h4>
+                    <h4>View History</h4>
                 </div>
             </template>
             <template #modalBody>
