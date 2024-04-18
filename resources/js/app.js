@@ -33,9 +33,12 @@ import UsersComponent from './components/UsersComponent.vue';
 import BuyingHistoryComponent from './components/BuyingHistoryComponent.vue';
 import BorrowedHistoryComponent from './components/BorrowedHistoryComponent.vue';
 import DashbboardComponent from './components/DashboardComponent.vue';
+import AddBalanceComponent from './components/AddBalanceComponent.vue';
 import CancelHistoryComponent from './components/CancelHistoryComponent.vue';
 import RequestProductComponent from './components/RequestProductComponent.vue';
 import ProductHistoryComponent from './components/ProductHistoryComponent.vue';
+import OrderComponent from './components/OrderComponent.vue';
+import QRComponent from './components/QRComponent.vue';
 import ProfileComponent from './components/ProfileComponent.vue';
 
 app.config.globalProperties.$swal = Swal;
@@ -63,6 +66,9 @@ app.component('product-history-component', ProductHistoryComponent);
 app.component('profile-component', ProfileComponent);
 app.component('product-component', ProductComponent);
 app.component('cancel-history-component', CancelHistoryComponent);
+app.component('add-balance-component', AddBalanceComponent);
+app.component('order-component', OrderComponent);
+app.component('qr-component', QRComponent);
 
 /**
  * The following block of code may be used to automatically register your

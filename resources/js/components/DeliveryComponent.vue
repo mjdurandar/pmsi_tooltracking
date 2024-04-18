@@ -64,6 +64,9 @@
                     <div class="col-12">
                         <img :src="qrCodeUrl" alt="QR Code" class="qr-code">
                     </div>
+                    <div class="col-12">
+                        <div>QR not working? <a href=/qr>Click Here...</a></div>
+                    </div>
                 </div>
             </template>
             <template #modalFooter>

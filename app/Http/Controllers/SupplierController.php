@@ -69,8 +69,8 @@ class SupplierController extends Controller
         $total = $request->total; 
 
         // // Deduct the total from the user's balance
-        // $user->balance -= $total;
-        // $user->save();
+        $user->balance -= $total;
+        $user->save();
 
         $product = Product::findOrFail($productId);
 

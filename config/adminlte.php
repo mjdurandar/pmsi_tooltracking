@@ -333,7 +333,7 @@ return [
         [
             'text'    => 'Dashboard',
             'icon'    => 'fa-solid fa-chart-simple',
-            'can' => ['supplier', 'admin'],
+            'can' => ['admin'],
             'url' => '/dashboard' 
         ],
         [
@@ -430,6 +430,12 @@ return [
             ],
         ],
         [
+            'text' => 'Orders',
+            'icon' => 'fa-solid fa-cube',
+            'can' => ['admin'],  
+            'url'  => '/order',
+        ],
+        [
             'text' => 'Purhased History',
             'icon'    => 'fa-solid fa-book',
             'can' => ['admin'], 
@@ -470,6 +476,12 @@ return [
             'icon'    => 'fa-solid fa-book',  
             'can' => ['user'],
             'url'  => '/borrowedhistory',
+        ],
+        [
+            'text' => 'Add Balance',
+            'icon' => 'fa-solid fa-money-bill',
+            'can' => ['admin', 'user'], 
+            'url'  => '/add-balance',
         ],
         // ['header' => 'labels'],
         // [

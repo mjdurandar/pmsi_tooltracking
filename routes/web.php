@@ -22,6 +22,7 @@ Route::get('/unauthorized', function () {
 
 Route::group(['middleware' => 'auth'], function(){
 
+
     Route::get('/', function () {
         return view('home');
     });
@@ -38,17 +39,20 @@ Route::group(['middleware' => 'auth'], function(){
     // Route::get('/borrowedhistory',[App\Http\Controllers\BorrowToolsController::class, 'history']);
     // Route::get('/borrowedhistory/showHistory',[App\Http\Controllers\BorrowToolsController::class, 'showHistory']);
     // Route::get('/',[App\Http\Controllers\DashboardController::class, 'index']);
-    Route::get('/dashboard',[App\Http\Controllers\DashboardController::class, 'index']);
-    Route::get('/dashboard/productStocks',[App\Http\Controllers\DashboardController::class, 'productStocks']);
-    Route::get('/dashboard/statusCount',[App\Http\Controllers\DashboardController::class, 'statusCount']);
-    Route::get('/dashboardCount/counts',[App\Http\Controllers\DashboardController::class, 'counts']);
-    Route::get('/dashboard/balanceData',[App\Http\Controllers\DashboardController::class, 'balanceData']);
-    Route::get('/dashboard/supplierCount',[App\Http\Controllers\DashboardController::class, 'supplierCount']);
-    Route::get('/dashboard/masterdataCount',[App\Http\Controllers\DashboardController::class, 'masterdataCount']);
-
+    //ADD BALANCE
+    Route::get('/add-balance',[App\Http\Controllers\AddBalanceController::class, 'index']);
+    Route::get('/add-balance/show',[App\Http\Controllers\AddBalanceController::class, 'show']);
+    Route::post('/add-balance/store',[App\Http\Controllers\AddBalanceController::class, 'store']);
 
     Route::middleware(['CheckRole:admin'])->group(function() {
         // DASHBOARD
+        Route::get('/dashboard',[App\Http\Controllers\DashboardController::class, 'index']);
+        Route::get('/dashboard/productStocks',[App\Http\Controllers\DashboardController::class, 'productStocks']);
+        Route::get('/dashboard/statusCount',[App\Http\Controllers\DashboardController::class, 'statusCount']);
+        Route::get('/dashboardCount/counts',[App\Http\Controllers\DashboardController::class, 'counts']);
+        Route::get('/dashboard/balanceData',[App\Http\Controllers\DashboardController::class, 'balanceData']);
+        Route::get('/dashboard/supplierCount',[App\Http\Controllers\DashboardController::class, 'supplierCount']);
+        Route::get('/dashboard/masterdataCount',[App\Http\Controllers\DashboardController::class, 'masterdataCount']);
 
         // PROJECT SITE
         Route::get('/project-site',[App\Http\Controllers\ProjectSiteController::class, 'index']);
@@ -71,13 +75,6 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('/category/edit/{category}',[App\Http\Controllers\CategoryController::class, 'edit']);
         Route::get('/category/destroy/{category}',[App\Http\Controllers\CategoryController::class, 'destroy']);
 
-        // UNIT 
-        Route::get('/unit',[App\Http\Controllers\UnitController::class, 'index']);
-        Route::get('/unit/show',[App\Http\Controllers\UnitController::class, 'show']);
-        Route::post('/unit/store',[App\Http\Controllers\UnitController::class, 'store']);
-        Route::get('/unit/edit/{unit}',[App\Http\Controllers\UnitController::class, 'edit']);
-        Route::get('/unit/destroy/{unit}',[App\Http\Controllers\UnitController::class, 'destroy']);
-
         // SUPPLIER 
         Route::get('/supplier',[App\Http\Controllers\SupplierController::class, 'index']);
         Route::get('/supplier/show',[App\Http\Controllers\SupplierController::class, 'show']);
@@ -94,13 +91,6 @@ Route::group(['middleware' => 'auth'], function(){
         Route::post('/powertools/cancelProduct',[App\Http\Controllers\PowerToolsController::class, 'cancelProduct']);
         Route::get('/powertools/destroy/{powertools}',[App\Http\Controllers\PowerToolsController::class, 'destroy']);
 
-        // // SCAFFOLDING 
-        // Route::get('/scaffolding',[App\Http\Controllers\ScaffoldingController::class, 'index']);
-        // Route::get('/scaffolding/show',[App\Http\Controllers\ScaffoldingController::class, 'show']);
-        // Route::post('/scaffolding/store',[App\Http\Controllers\ScaffoldingController::class, 'store']);
-        // Route::get('/scaffolding/edit/{scaffolding}',[App\Http\Controllers\ScaffoldingController::class, 'edit']);
-        // Route::get('/scaffolding/destroy/{scaffolding}',[App\Http\Controllers\ScaffoldingController::class, 'destroy']);
-
         // USER
         Route::get('/users',[App\Http\Controllers\UsersController::class, 'index']);
         Route::get('/users/show',[App\Http\Controllers\UsersController::class, 'show']);
@@ -109,6 +99,11 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('/users/edit/{users}',[App\Http\Controllers\UsersController::class, 'edit']);
         Route::get('/users/destroy/{users}',[App\Http\Controllers\UsersController::class, 'destroy']);
         Route::post('/users/filterData',[App\Http\Controllers\UsersController::class, 'filterData']);
+
+        //ORDER
+        Route::get('/order',[App\Http\Controllers\OrderController::class, 'index']);
+        Route::get('/order/show',[App\Http\Controllers\OrderController::class, 'show']);
+        Route::post('/order/store',[App\Http\Controllers\OrderController::class, 'store']);
 
         //PRODUCT HISTORY
         Route::get('/product-history',[App\Http\Controllers\ProductHistoryController::class, 'index']);
@@ -123,6 +118,11 @@ Route::group(['middleware' => 'auth'], function(){
     });
    
     Route::middleware(['CheckRole:user'])->group(function() {
+
+        //QR REDIRECT
+        Route::get('/qr',[App\Http\Controllers\QRController::class, 'index']);
+        Route::get('/qr/show',[App\Http\Controllers\QRController::class, 'show']);
+
         // Route::get('/',[App\Http\Controllers\BuyToolsController::class, 'index']);
         Route::get('/buytools',[App\Http\Controllers\BuyToolsController::class, 'index']);
         Route::get('/buytools/show',[App\Http\Controllers\BuyToolsController::class, 'show']);

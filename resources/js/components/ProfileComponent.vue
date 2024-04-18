@@ -76,7 +76,6 @@ export default{
         },
         saveData() {
             this.isEditing = false;
-            console.log(this.data);
             // Logic to save the edited data
             axios.post('/profile/store', this.data).then(response => {
                 // Handle response if needed

@@ -21,7 +21,7 @@
                     :columns="columns"
                     :options="options"
                     btnName="Add Users Account"
-                    :option3Switch="true"
+                    :option3Switch="false"
                     option3Name="Transactions"
                     @deleteClicked="deleteClicked"
                     @editClicked="editClicked"
@@ -104,7 +104,7 @@ export default{
                 regions : [],
                 provinces : [],
                 account_type : '',
-                columns : ['name', 'email', 'accounts' ,'contact_address', 'contact_person' ,'action'],
+                columns : ['name', 'email', 'accounts' ,'contact_address', 'contact_person','location' ,'action'],
                 errors: [],
                 options : {
                     headings : {
@@ -113,6 +113,7 @@ export default{
                         accounts : 'Account Type',
                         contact_address : 'Contact Address',
                         contact_person : 'Contact Person',
+                        location : 'Location',
                         action : 'Action',
                     },
                     filterable: false,

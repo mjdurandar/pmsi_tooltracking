@@ -81,6 +81,10 @@
                         <input class="form-control" v-model="dataValues.created_at" disabled>
                 </div> 
                 <div class="col-12 pb-2">
+                    <label for="">You should return the product on or before: </label>
+                        <input class="form-control" v-model="dataValues.return_date" disabled>
+                </div> 
+                <div class="col-12 pb-2">
                     <label for="">Price</label>
                         <input class="form-control" v-model="dataValues.price" disabled>
                 </div> 

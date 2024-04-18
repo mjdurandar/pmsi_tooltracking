@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Sold;
+use Illuminate\Support\Facades\Auth;
 
 class BuyingHistoryController extends Controller
 {
@@ -12,12 +13,13 @@ class BuyingHistoryController extends Controller
     }
 
     public function show() {
-
+        $user_id = Auth::id();
         $data = Sold::leftjoin('users', 'users.id', 'solds.user_id')
                 ->leftjoin('tools_and_equipment', 'tools_and_equipment.id', 'solds.tools_and_equipment_id')
                 ->leftjoin('products', 'products.id', 'tools_and_equipment.product_id') 
                 ->select('solds.*', 'users.name as user_name', 'products.brand as brand_name', 'products.tool as tool_name',
                  'tools_and_equipment.product_code as product_code', 'tools_and_equipment.price as price')
+                ->where('solds.user_id', $user_id)
                 ->get();
 
         return response()->json([ 'data' => $data]);

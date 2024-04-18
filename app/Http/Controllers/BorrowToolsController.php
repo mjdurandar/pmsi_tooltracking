@@ -4,9 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\BorrowTools;
 use Illuminate\Http\Request;
-use App\Models\Category;
 use App\Models\DeliverHistory;
-use App\Models\BorrowHistory;
+use Carbon\Carbon;
 use App\Models\Borrowed;
 use App\Models\ReturnDays;
 use App\Models\ToolsAndEquipment;
@@ -82,13 +81,12 @@ class BorrowToolsController extends Controller
     public function store(Request $request) {
         $request->validate([
             'return_days_id' => 'required|integer',
-        ],
-        [
-            'return_days_id.required' => "The Number of Days field is required",
+        ], [
+            'return_days_id.required' => 'The Number of Days field is required',
         ]);
         
         $user_id = auth()->user()->id;
-
+    
         $tools = ToolsAndEquipment::findOrFail($request->id);
         $tools->status = 'Borrowed';
         $tools->save();
@@ -98,14 +96,21 @@ class BorrowToolsController extends Controller
         $borrowed->tools_and_equipment_id = $request->id;
         $borrowed->return_days_id = $request->return_days_id;
         $borrowed->status = 'Preparing';
+    
+        // Retrieve return days from database
+        $returnDays = ReturnDays::findOrFail($request->return_days_id);
+        // Calculate return date based on return days
+        $returnDate = Carbon::now()->addDays($returnDays->number_of_days);
+        $borrowed->return_date = $returnDate;
+    
         $borrowed->save();
-
+    
         // $borrowHistory = new BorrowHistory();
         // $borrowHistory->user_id = $user_id;
         // $borrowHistory->tools_and_equipment_id = $request->id;
         // $borrowHistory->status = 'Preparing';
         // $borrowHistory->save();
-
+    
         $delivery = new DeliverHistory();
         $delivery->user_id = $user_id;
         $delivery->tools_and_equipment_id = $request->id;
