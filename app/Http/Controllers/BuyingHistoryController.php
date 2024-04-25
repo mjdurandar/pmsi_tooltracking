@@ -19,6 +19,7 @@ class BuyingHistoryController extends Controller
                 ->leftjoin('products', 'products.id', 'tools_and_equipment.product_id') 
                 ->select('solds.*', 'users.name as user_name', 'products.brand as brand_name', 'products.tool as tool_name',
                  'tools_and_equipment.product_code as product_code', 'tools_and_equipment.price as price')
+                ->where('tools_and_equipment.status', 'Sold')
                 ->where('solds.user_id', $user_id)
                 ->get();
 

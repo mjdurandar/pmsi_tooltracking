@@ -97,14 +97,13 @@
 
         {{-- Contact Number field --}}
         <div class="input-group mb-3">
-            <input type="number" name="contact_address" maxlength="12" class="form-control @error('contact_address') is-invalid @enderror"
-                   value="{{ old('contact_address') }}" placeholder="Contact Number">
-
             <div class="input-group-append">
                 <div class="input-group-text">
-                    <span class="fa-solid fa-hashtag {{ config('adminlte.classes_auth_icon', '') }}"></span>
+                    +63
                 </div>
             </div> 
+            <input type="number" name="contact_address" maxlength="11" class="form-control @error('contact_address') is-invalid @enderror"
+                   value="{{ old('contact_address') }}" placeholder="Contact Number">
 
             @error('contact_address')
                 <span class="invalid-feedback" role="alert">

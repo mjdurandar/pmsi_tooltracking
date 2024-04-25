@@ -18,8 +18,10 @@ class AddBalanceController extends Controller
                             ->leftjoin('users', 'users.id', 'add_balances.user_id')
                             ->select('add_balances.*', 'users.balance as balance')
                             ->get();
+
+        $userBalance = User::where('id', $user->id)->first();
         
-        return response()->json([ 'data' => $data, ]);
+        return response()->json([ 'data' => $data,'userBalance' => $userBalance]);
     }
 
     public function store(Request $request)
@@ -44,10 +46,11 @@ class AddBalanceController extends Controller
         $addbalance = new AddBalance();
         $addbalance->user_id = $user->id;
         $addbalance->card_number = $request->card_number;
+        $addbalance->total_balance = $request->balance;
         $addbalance->card_type = $request->card_type; // Use payment method from request
         $addbalance->description = 'You Cash In ₱' . $request->balance . ' to your ' . $request->card_type . ' account';
         $addbalance->save();
     
-        return response()->json(['message' => 'Product added successfully'], 200);
+        return response()->json(['message' => 'Success'], 200);
     }
 }

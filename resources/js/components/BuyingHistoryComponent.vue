@@ -78,8 +78,14 @@
                 </div> 
                 <div class="col-12 pb-2">
                     <label for="">Price</label>
-                        <input class="form-control" v-model="dataValues.price" disabled>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">₱</span>
+                            </div>
+                            <input type="text" class="form-control" v-model="dataValues.price" disabled>
+                        </div>
                 </div> 
+                
             </template>
             <template #modalFooter>
                 <div class="text-right">

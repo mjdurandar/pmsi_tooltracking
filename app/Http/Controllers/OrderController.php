@@ -27,18 +27,22 @@ class OrderController extends Controller
 
         $request->validate([
             'status' => 'required',
+            'shipment_date' => 'required',
+            'delivery_date' => 'required',
         ], [
-            'status.required' => 'The Status field is required'
+            'status.required' => 'The Status field is required',
+            'shipment_date.required' => 'The Shipment Date field is required',
+            'delivery_date.required' => 'The Delivery Date field is required'
         ]);
         
         $order = Order::findOrFail($request->id);
         $order->status = $request->status_data;
-        
+        $order->shipment_date = $request->shipment_date;
+        $order->delivery_date = $request->delivery_date;
         $order->save();
 
-        $deliverhistory = DeliverHistory::findOrFail($request->id);
+        $deliverhistory = DeliverHistory::where('tools_and_equipment_id', $order->tools_and_equipment_id)->first();
         $deliverhistory->status = $request->status_data;
-
         $deliverhistory->save();
 
         return response()->json(['message' => 'Data Successfully Saved']);

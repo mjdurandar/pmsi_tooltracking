@@ -42,11 +42,15 @@
                     :data="data"
                     :columns="columns"
                     :options="options"
-                    :option2Switch="false"
+                    :option2Switch="true"
                     option1Color="color: #0000FF;"
                     option1Icon="fa-solid fa-qrcode"
                     option1Name="QR Code"
+                    option2Color="color: #FF0000;"
+                    option2Icon="fa-solid fa-xmark"
+                    option2Name="Cancel Order"
                     :addButton="false"
+                    @deleteClicked="cancelOrder"
                     @editClicked="generateQrCode"
                 >
                 </FormComponent>
@@ -65,7 +69,7 @@
                         <img :src="qrCodeUrl" alt="QR Code" class="qr-code">
                     </div>
                     <div class="col-12">
-                        <div>QR not working? <a href=/qr>Click Here...</a></div>
+                        <div>QR not working?  <a :href="'/qr/' + this.globalId">Click Here...</a></div>
                     </div>
                 </div>
             </template>
@@ -103,13 +107,15 @@ export default{
                 qrCodeUrl: '',
                 selectedBrand : '',
                 selectedTool : '',
-                columns : [ 'brand_name', 'tool_name', 'product_code' ,'price',  , 'status', 'action'],
+                globalId : '',
+                columns : [ 'brand_name', 'tool_name', 'product_code' ,'price', 'type' , 'status', 'action'],
                 options : {
                     headings : {
                         brand_name : 'Brand',
                         tool_name : 'Tool',
                         product_code : 'Product Code',
                         price : 'Price',
+                        type : 'Type',
                         status : 'Status',
                         action : 'Action',
                     },
@@ -170,14 +176,64 @@ export default{
                     console.error(error);
                 });
         },
+        cancelOrder(props) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'You can always order again!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Cancel it!',
+                cancelButtonText: 'No, keep it!',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    axios.get('/delivery/destroy/' + props.data.id)
+                        .then(response => {
+                            if (response.status === 200) {
+                                if (response.data.status === 'success') {
+                                    Swal.fire({
+                                        title: "Success",
+                                        text: response.data.message,
+                                        icon: 'success',
+                                        timer: 3000
+                                    });
+                                } else if (response.data.status === 'warning') {
+                                    Swal.fire({
+                                        title: "Warning",
+                                        text: response.data.message,
+                                        icon: 'warning',
+                                        timer: 3000
+                                    });
+                                }
+                                this.getData();
+                            }
+                        })
+                        .catch(errors => {
+                            if (errors.response.data.message.length > 0) {
+                                Swal.fire({
+                                    title: "Failed",
+                                    text: errors.response.data.message,
+                                    icon: 'error',
+                                    timer: 3000
+                                });
+                            }
+                        });
+                }
+            });
+        },
         generateQrCode(props) {
-            const qr = QRCode(0, 'L'); // Create a QRCode object
-            qr.addData(props); // Add data to encode
-            qr.make(); // Calculate QRCode data
-            const qrUrl = qr.createDataURL(4); // Generate a base64 encoded PNG
-            
-            this.qrCodeUrl = qrUrl; // Store the URL in data
-            $('#' + this.modalId).modal('show');
+            this.globalId = props.data.tools_and_equipment_id;
+            // Generate the URL of the route you want to redirect to
+            const routeUrl = '/qr/' + props.data.id;
+                
+                // Create QR code with the route URL
+                const qr = QRCode(0, 'L');
+                qr.addData(routeUrl);
+                qr.make();
+                const qrUrl = qr.createDataURL(4);
+                
+                // Store the QR code URL and show the modal
+                this.qrCodeUrl = qrUrl;
+                $('#' + this.modalId).modal('show');
 
             },
         },

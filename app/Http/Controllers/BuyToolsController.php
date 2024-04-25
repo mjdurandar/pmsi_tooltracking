@@ -59,6 +59,7 @@ class BuyToolsController extends Controller
             $sold->user_id = $user_id;
             $sold->tools_and_equipment_id = $request->id;
             $sold->sold_at = now();
+            $sold->type = 'Buying';
             $sold->save();
     
             $tools = ToolsAndEquipment::findOrFail($request->id);
@@ -74,12 +75,14 @@ class BuyToolsController extends Controller
             $delivery->user_id = $user_id;
             $delivery->tools_and_equipment_id = $request->id;
             $delivery->status = 'Preparing';
+            $delivery->type = 'Sold';
             $delivery->save();
     
             $orders = new Order();
             $orders->user_id = $user_id;
             $orders->tools_and_equipment_id = $request->id;
             $orders->status = 'Preparing';
+            $orders->type = 'Buying';
             $orders->save();
     
             return response()->json(['message' => 'Data Successfully Saved']);

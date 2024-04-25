@@ -94,7 +94,12 @@
                     </div> 
                     <div class="col-12">
                         <label for="">Total</label>
-                        <input type="text" class="form-control" v-model="dataValues.total_price" disabled>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">₱</span>
+                            </div>
+                            <input type="text" class="form-control" v-model="dataValues.total_price" disabled>
+                        </div>
                     </div> 
                     <div class="col-12">
                         <label for="">Purchased At</label>

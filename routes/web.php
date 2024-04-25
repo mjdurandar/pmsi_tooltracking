@@ -20,6 +20,7 @@ Route::get('/unauthorized', function () {
     return view('unauthorized');
 });
 
+
 Route::group(['middleware' => 'auth'], function(){
 
 
@@ -120,8 +121,8 @@ Route::group(['middleware' => 'auth'], function(){
     Route::middleware(['CheckRole:user'])->group(function() {
 
         //QR REDIRECT
-        Route::get('/qr',[App\Http\Controllers\QRController::class, 'index']);
-        Route::get('/qr/show',[App\Http\Controllers\QRController::class, 'show']);
+        Route::get('/qr/{id}',[App\Http\Controllers\QRController::class, 'index']);
+        // Route::get('/qr/show/',[App\Http\Controllers\QRController::class, 'show']);
 
         // Route::get('/',[App\Http\Controllers\BuyToolsController::class, 'index']);
         Route::get('/buytools',[App\Http\Controllers\BuyToolsController::class, 'index']);
@@ -151,7 +152,8 @@ Route::group(['middleware' => 'auth'], function(){
         //DELIVERY
         Route::get('/delivery',[App\Http\Controllers\DeliveryController::class, 'index']);
         Route::get('/delivery/show',[App\Http\Controllers\DeliveryController::class, 'show']);
-        Route::post('/delivery/filterData',[App\Http\Controllers\DeliveryController::class, 'filterData']);
+        Route::post('/delivery/cancelOrder',[App\Http\Controllers\DeliveryController::class, 'cancelOrder']);
+        Route::get('/delivery/destroy/{delivery}', [App\Http\Controllers\DeliveryController::class, 'destroy']);
     });
 
     Route::middleware(['CheckRole:supplier'])->group(function() {

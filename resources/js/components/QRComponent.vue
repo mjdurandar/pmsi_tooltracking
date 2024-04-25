@@ -1,11 +1,19 @@
 <template>
     <div class="p-3">
         <BreadCrumbComponent tab_title="Delivery Status"></BreadCrumbComponent>
-        <div class="card">
+        <div class="card" style="outline: 5px solid #f18f4e  !important;">
             <div class="card-body d-flex justify-content-center align-items-center">
-                <img v-if="status === 'Delay'" src="images/delay.jpg" alt="Delay Image" class="img-fluid">
-                <img v-if="status === 'Preparing'" src="images/confirmed.jpg" alt="Preparing Image" class="img-fluid"> 
-                <img v-if="status === 'Out For Delivery'" src="images/outdeliver.jpg" alt="Out For Delivery Image" class="img-fluid">
+                <div v-for="item in data" :key="item.id">
+                    <h1 class="text-center mt-4 mb-5" :class="{ 'text-green': item.status === 'Completed' }">{{ item.status }}</h1>
+                    <div class="text-center">
+                        <div class="d-flex justify-content-center mb-5">
+                            <p class="mr-5">Shipment Date: <b>{{ item.shipment_date }}</b></p>
+                            <p>Delivery Date: <b>{{ item.delivery_date }}</b></p>
+                        </div>
+                        <p style="font-size: 13px;">Note: Please wait for the seller to ship your product. Usually it takes <b>2-3 business days</b> after that the shipment date will update and you can see the exact date your item will arrive.</p>
+                        <p class="mb-5" style="font-size: 13px;">Shipment Date and Delivery Date may changed without prior notice due to unbearable circumstances.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -20,10 +28,10 @@ import Swal from 'sweetalert2'
 import axios from 'axios';
 
 export default{
-
+    props: ['data'],
     data(){
         return{
-            data : [],
+            id : [],
             status: '', // Add a status property to bind to the input field
         }
     },
@@ -33,23 +41,9 @@ export default{
         BreadCrumbComponent,
     },
     methods: {
-        getData() {
-            axios.get('/qr/show').then(response => {
-                this.data = response.data.data;
-                if (this.data.length > 0) {
-                    this.status = this.data[0].status; // Assign status from the first data item
-                } else {
-                    this.status = 'No data available'; // Handle case when no data is returned
-                }
-            })
-            .catch(error => {
-                console.error(error);
-                this.status = 'Error fetching data'; // Show error message if request fails
-            });
-        },
+
     },
     mounted() {
-        this.getData();
     }
 
 }

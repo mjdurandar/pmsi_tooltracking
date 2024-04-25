@@ -234,32 +234,41 @@ export default{
             }).then((result) => {
                 if (result.isConfirmed) {
                     axios.post('/borrowtools/store', this.dataValues)
-                    .then(response => {
-                        if(response.status === 200) {
-                            Swal.fire({
-                                title: "Success",
-                                text: response.data.message,
-                                icon: 'success',
-                                timer: 3000
-                            });
-                        }
-                        this.getData();
-                        $('#' + this.modalId).modal('hide');
-                    })
-                    .catch(errors => {
-                        if(errors.response.data.message.length > 0) {
-                            Swal.fire({
-                                title: "Warning",
-                                text: errors.response.data.message,
-                                icon: 'warning',
-                                timer: 3000
-                            });
-
+                        .then(response => {
+                            if(response.status === 200) {
+                                Swal.fire({
+                                    title: 'Success',
+                                    text: response.data.message,
+                                    icon: 'success',
+                                    timer: 3000
+                                });
+                            }
+                            this.getData();
+                            $('#' + this.modalId).modal('hide');
+                        })
+                        .catch(errors => {
+                            // Check if the response contains an error indicating insufficient funds
+                            if(errors.response.data.error === 'Insufficient funds') {
+                                // Display SweetAlert for insufficient funds
+                                Swal.fire({
+                                    title: 'Insufficient Funds',
+                                    text: errors.response.data.error,
+                                    icon: 'error',
+                                    timer: 3000
+                                });
+                            } else {
+                                // Display general warning message for other errors
+                                Swal.fire({
+                                    title: 'Warning',
+                                    text: 'An error occurred. Please try again later.',
+                                    icon: 'warning',
+                                    timer: 3000
+                                });
+                            }
                             this.errors = errors.response.data.errors;
-                        }
-                    });
+                        });
                 } else if (result.dismiss === Swal.DismissReason.cancel) {
-                    Swal.fire('Cancelled', 'Your borrow has been cancelled.', 'error');
+                    Swal.fire('Cancelled', 'Your purchase has been cancelled.', 'error');
                 }
             });
         },

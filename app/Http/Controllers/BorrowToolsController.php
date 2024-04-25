@@ -7,8 +7,11 @@ use Illuminate\Http\Request;
 use App\Models\DeliverHistory;
 use Carbon\Carbon;
 use App\Models\Borrowed;
+use App\Models\Order;
 use App\Models\ReturnDays;
+use App\Models\Sold;
 use App\Models\ToolsAndEquipment;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class BorrowToolsController extends Controller
@@ -84,39 +87,59 @@ class BorrowToolsController extends Controller
         ], [
             'return_days_id.required' => 'The Number of Days field is required',
         ]);
+
+        $user_id = Auth::id();
+
+        // Find the user record
+        $user = User::findOrFail($user_id);
+        $remaining_balance = $user->balance - $request->price;
+
+        if ($remaining_balance >= 0) {
+            $user->balance = $remaining_balance;
+            $user->save();
+            
+            $tools = ToolsAndEquipment::findOrFail($request->id);
+            $tools->status = 'Borrowed';
+            $tools->save();
+            
+            $borrowed = new Borrowed();
+            $borrowed->user_id = $user->id;
+            $borrowed->tools_and_equipment_id = $request->id;
+            $borrowed->return_days_id = $request->return_days_id;
+            $borrowed->status = 'Preparing';
         
-        $user_id = auth()->user()->id;
-    
-        $tools = ToolsAndEquipment::findOrFail($request->id);
-        $tools->status = 'Borrowed';
-        $tools->save();
+            // Retrieve return days from database
+            $returnDays = ReturnDays::findOrFail($request->return_days_id);
+            // Calculate return date based on return days
+            $returnDate = Carbon::now()->addDays($returnDays->number_of_days);
+            $borrowed->return_date = $returnDate->setTimezone('Asia/Manila')->format('m/d/Y h:i:s A');
+            $borrowed->save();
         
-        $borrowed = new Borrowed();
-        $borrowed->user_id = $user_id;
-        $borrowed->tools_and_equipment_id = $request->id;
-        $borrowed->return_days_id = $request->return_days_id;
-        $borrowed->status = 'Preparing';
-    
-        // Retrieve return days from database
-        $returnDays = ReturnDays::findOrFail($request->return_days_id);
-        // Calculate return date based on return days
-        $returnDate = Carbon::now()->addDays($returnDays->number_of_days);
-        $borrowed->return_date = $returnDate;
-    
-        $borrowed->save();
-    
-        // $borrowHistory = new BorrowHistory();
-        // $borrowHistory->user_id = $user_id;
-        // $borrowHistory->tools_and_equipment_id = $request->id;
-        // $borrowHistory->status = 'Preparing';
-        // $borrowHistory->save();
-    
-        $delivery = new DeliverHistory();
-        $delivery->user_id = $user_id;
-        $delivery->tools_and_equipment_id = $request->id;
-        $delivery->status = 'Preparing';
-        $delivery->save();
-    
-        return response()->json(['message' => 'Data Successfully Saved']);
+            $delivery = new DeliverHistory();
+            $delivery->user_id = $user->id;
+            $delivery->tools_and_equipment_id = $request->id;
+            $delivery->status = 'Preparing';
+            $delivery->type = 'Borrow';
+            $delivery->save();
+
+            $orders = new Order();
+            $orders->user_id =  $user->id;
+            $orders->tools_and_equipment_id = $request->id;
+            $orders->status = 'Preparing';
+            $orders->type = 'Borrowing';
+            $orders->save();
+
+            $sold = new Sold();
+            $sold->user_id = $user_id;
+            $sold->tools_and_equipment_id = $request->id;
+            $sold->type = 'Borrowing';
+            $sold->sold_at = now();
+            $sold->save();
+
+            return response()->json(['message' => 'Data Successfully Saved']);
+        } else {
+            // Return response indicating insufficient funds
+            return response()->json(['error' => 'Insufficient funds'], 400);
+        }
     }
 }

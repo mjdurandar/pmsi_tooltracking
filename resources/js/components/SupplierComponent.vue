@@ -63,7 +63,7 @@
                                 <p v-else>No Stocks</p>
                             </div>
                         </div>
-                        <button class="btn btn-success" @click="purchaseProduct(product)">Purhase Product</button>
+                        <button class="btn btn-success" @click="purchaseProduct(product)">Purchase Product</button>
                     </div>
                 </div>
             </div>
@@ -116,7 +116,12 @@
                     </div>
                     <div class="col-12">
                         <label for="">Price per pc</label>
-                        <input type="number" class="form-control" v-model="dataValues.price" disabled>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">₱</span>
+                            </div>
+                            <input type="text" class="form-control" v-model="dataValues.price" disabled>
+                        </div>
                     </div>  
                     <div class="col-12">
                         <label for="">How many?</label>

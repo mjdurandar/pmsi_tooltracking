@@ -39,11 +39,21 @@
                         <label for="">Tool</label>
                         <input type="text" class="form-control" v-model="dataValues.tool_name" disabled>
                     </div>  
+                    <div class="col-6">
+                        <label for="">Shipment Date</label>
+                        <input type="date" class="form-control" v-model="dataValues.shipment_date" :disabled="dataValues.status === 'Completed'">
+                    </div> 
+                    <div class="col-6">
+                        <label for="">Delivery Date</label>
+                        <input type="date" class="form-control" v-model="dataValues.delivery_date" :disabled="dataValues.status === 'Completed'">
+                    </div> 
                     <div class="col-12">
                         <label for="">Status</label>
                         <select name="" class="form-control" v-model="dataValues.status_data">
-                            <option value="Delay">Delay</option>
+                            <option value="Preparing">Preparing</option>
                             <option value="Out For Delivery">Out For Delivery</option>
+                            <option value="Delay">Delay</option>
+                            <option value="Completed">Completed</option>
                         </select>
                         <div class="text-danger" v-if="errors.status">{{ errors.status[0] }}</div>
                     </div>  
@@ -75,12 +85,13 @@ export default{
     data(){
         return{
                 data : [],
-                columns : ['brand_name', 'tool_name', 'status' ,'action'],
+                columns : ['brand_name', 'tool_name', 'type' ,'status' ,'action'],
                 errors: [],
                 options : {
                     headings : {
                         brand_name : 'Brand',
                         tool_name : 'Tool',
+                        type : 'Type',
                         status : 'Status',
                         action : 'Action',
                     },

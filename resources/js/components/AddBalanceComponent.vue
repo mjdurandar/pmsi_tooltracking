@@ -1,6 +1,17 @@
 <template>
     <div class="p-3">
         <BreadCrumbComponent tab_title="Add Balance"></BreadCrumbComponent>
+        <div class="card" style="width: 20% !important;">
+            <div class="card-body">
+                <label for="">Total Balance:</label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">₱</span>
+                    </div>
+                    <input type="number" class="form-control" v-model="userBalance.balance" disabled>
+                </div>
+            </div>
+        </div>
         <div class="card">
             <div class="card-body">
                 <FormComponent 
@@ -103,15 +114,15 @@ export default{
     data(){
         return{
                 data : [],
-                columns : ['card_number', 'card_type', 'description', 'balance' , 'created_at'],
+                columns : ['card_number', 'card_type', 'description' , 'created_at'],
                 errors: [],
+                userBalance: 0,
                 card_type : 'Gcash',
                 options : {
                     headings : {
                         card_number : 'Card Number',
                         card_type : 'Card Type',
                         description : 'Description',
-                        balance : 'Total Balance',
                         created_at : 'Cash In At'
                     },
                     filterable: false,
@@ -140,6 +151,7 @@ export default{
         getData() {
             axios.get('/add-balance/show').then(response => {
                 this.data = response.data.data;
+                this.userBalance = response.data.userBalance;
                 this.data.forEach(item => {
                     item.created_at = new Date(item.created_at).toLocaleString(); // Format to the user's locale
                 })

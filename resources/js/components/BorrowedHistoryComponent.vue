@@ -86,7 +86,12 @@
                 </div> 
                 <div class="col-12 pb-2">
                     <label for="">Price</label>
-                        <input class="form-control" v-model="dataValues.price" disabled>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">₱</span>
+                            </div>
+                            <input type="text" class="form-control" v-model="dataValues.price" disabled>
+                        </div>
                 </div> 
             </template>
             <template #modalFooter>
@@ -114,13 +119,14 @@ export default{
                 errors: [],
                 selectedBrand : '',
                 selectedTool : '',
-                columns : ['brand_name', 'tool_name', 'number_of_days', 'created_at','action'],
+                columns : ['brand_name', 'tool_name', 'number_of_days', 'created_at', 'return_date' ,'action'],
                 options : {
                     headings : {
                         brand_name : 'Brand',
                         tool_name : 'Tool',
                         number_of_days : 'Return Days',
                         created_at : 'Borrowed At',
+                        return_date : 'Return Date',
                         action : 'Action',
                     },
                     filterable: false,
@@ -151,6 +157,7 @@ export default{
         getData() {
             axios.get('/borrowedhistory/show').then(response => {
                 this.data = response.data.data;
+                console.log(this.data);
                 this.data.forEach(item => {
                     item.created_at = new Date(item.created_at).toLocaleString(); // Format to the user's locale
                 })
