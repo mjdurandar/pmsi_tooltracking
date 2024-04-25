@@ -21275,7 +21275,7 @@ __webpack_require__.r(__webpack_exports__);
     generateQrCode: function generateQrCode(props) {
       this.globalId = props.data.tools_and_equipment_id;
       // Generate the URL of the route you want to redirect to
-      var routeUrl = '/qr/' + props.data.id;
+      var routeUrl = 'pmsitooltracking.com/qr/' + props.data.id;
 
       // Create QR code with the route URL
       var qr = qrcode_generator__WEBPACK_IMPORTED_MODULE_4___default()(0, 'L');
