@@ -106,7 +106,12 @@
                     </div>
                     <div class="col-12">
                         <label for="">Price per pc</label>
-                        <input type="number" class="form-control" v-model="dataValues.price">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">₱</span>
+                            </div>
+                            <input type="text" class="form-control" v-model="dataValues.price">
+                        </div>
                         <div class="text-danger" v-if="errors.price">{{ errors.price[0] }}</div>
                     </div>  
                 </div>

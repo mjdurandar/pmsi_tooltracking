@@ -42,6 +42,8 @@ import QRComponent from './components/QRComponent.vue';
 import ProductReturnComponent from './components/ProductReturnComponent.vue';
 import HomeComponent from './components/HomeComponent.vue';
 import ProfileComponent from './components/ProfileComponent.vue';
+import DamagedReturnComponent from './components/DamagedReturnComponent.vue';
+import DefectiveProductsComponent from './components/DefectiveProductsComponent.vue';
 import ReturnedProductComponent from './components/ReturnedProductComponent.vue';
 
 app.config.globalProperties.$swal = Swal;
@@ -75,6 +77,8 @@ app.component('qr-component', QRComponent);
 app.component('productreturn-component', ProductReturnComponent);
 app.component('home-component', HomeComponent);
 app.component('returned-product-component', ReturnedProductComponent);
+app.component('damaged-return-component', DamagedReturnComponent);
+app.component('defective-products-component', DefectiveProductsComponent);
 
 /**
  * The following block of code may be used to automatically register your

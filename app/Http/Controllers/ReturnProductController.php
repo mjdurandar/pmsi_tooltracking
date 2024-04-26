@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Borrowed;
+use App\Models\PurchasedItems;
 use App\Models\ReturnProduct;
 use App\Models\ToolsAndEquipment;
 use App\Models\User;
@@ -58,6 +59,10 @@ class ReturnProductController extends Controller
             $userBalance->balance -= $request->penalty;
             $userBalance->save();
         }
+
+        $purchased = PurchasedItems::where('tools_and_equipment_id', $request->tools_and_equipment_id)->first();
+        $purchased->notes = 'Returned';
+        $purchased->save();
 
         $returnProduct = new ReturnProduct();
         $returnProduct->tools_and_equipment_id = $request->tools_and_equipment_id;

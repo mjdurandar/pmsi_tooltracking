@@ -11,6 +11,7 @@ use App\Models\Supplier;
 use App\Models\User;
 use App\Models\DeliverHistory;
 use App\Models\Order;
+use App\Models\PurchasedItems;
 use App\Models\Sold;
 use App\Models\ToolsAndEquipment;
 use Illuminate\Support\Facades\Auth;
@@ -86,6 +87,12 @@ class BuyToolsController extends Controller
             $orders->shipment_date = '0000-00-00';
             $orders->delivery_date = '0000-00-00';
             $orders->save();
+
+            $purchasedItems = new PurchasedItems();
+            $purchasedItems->user_id = $user_id;
+            $purchasedItems->tools_and_equipment_id = $request->id;
+            $purchasedItems->status = 'Bought';
+            $purchasedItems->save();
     
             return response()->json(['message' => 'Data Successfully Saved']);
         } else {

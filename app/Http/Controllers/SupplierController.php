@@ -68,35 +68,41 @@ class SupplierController extends Controller
         $productId = $request->id;
         $total = $request->total; 
 
-        // // Deduct the total from the user's balance
-        $user->balance -= $total;
-        $user->save();
+        $remaining_balance = $user->balance - $total;
 
-        $product = Product::findOrFail($productId);
+        if ($remaining_balance >= 0) {
+            $product = Product::findOrFail($productId);
+            $user->balance = $remaining_balance;
+            $user->save();
+            for ($i = 0; $i < $requestedItems; $i++) {
+                $productCode = 'P-' . str_pad(ToolsAndEquipment::count() + 1, 3, '0', STR_PAD_LEFT);
+                $tool = new ToolsAndEquipment();
+                $tool->product_code = $productCode;
+                $tool->product_id = $productId;
+                $tool->price = 0;
+                $tool->stocks =  1; 
+                $tool->is_approved = 0;
+                $tool->save();
+            }
+    
+            $history = new AdminHistory();
+            $history->tools_and_equipment_id = $tool->id;
+            $history->items = $requestedItems;
+            $history->total_price = $total;
+            $history->user_id = $user->id;
+            $history->status = 'Unrealeased';
+            
+            $history->save();
+    
+            $product->decrement('stocks', $requestedItems);
 
-        for ($i = 0; $i < $requestedItems; $i++) {
-            $productCode = 'P-' . str_pad(ToolsAndEquipment::count() + 1, 3, '0', STR_PAD_LEFT);
-            $tool = new ToolsAndEquipment();
-            $tool->product_code = $productCode;
-            $tool->product_id = $productId;
-            $tool->price = 0;
-            $tool->stocks =  1; 
-            $tool->is_approved = 0;
-            $tool->save();
+            return response()->json(['message' => 'Products Requested Successfully'], 200);
+
+        } else {
+            // Return response indicating insufficient funds
+            return response()->json(['error' => 'Insufficient funds'], 400);
         }
-
-        $history = new AdminHistory();
-        $history->tools_and_equipment_id = $tool->id;
-        $history->items = $requestedItems;
-        $history->total_price = $total;
-        $history->user_id = $user->id;
-        $history->status = 'Unrealeased';
-        
-        $history->save();
-
-        $product->decrement('stocks', $requestedItems);
-
-        return response()->json(['message' => 'Products Requested Successfully'], 200);
+    
     }
     
 

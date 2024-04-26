@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\DeliverHistory;
 use App\Models\Delivery;
 use App\Models\Order;
+use App\Models\PurchasedItems;
 use App\Models\Sold;
 use App\Models\ToolsAndEquipment;
 use App\Models\User;
@@ -82,6 +83,9 @@ class DeliveryController extends Controller
 
             $sold = Sold::where('tools_and_equipment_id', $toolsandEquipmentId->id)->first();
             
+            $purchasedItems = PurchasedItems::where('tools_and_equipment_id', $toolsandEquipmentId->id)->first();
+
+            $purchasedItems->delete();
             $sold->delete();
             $order->delete();
             $delivery->delete();

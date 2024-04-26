@@ -453,6 +453,12 @@ return [
             'can' => ['admin'], 
             'url'  => '/cancel-history',
         ],
+        [  
+            'text' => 'Defective Products', 
+            'icon' => 'fa-regular fa-rectangle-xmark',
+            'can' => ['admin'], 
+            'url'  => '/defective-products',
+        ],
         [
             'text' => 'Buy Tools',
             'icon'    => 'fa-solid fa-cart-shopping', 
@@ -488,6 +494,12 @@ return [
             'icon' => 'fa-solid fa-people-carry-box',
             'can' => ['user'], 
             'url'  => '/return-product',
+        ],
+        [ 
+            'text' => 'Damaged Return', 
+            'icon' => 'fa-solid fa-circle-exclamation',
+            'can' => ['user'], 
+            'url'  => '/damaged-return',
         ],
         [
             'text' => 'Add Balance',

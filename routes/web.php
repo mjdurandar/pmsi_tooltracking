@@ -120,6 +120,13 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('/returned-product/show',[App\Http\Controllers\ReturnedProductController::class, 'show']);
         Route::post('/returned-product/damaged',[App\Http\Controllers\ReturnedProductController::class, 'damaged']);
         Route::post('/returned-product/store',[App\Http\Controllers\ReturnedProductController::class, 'store']);
+
+        //DEFECTIVE PRODUCT
+        Route::get('/defective-products',[App\Http\Controllers\DefectiveProductsController::class, 'index']);
+        Route::get('/defective-products/show',[App\Http\Controllers\DefectiveProductsController::class, 'show']);
+        Route::post('/defective-products/damaged',[App\Http\Controllers\DefectiveProductsController::class, 'damaged']);
+        Route::post('/defective-products/store',[App\Http\Controllers\DefectiveProductsController::class, 'store']);
+
     });
    
     Route::middleware(['CheckRole:user'])->group(function() {
@@ -163,6 +170,12 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('/return-product',[App\Http\Controllers\ReturnProductController::class, 'index']);
         Route::get('/return-product/show',[App\Http\Controllers\ReturnProductController::class, 'show']);
         Route::post('/return-product/store',[App\Http\Controllers\ReturnProductController::class, 'store']);
+
+        //DAMAGED RETURN
+        Route::get('/damaged-return',[App\Http\Controllers\DamagedReturnController::class, 'index']);
+        Route::get('/damaged-return/show',[App\Http\Controllers\DamagedReturnController::class, 'show']);
+        Route::post('/damaged-return/store',[App\Http\Controllers\DamagedReturnController::class, 'store']);
+
     });
 
     Route::middleware(['CheckRole:supplier'])->group(function() {

@@ -43,11 +43,15 @@
                     :columns="columns"
                     :options="options"
                     :addButton="false"
-                    :option2Switch="false"
+                    :option2Switch="true"
+                    option2Color = "color: #000000"
+                    option2Icon="fa fa-print mr-2"
+                    option2Name="Print Receipt"
                     option1Color = "color: #089000"
                     option1Icon="fa fa-eye mr-2"
                     option1Name="View"
                     @editClicked="editClicked"
+                    @deleteClicked="printReceipt"
                 >
                 </FormComponent>
             </div>
@@ -163,6 +167,23 @@ export default{
         addClicked(props){
             $('#' + this.modalId).modal('show');
             this.clearInputs();
+        },
+        printReceipt(props) {
+            // Create a new window
+            let printWindow = window.open('', '_blank');
+
+            // Write the details to the new window
+            printWindow.document.write('<html><head><title>Print Receipt</title></head><body>');
+            printWindow.document.write('<h1>Receipt</h1>');
+            printWindow.document.write('<p>Product: ' + props.data.brand_name + ' - ' + props.data.tool_name + '</p>');
+            printWindow.document.write('<p>Price: ' + props.data.price + '</p>');
+            printWindow.document.write('<p>Borrowed At: ' + props.data.created_at + '</p>');
+            printWindow.document.write('<p>Return Date: ' + props.data.return_date + '</p>');
+            printWindow.document.write('<p>Date: ' + props.data.created_at + '</p>');
+            printWindow.document.write('</body></html>');
+
+            // Call print on the new window
+            printWindow.print();
         },
         closeModal(){
             $('#' + this.modalId).modal('hide');

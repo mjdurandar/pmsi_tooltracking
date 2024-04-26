@@ -6,6 +6,7 @@ use App\Models\Borrowed;
 use App\Models\DeliverHistory;
 use Illuminate\Http\Request;
 use App\Models\Order;
+use App\Models\PurchasedItems;
 
 class OrderController extends Controller
 {
@@ -45,6 +46,10 @@ class OrderController extends Controller
         $deliverhistory = DeliverHistory::where('tools_and_equipment_id', $order->tools_and_equipment_id)->first();
         $deliverhistory->status = $request->status_data;
         $deliverhistory->save();
+
+        $purchasedItem = PurchasedItems::where('tools_and_equipment_id', $order->tools_and_equipment_id)->first();
+        $purchasedItem->details = $request->status_data;
+        $purchasedItem->save();
 
         $borrowed = Borrowed::where('tools_and_equipment_id', $order->tools_and_equipment_id)->first();
         if($borrowed){

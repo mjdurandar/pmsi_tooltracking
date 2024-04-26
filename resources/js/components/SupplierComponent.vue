@@ -272,6 +272,9 @@ export default{
         clearInputs() {
             this.dataValues = '';
         },
+        noProduct() {
+            $('#' + this.modalIdPurchaseProduct).modal('hide');
+        },
         refresh() {
             window.location.reload();
         },
@@ -350,8 +353,26 @@ export default{
                     $('#' + this.modalIdPurchaseProduct).modal('hide');
                     $('#' + this.modalIdTermsandCondition).modal('hide');
                 })
-                .catch(error => {
-                    console.error('Error requesting product:', error);
+                .catch(errors => {
+                    // Check if the response contains an error indicating insufficient funds
+                    if(errors.response.data.error === 'Insufficient funds') {
+                                // Display SweetAlert for insufficient funds
+                                Swal.fire({
+                                    title: 'Insufficient Funds',
+                                    text: errors.response.data.error,
+                                    icon: 'error',
+                                    timer: 3000
+                                });
+                            } else {
+                                // Display general warning message for other errors
+                                Swal.fire({
+                                    title: 'Warning',
+                                    text: 'An error occurred. Please try again later.',
+                                    icon: 'warning',
+                                    timer: 3000
+                                });
+                            }
+                            this.errors = errors.response.data.errors;
                 });
         },
         editClicked(props) {

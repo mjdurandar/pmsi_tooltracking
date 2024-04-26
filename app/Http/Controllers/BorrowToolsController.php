@@ -8,6 +8,7 @@ use App\Models\DeliverHistory;
 use Carbon\Carbon;
 use App\Models\Borrowed;
 use App\Models\Order;
+use App\Models\PurchasedItems;
 use App\Models\ReturnDays;
 use App\Models\Sold;
 use App\Models\ToolsAndEquipment;
@@ -138,6 +139,12 @@ class BorrowToolsController extends Controller
             $sold->type = 'Borrowing';
             $sold->sold_at = now();
             $sold->save();
+
+            $purchasedItems = new PurchasedItems();
+            $purchasedItems->user_id = $user_id;
+            $purchasedItems->tools_and_equipment_id = $request->id;
+            $purchasedItems->status = 'Borrowed';
+            $purchasedItems->save();
 
             return response()->json(['message' => 'Data Successfully Saved']);
         } else {
