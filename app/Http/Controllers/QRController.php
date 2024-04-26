@@ -11,7 +11,8 @@ class QRController extends Controller
 {     
     public function index($id) {
 
-        $data = Order::where('tools_and_equipment_id', $id)->get();
+        $data = Order::where('id', $id)
+                        ->get();
 
         return view('users.qr', ['data' => $data]);
 

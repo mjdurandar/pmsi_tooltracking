@@ -39,7 +39,10 @@ import RequestProductComponent from './components/RequestProductComponent.vue';
 import ProductHistoryComponent from './components/ProductHistoryComponent.vue';
 import OrderComponent from './components/OrderComponent.vue';
 import QRComponent from './components/QRComponent.vue';
+import ProductReturnComponent from './components/ProductReturnComponent.vue';
+import HomeComponent from './components/HomeComponent.vue';
 import ProfileComponent from './components/ProfileComponent.vue';
+import ReturnedProductComponent from './components/ReturnedProductComponent.vue';
 
 app.config.globalProperties.$swal = Swal;
 app.use(ServerTable, {}, 'bootstrap4')
@@ -69,6 +72,9 @@ app.component('cancel-history-component', CancelHistoryComponent);
 app.component('add-balance-component', AddBalanceComponent);
 app.component('order-component', OrderComponent);
 app.component('qr-component', QRComponent);
+app.component('productreturn-component', ProductReturnComponent);
+app.component('home-component', HomeComponent);
+app.component('returned-product-component', ReturnedProductComponent);
 
 /**
  * The following block of code may be used to automatically register your

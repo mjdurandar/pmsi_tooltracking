@@ -27,6 +27,15 @@
                     <label for="">Number of Days</label>
                     <input type="number" class="form-control" v-model="dataValues.number_of_days">
                 </div>
+                <div class="row">
+                    <label for="">Penalty</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">₱</span>
+                        </div>
+                        <input type="text" class="form-control" v-model="dataValues.penalty">
+                    </div>
+                </div>
             </template>
             <template #modalFooter>
                 <div class="text-right">
@@ -50,11 +59,12 @@ export default{
     data(){
         return{
                 data : [],
-                columns : ['number_of_days' ,'action'],
+                columns : ['number_of_days', 'penalty' ,'action'],
                 errors: [],
                 options : {
                     headings : {
                         number_of_days : 'Number of Days',
+                        penalty : 'Penalty',
                         action : 'Action',
                     },
                     filterable: false,

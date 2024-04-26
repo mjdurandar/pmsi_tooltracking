@@ -221,7 +221,7 @@ export default{
             });
         },
         generateQrCode(props) {
-            this.globalId = props.data.tools_and_equipment_id;
+            this.globalId = props.data.id;
             // Generate the URL of the route you want to redirect to
             const routeUrl = 'pmsitooltracking.com/qr/' + props.data.id;
                 

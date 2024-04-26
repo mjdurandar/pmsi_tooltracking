@@ -436,6 +436,12 @@ return [
             'url'  => '/order',
         ],
         [
+            'text' => 'Returned Product', 
+            'icon' => 'fa-solid fa-people-carry-box',
+            'can' => ['admin'], 
+            'url'  => '/returned-product',
+        ],
+        [
             'text' => 'Purhased History',
             'icon'    => 'fa-solid fa-book',
             'can' => ['admin'], 
@@ -476,6 +482,12 @@ return [
             'icon'    => 'fa-solid fa-book',  
             'can' => ['user'],
             'url'  => '/borrowedhistory',
+        ],
+        [
+            'text' => 'Return a Product', 
+            'icon' => 'fa-solid fa-people-carry-box',
+            'can' => ['user'], 
+            'url'  => '/return-product',
         ],
         [
             'text' => 'Add Balance',

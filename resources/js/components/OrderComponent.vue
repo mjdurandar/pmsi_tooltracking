@@ -41,11 +41,13 @@
                     </div>  
                     <div class="col-6">
                         <label for="">Shipment Date</label>
-                        <input type="date" class="form-control" v-model="dataValues.shipment_date" :disabled="dataValues.status === 'Completed'">
+                        <input type="date" class="form-control" v-model="dataValues.shipment_date" :disabled="dataValues.status === 'Completed'" :min="today">
+                        <div class="text-danger" v-if="errors.shipment_date">{{ errors.shipment_date[0] }}</div>
                     </div> 
                     <div class="col-6">
                         <label for="">Delivery Date</label>
-                        <input type="date" class="form-control" v-model="dataValues.delivery_date" :disabled="dataValues.status === 'Completed'">
+                        <input type="date" class="form-control" v-model="dataValues.delivery_date" :disabled="dataValues.status === 'Completed'" :min="today">
+                        <div class="text-danger" v-if="errors.delivery_date">{{ errors.delivery_date[0] }}</div>
                     </div> 
                     <div class="col-12">
                         <label for="">Status</label>
@@ -55,7 +57,7 @@
                             <option value="Delay">Delay</option>
                             <option value="Completed">Completed</option>
                         </select>
-                        <div class="text-danger" v-if="errors.status">{{ errors.status[0] }}</div>
+                        <div class="text-danger" v-if="errors.status_data">{{ errors.status_data[0] }}</div>
                     </div>  
                     <div class="col-12">
                         <label for="">Deliver to this Location: </label>
@@ -112,6 +114,15 @@ export default{
         ModalComponent,
         BreadCrumbComponent,
     },
+    computed: {
+        today() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+    },
     methods: {
         addClicked(props){
             $('#' + this.modalId).modal('show');
@@ -154,9 +165,6 @@ export default{
         mounted() {
             this.getData();
         }
-        
-
-
 }
 
 </script>

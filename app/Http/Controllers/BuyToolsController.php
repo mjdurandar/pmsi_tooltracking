@@ -83,6 +83,8 @@ class BuyToolsController extends Controller
             $orders->tools_and_equipment_id = $request->id;
             $orders->status = 'Preparing';
             $orders->type = 'Buying';
+            $orders->shipment_date = '0000-00-00';
+            $orders->delivery_date = '0000-00-00';
             $orders->save();
     
             return response()->json(['message' => 'Data Successfully Saved']);

@@ -61,6 +61,10 @@
             </template>
             <template #modalBody>
                 <div class="col-12 pb-2">
+                    <label for="">Status</label>
+                        <input class="form-control" v-model="dataValues.detail" disabled>
+                </div> 
+                <div class="col-12 pb-2">
                     <label for="">Product Code</label>
                         <input class="form-control" v-model="dataValues.product_code" disabled>
                 </div> 
@@ -83,6 +87,15 @@
                 <div class="col-12 pb-2">
                     <label for="">You should return the product on or before: </label>
                         <input class="form-control" v-model="dataValues.return_date" disabled>
+                </div> 
+                <div class="col-12 pb-2">
+                    <label for="">Penalty if the product is not returned by the given date: </label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">₱</span>
+                            </div>
+                            <input type="text" class="form-control" v-model="dataValues.penalty" disabled>
+                        </div>
                 </div> 
                 <div class="col-12 pb-2">
                     <label for="">Price</label>

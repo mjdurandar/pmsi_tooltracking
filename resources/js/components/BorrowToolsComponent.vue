@@ -56,7 +56,7 @@
         </div>
         <div class="row">
             <div class="col-md-4" v-for="(tool, index) in data" :key="index">
-                <div class="card" :class="{ 'sold-out': tool.status === 'Borrowed' }">
+                <div class="card" :class="{ 'sold-out': tool.status === 'Borrowed' || tool.status === 'Returning' }">
                     <div class="card-body">
                         <div class="d-flex justify-content-between">
                             <div style="width: 50%;">
@@ -69,10 +69,10 @@
                                 <p v-else>No Image</p>
                             </div>
                         </div>
-                        <button :class="tool.status === 'Borrowed' ? 'btn btn-dark' : 'btn btn-primary'"
+                        <button :class="tool.status === 'Borrowed' || tool.status === 'Returning' ? 'btn btn-dark' : 'btn btn-primary'"
                                 v-on:click="showDetails(tool)"
-                                :disabled="tool.status === 'Borrowed'">
-                            {{ tool.status === 'Borrowed' ? 'Borrowed' : 'Borrow Tool' }}
+                                :disabled="tool.status === 'Borrowed' || tool.status === 'Returning'">
+                            {{ tool.status === 'Borrowed' || tool.status === 'Returning' ? 'Borrowed' : 'Borrow Tool' }}
                         </button>
                     </div>
                 </div>
@@ -126,6 +126,15 @@
                         <div class="text-danger" v-if="errors.returnday">{{ errors.returnday[0] }}</div>
                     </div> 
                     <div class="col-12 pb-2">
+                        <label for="">Penalty</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">₱</span>
+                            </div>
+                            <input type="text" class="form-control" v-model="dataValues.penalty" disabled>
+                        </div>
+                    </div> 
+                    <div class="col-12 pb-2">
                         <label for="">Price</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
@@ -174,6 +183,16 @@ export default{
         FormComponent,
         ModalComponent,
         BreadCrumbComponent
+    },
+    watch: {
+        'dataValues.return_days_id': function(newVal, oldVal) {
+            // If return_days_id changes, update the penalty based on the selected return days
+            const selectedReturnDays = this.returndays.find(day => day.id === newVal);
+            if (selectedReturnDays) {
+                // Assuming penalty is calculated based on some logic
+                this.dataValues.penalty = selectedReturnDays.penalty;
+            }
+        }
     },
     methods: {
         showDetails(tool) {

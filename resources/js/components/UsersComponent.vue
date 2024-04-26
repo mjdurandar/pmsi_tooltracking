@@ -70,6 +70,7 @@
                         <select class="form-control" v-model="dataValues.role">
                             <option value="0">Users</option>
                             <option value="1">Admin</option>
+                            <option value="2">Supplier</option>
                         </select>
                     </div>  
                     <div class="col-12 mb-2">

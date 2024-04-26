@@ -23,7 +23,6 @@ Route::get('/unauthorized', function () {
 
 Route::group(['middleware' => 'auth'], function(){
 
-
     Route::get('/', function () {
         return view('home');
     });
@@ -116,6 +115,11 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('/cancel-history/show',[App\Http\Controllers\CancelHistoryController::class, 'show']);
         Route::post('/cancel-history/viewHistory/',[App\Http\Controllers\CancelHistoryController::class, 'viewHistory']);
 
+        //RETURNED PRODUCT
+        Route::get('/returned-product',[App\Http\Controllers\ReturnedProductController::class, 'index']);
+        Route::get('/returned-product/show',[App\Http\Controllers\ReturnedProductController::class, 'show']);
+        Route::post('/returned-product/damaged',[App\Http\Controllers\ReturnedProductController::class, 'damaged']);
+        Route::post('/returned-product/store',[App\Http\Controllers\ReturnedProductController::class, 'store']);
     });
    
     Route::middleware(['CheckRole:user'])->group(function() {
@@ -154,6 +158,11 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('/delivery/show',[App\Http\Controllers\DeliveryController::class, 'show']);
         Route::post('/delivery/cancelOrder',[App\Http\Controllers\DeliveryController::class, 'cancelOrder']);
         Route::get('/delivery/destroy/{delivery}', [App\Http\Controllers\DeliveryController::class, 'destroy']);
+
+        //RETURN A PRODUCT
+        Route::get('/return-product',[App\Http\Controllers\ReturnProductController::class, 'index']);
+        Route::get('/return-product/show',[App\Http\Controllers\ReturnProductController::class, 'show']);
+        Route::post('/return-product/store',[App\Http\Controllers\ReturnProductController::class, 'store']);
     });
 
     Route::middleware(['CheckRole:supplier'])->group(function() {

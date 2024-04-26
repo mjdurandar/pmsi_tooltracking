@@ -17,7 +17,7 @@ class BorrowHistoryController extends Controller
                 ->leftjoin('products', 'products.id', 'tools_and_equipment.product_id')
                 ->leftjoin('return_days', 'return_days.id', 'borroweds.return_days_id')
                 ->select('borroweds.*', 'products.brand as brand_name', 'products.tool as tool_name', 'tools_and_equipment.product_code as product_code'
-                ,'return_days.number_of_days as number_of_days', 'borroweds.created_at as created_at', 'tools_and_equipment.price as price')
+                ,'return_days.number_of_days as number_of_days', 'borroweds.created_at as created_at', 'tools_and_equipment.price as price', 'return_days.penalty as penalty')
                 ->get();
         return response()->json([ 'data' => $data, ]);
     }

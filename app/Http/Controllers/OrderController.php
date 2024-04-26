@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Borrowed;
 use App\Models\DeliverHistory;
 use Illuminate\Http\Request;
 use App\Models\Order;
@@ -26,11 +27,11 @@ class OrderController extends Controller
     public function store(Request $request) {
 
         $request->validate([
-            'status' => 'required',
+            'status_data' => 'required',
             'shipment_date' => 'required',
             'delivery_date' => 'required',
         ], [
-            'status.required' => 'The Status field is required',
+            'status_data.required' => 'The Status field is required',
             'shipment_date.required' => 'The Shipment Date field is required',
             'delivery_date.required' => 'The Delivery Date field is required'
         ]);
@@ -40,10 +41,16 @@ class OrderController extends Controller
         $order->shipment_date = $request->shipment_date;
         $order->delivery_date = $request->delivery_date;
         $order->save();
-
+        
         $deliverhistory = DeliverHistory::where('tools_and_equipment_id', $order->tools_and_equipment_id)->first();
         $deliverhistory->status = $request->status_data;
         $deliverhistory->save();
+
+        $borrowed = Borrowed::where('tools_and_equipment_id', $order->tools_and_equipment_id)->first();
+        if($borrowed){
+            $borrowed->status = $request->status_data;
+            $borrowed->save();
+        }
 
         return response()->json(['message' => 'Data Successfully Saved']);
 

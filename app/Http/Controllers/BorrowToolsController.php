@@ -106,6 +106,7 @@ class BorrowToolsController extends Controller
             $borrowed->user_id = $user->id;
             $borrowed->tools_and_equipment_id = $request->id;
             $borrowed->return_days_id = $request->return_days_id;
+            $borrowed->detail = 'Borrowed';
             $borrowed->status = 'Preparing';
         
             // Retrieve return days from database
@@ -127,6 +128,8 @@ class BorrowToolsController extends Controller
             $orders->tools_and_equipment_id = $request->id;
             $orders->status = 'Preparing';
             $orders->type = 'Borrowing';
+            $orders->shipment_date = '0000-00-00';
+            $orders->delivery_date = '0000-00-00';
             $orders->save();
 
             $sold = new Sold();

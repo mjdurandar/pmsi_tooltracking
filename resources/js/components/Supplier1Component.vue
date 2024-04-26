@@ -248,12 +248,12 @@
                     </div>  
                     <div class="col-12">
                         <label for="">Your Balance</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text">₱</span>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">₱</span>
+                            </div>
+                            <input type="text" class="form-control" v-model="balance" disabled>
                         </div>
-                        <input type="text" class="form-control" v-model="balance" disabled>
-                    </div>
                     </div>  
                 </div>
             </template>
