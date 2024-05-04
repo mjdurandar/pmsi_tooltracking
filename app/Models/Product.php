@@ -8,4 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 class Product extends Model
 {
     use HasFactory;
+
+    public function serialNumbers()
+    {
+        return $this->hasMany(SerialNumber::class);
+    }
+
+    public function productCodes()
+    {
+        return $this->hasMany(ProductCode::class);
+    }
+
 }

@@ -1,16 +1,18 @@
 <template>
     <div class="p-3">
         <BreadCrumbComponent tab_title="Supplier"></BreadCrumbComponent>
+
+        <!-- FILTER DATA -->
         <div class="row mb-3">
             <div class="col-lg-2">
-                <select class="form-control" v-model="dataValues.supplier_id">
-                    <option value="" disabled selected>Select Supplier</option>
+                <select class="form-control" v-model="supplier_id">
+                    <option value="" disabled selected>Supplier</option>
                     <option v-for="supplier in suppliers" :value="supplier.id">{{ supplier.name }}</option>
                 </select>
             </div>
             <div class="col-lg-2">
                 <select v-model="selectedBrand" class="form-control">
-                    <option value="" disabled selected>Select Brand</option>
+                    <option value="" disabled selected>Brand</option>
                     <option value="Bosch">Bosch</option>
                     <option value="Dewalt">Dewalt</option>
                     <option value="Makita">Makita</option>
@@ -28,7 +30,7 @@
             </div>
             <div class="col-lg-2">
                 <select v-model="selectedTool" class="form-control">
-                    <option value="" disabled selected>Select Tools</option> 
+                    <option value="" disabled selected>Tools</option> 
                     <option value="Drill">Drill</option>
                     <option value="Screwdriver">Screwdriver</option>
                     <option value="Wrench">Wrench</option>
@@ -39,7 +41,7 @@
             </div>
             <div class="col-lg-2">
                 <select v-model="selectedSpecs" class="form-control">
-                    <option value="" disabled selected>Select Specifications</option> 
+                    <option value="" disabled selected>Specifications</option> 
                     <option value="battery">Battery</option>
                     <option value="corded">Corded</option>
                 </select>
@@ -49,6 +51,8 @@
                 <button class="btn btn-success ml-1" @click="refresh"><i class="fas fa-sync-alt"></i></button>
             </div>
         </div>
+
+        <!-- PRODUCT CARD -->
         <div class="row">
             <div class="col-md-4" v-for="(product, index) in products" :key="index">
                 <div class="card">
@@ -125,7 +129,7 @@
                     </div>  
                     <div class="col-12">
                         <label for="">How many?</label>
-                        <input type="number" class="form-control" v-model="requestedItems" @input="calculateTotal">
+                        <input type="number" class="form-control" v-model="requestedItems" @input="calculateTotal" min="0">
                         <div class="text-danger" v-if="errors.requestedItems">{{ errors.requestedItems[0] }}</div>
                     </div>  
                     <div class="col-12">
@@ -147,6 +151,82 @@
             </template>
         </ModalComponent>
 
+        <!-- SELECT SRN AND PRN CODE -->
+        <ModalComponent :id="modalIdSelect" :title="modalTitle" :size="modalSize" :position="modalPosition">
+            <template #modalHeader>
+                <div class="m-auto">
+                    <h4>Select Serial Number</h4>
+                </div>
+            </template>
+            <template #modalBody>
+                <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+                    <div class="row" v-for="(serialNumber, index) in serialNumbers" :key="index">
+                        <div class="col-lg-12 d-flex justify-content-around mt-2">
+                        <div class="m-auto">
+                            <input type="checkbox" v-model="selectedIndexes" :value="index" :disabled="selectedIndexes.length >= requestedItems">
+                        </div>
+                        <div class="m-auto">
+                            <div>Serial Number {{ index + 1 }}</div>
+                        </div>
+                        <div>
+                            <input type="text" v-model="serialNumber.serial_number" class="form-control" disabled>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+            <template #modalFooter>
+                <div class="text-right">
+                    <button class="btn btn-primary mr-2" v-on:click="clearSelected">Clear</button>
+                    <button class="btn btn-success" v-on:click="getSelectedValue">Confirm</button>
+                </div>
+            </template>
+        </ModalComponent>
+
+          <!-- REVIEW PURCHASED MODAL -->
+        <ModalComponent :id="modalIdReview" :title="modalTitle" :size="modalSizeTermsandCondition" :position="modalPosition">
+            <template #modalHeader>
+                <div class="m-auto">
+                    <h4>Review your Purchased</h4>
+                </div>
+            </template>
+            <template #modalBody>
+                <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+                    <div class="row">
+                        <div class="col-6 text-center m-auto" v-if="dataValues.image">
+                            <img :src="'/images/' + dataValues.image" alt="Current Image" class="img-fluid" style="height:300px;">
+                        </div>
+                        <div class="col-6">
+                            <p>
+                                You are about to purchase <b>{{ this.dataValues.brand }} {{ this.dataValues.tool }}</b>
+                                with the voltage of <b>{{ this.dataValues.voltage }}</b>, dimension of <b>{{ this.dataValues.dimensions }}</b>, weight of <b>{{ this.dataValues.weight }}</b> and powerSources of <b>{{ this.dataValues.powerSources }}</b>.
+                            </p>
+                            <p>
+                                You selected the Serial Number(s) of:
+                                <ul>
+                                    <li v-for="(serialNumber, index) in selectedSerialNumbers" :key="index">
+                                        {{ serialNumber }}{{ index !== selectedSerialNumbers.length - 1 ? '' : '' }}
+                                    </li>
+                                </ul>
+                            </p>
+                            <p>
+                                The Product will be delivered in this location
+                                <b>{{ this.userLocation }}</b>
+                            </p>
+                            <p>
+                                Once you're confident that everything is in order, proceed by clicking "Confirm" button below.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </template>
+            <template #modalFooter>
+                <div class="text-right">
+                    <button class="btn btn-success" v-on:click="termsAndConditionModal">Confirm</button>
+                </div>
+            </template>
+        </ModalComponent>
+
         <!-- TERMS AND CONDITION MODAL -->
         <ModalComponent :id="modalIdTermsandCondition" :title="modalTitle" :size="modalSizeTermsandCondition" :position="modalPosition">
             <template #modalHeader>
@@ -154,7 +234,7 @@
                     <h4>Terms and Conditions</h4>
                 </div>
             </template>
-            <template #modalBody>
+            <template #modalBody style="max-height: 400px; overflow-y: auto;">
                 <div class="container">
                 <div class="row">
                     <div class="col-md-6">
@@ -173,31 +253,31 @@
                             </li>
                         </ol>
                     </div>
-                        <div class="col-md-6">
-                            <ol start="6">
-                                <li>
-                                    <strong>WARRANTY:</strong> The Seller warrants that the product(s) shall be free from defects in material and workmanship for a period of [Warranty Period] from the date of delivery.
-                                </li>
-                                <li>
-                                    <strong>LIMITATION OF LIABILITY:</strong> The Seller's liability under this Contract shall be limited to the replacement of defective products or refund of the purchase price, at the Seller's option. In no event shall the Seller be liable for any incidental or consequential damages.
-                                </li>
-                                <li>
-                                    <strong>TERMINATION:</strong> This Contract may be terminated by either party upon [Number of Days] days written notice if the other party breaches any of its obligations under this Contract and fails to cure such breach within said notice period.
-                                </li>
-                                <li>
-                                    <strong>ENTIRE AGREEMENT:</strong> This Contract constitutes the entire agreement between the parties and supersedes all prior negotiations, understandings, and agreements between the parties.
-                                </li>
-                            </ol>
-                        </div>
+                    <div class="col-md-6">
+                        <ol start="6">
+                            <li>
+                                <strong>WARRANTY:</strong> The Seller warrants that the product(s) shall be free from defects in material and workmanship for a period of [Warranty Period] from the date of delivery.
+                            </li>
+                            <li>
+                                <strong>LIMITATION OF LIABILITY:</strong> The Seller's liability under this Contract shall be limited to the replacement of defective products or refund of the purchase price, at the Seller's option. In no event shall the Seller be liable for any incidental or consequential damages.
+                            </li>
+                            <li>
+                                <strong>TERMINATION:</strong> This Contract may be terminated by either party upon [Number of Days] days written notice if the other party breaches any of its obligations under this Contract and fails to cure such breach within said notice period.
+                            </li>
+                            <li>
+                                <strong>ENTIRE AGREEMENT:</strong> This Contract constitutes the entire agreement between the parties and supersedes all prior negotiations, understandings, and agreements between the parties.
+                            </li>
+                        </ol>
                     </div>
-                    <div class="d-flex">
-                        <div>
-                            <input type="checkbox" v-model="agreementChecked">
-                        </div>
-                        <div style="margin-left:5px">
-                            <strong>Please check the box if you agree to the terms and conditions above.</strong>
-                        </div>
+                </div>
+                <div class="d-flex">
+                    <div>
+                        <input type="checkbox" v-model="agreementChecked">
                     </div>
+                    <div style="margin-left:5px">
+                        <strong>Please check the box if you agree to the terms and conditions above.</strong>
+                    </div>
+                </div>
                 </div>
             </template>
             <template #modalFooter>
@@ -226,10 +306,15 @@ export default{
                 selectedTool : '',
                 selectedSpecs : '',
                 requestedItems : '',
+                userLocation : [],
+                selectedSerialNumbers : [],
+                serialNumbers: [],
+                selectedIndexes: [],
                 suppliers : [],
                 supplier_id : '',
                 products : [],  
                 requestData : [],
+                userBalance: [],
                 agreementChecked: false,
                 requestedItems : 0,
                 total: 0,
@@ -251,6 +336,8 @@ export default{
                 modalIdPurchaseProduct : 'modal-purchase-product',
                 modalIdTermsandCondition : 'modal-terms-and-condition',
                 modalSizeTermsandCondition : 'modal-lg',
+                modalIdReview : 'modal-review',
+                modalIdSelect : 'modal-select-code',
                 modalTitle : 'Supplier',
                 modalPosition: 'modal-dialog-centered',
                 modalSize : 'modal-md',
@@ -262,11 +349,39 @@ export default{
         BreadCrumbComponent
     },
     methods: {
+        clearSelected()
+        {
+            this.selectedIndexes.length = 0;
+        },
+        getSelectedValue() {
+            if (this.selectedIndexes.length === 0) {
+                Swal.fire({
+                    title: 'No Serial Number Selected',
+                    text: 'Please a Serial Number!',
+                    icon: 'warning',
+                    timer: 3000
+                });
+            }
+            else
+            {
+                const selectedSerialNumbers = this.selectedIndexes.map(index => this.serialNumbers[index].serial_number);
+                this.selectedSerialNumbers = selectedSerialNumbers;
+                $('#' + this.modalIdSelect).modal('hide');
+                $('#' + this.modalIdReview).modal('show');
+            }
+        },
+        termsAndConditionModal()
+        {
+            $('#' + this.modalIdReview).modal('hide');
+            $('#' + this.modalIdTermsandCondition).modal('show');
+        },
         getData() {
             axios.get('/supplier/show').then(response => {
                 this.data = response.data.data;
                 this.suppliers = response.data.suppliers;
                 this.products = response.data.products;
+                this.userLocation = response.data.userLocation;
+                this.userBalance = response.data.userBalance;
             })
         },
         clearInputs() {
@@ -280,7 +395,7 @@ export default{
         },
         filterData() {
             const searchData = {
-                supplier_id: this.dataValues.supplier_id,
+                supplier_id: this.supplier_id,
                 brand: this.selectedBrand,
                 tool: this.selectedTool,
                 specs: this.selectedSpecs
@@ -307,6 +422,20 @@ export default{
                     console.error(error);
                 });
         },
+        validateForm() {
+            this.errors = [];
+
+            if (!this.requestedItems) {
+                this.errors.requestedItems = ['Please input how many Products.'];
+            }
+
+            // Check if any errors are present
+            if (Object.keys(this.errors).length > 0) {
+                return false; // Validation failed
+            }
+
+            return true; // Validation passed
+        },
         purchaseProduct(product){
             this.dataValues = product;
             this.requestedItems = '';
@@ -314,25 +443,40 @@ export default{
             $('#' + this.modalIdPurchaseProduct).modal('show');
         },
         yesProduct() {
-            this.agreementChecked = false;
-            if(this.requestedItems == 0){
-                Swal.fire({
-                    title: "Insufficient Stocks!",
-                    icon: 'warning',
-                    timer: 3000
-                });
-                return;
+            this.selectedIndexes.length = 0;
+            if (this.validateForm()) {
+                if(this.requestedItems >= this.dataValues.stocks){
+                    Swal.fire({
+                            title: "Insufficient Stocks!",
+                            icon: 'warning',
+                            timer: 3000
+                        });
+                        return;
+                }
+                if(this.userBalance < this.total){
+                    Swal.fire({
+                            title: "Low Balance!",
+                            icon: 'warning',
+                            timer: 3000
+                        });
+                        return;
+                }
+                axios.post('/supplier/getId', this.dataValues).then(response => {
+                    this.agreementChecked = false;
+                    this.serialNumbers = response.data.serialNumbers;
+                    const requestData = {
+                        id: this.dataValues.id,
+                        requestedItems: this.requestedItems,
+                        total: this.total
+                    }
+                    this.requestData = requestData;
+                    $('#' + this.modalIdPurchaseProduct).modal('hide');
+                    $('#' + this.modalIdSelect).modal('show');
+                })
+                .catch(errors => {
+                        this.errors = errors.response.data.errors;
+                })
             }
-            const requestData = {
-                id: this.dataValues.id,
-                requestedItems: this.requestedItems,
-                total: this.total
-            }
-
-            this.requestData = requestData;
-
-            $('#' + this.modalIdPurchaseProduct).modal('hide');
-            $('#' + this.modalIdTermsandCondition).modal('show');
         },
         calculateTotal() {
             this.total = this.requestedItems * this.dataValues.price;
@@ -341,10 +485,9 @@ export default{
             this.requestedItems = 0;
             this.total = 0;
             this.agreementChecked = false;
+            this.requestData.selectedSerialNumbers = this.selectedSerialNumbers;
             axios.post('/supplier/purchaseProduct', this.requestData)
                 .then(response => {
-                    // this.dataValues.stocks -= this.requestedItems;
-                    // this.balance -= this.total;
                     Swal.fire({
                         title: "Product Purchased Successfully!",
                         icon: 'success',
@@ -356,14 +499,23 @@ export default{
                 .catch(errors => {
                     // Check if the response contains an error indicating insufficient funds
                     if(errors.response.data.error === 'Insufficient funds') {
-                                // Display SweetAlert for insufficient funds
                                 Swal.fire({
                                     title: 'Insufficient Funds',
                                     text: errors.response.data.error,
                                     icon: 'error',
                                     timer: 3000
                                 });
-                            } else {
+                            }
+                            else if(errors.response.data.error === 'Low Stocks')
+                            {
+                                Swal.fire({
+                                    title: 'Low Stocks',
+                                    text: 'Please wait for the Supplier to replenish their Product',
+                                    icon: 'warning',
+                                    timer: 3000
+                                });
+                            }
+                            else {
                                 // Display general warning message for other errors
                                 Swal.fire({
                                     title: 'Warning',
@@ -375,77 +527,6 @@ export default{
                             this.errors = errors.response.data.errors;
                 });
         },
-        editClicked(props) {
-            this.dataValues = props.data;
-            this.modalTitle= 'Edit Data';
-
-            axios.get('/supplier/edit/' + this.dataValues.id).then(response => {
-                this.dataValues = response.data.data;
-                $('#' + this.modalId).modal('show');
-            })
-            .catch(errors => {
-                if(errors.response.data.message.length > 0) {
-                    Swal.fire({
-                        title: "Failed",
-                        text: errors.response.data.message,
-                        icon: 'error',
-                        timer: 3000
-                    });
-                    this.errors = errors.response.data.errors;
-                }
-            })
-        },
-        deleteClicked(props) {
-            Swal.fire({
-                title: 'Are you sure?',
-                text: 'You will not be able to recover this data!',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Yes, delete it!',
-                cancelButtonText: 'Cancel',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // User confirmed, proceed with deletion
-                    axios.get('/supplier/destroy/' + props.data.id).then(response => {
-                        if(response.status === 200) {
-                            Swal.fire({
-                                title: "Success",
-                                text: response.data.message,
-                                icon: 'success',
-                                timer: 3000
-                            });
-                        }
-                        this.getData();
-                    }).catch(errors => {
-                        if(errors.response.data.message.length > 0) {
-                            Swal.fire({
-                                title: "Failed",
-                                text: errors.response.data.message,
-                                icon: 'error',
-                                timer: 3000
-                            });
-                        }
-                    });
-                }
-            });
-        },
-        storeData() {
-                axios.post('/supplier/store', this.dataValues).then(response => {
-                    if(response.status === 200) {
-                        Swal.fire({
-                            title: "Success",
-                            text: response.data.message,
-                            icon: 'success',
-                            timer: 3000
-                        });
-                    }
-                    this.getData();
-                    $('#' + this.modalId).modal('hide');
-                })
-                .catch(errors => {
-                        this.errors = errors.response.data.errors;
-                })
-            },
         },
         mounted() {
             this.getData();

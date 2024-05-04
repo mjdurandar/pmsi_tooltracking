@@ -27,6 +27,7 @@ class PowerToolsController extends Controller
                                 ->select('tools_and_equipment.*', 'categories.name as category_name', 'products.brand as product_brand', 'products.tool as product_tool', 
                                 'products.image as product_image', 'products.powerSources as product_powerSources', 'products.voltage as product_voltage',
                                 'products.weight as product_weight', 'products.dimensions as product_dimensions', 'products.material as product_material', 'users.name as supplier_name')
+                                ->where('tools_and_equipment.is_delivered', true)
                                 ->get();
 
         $categories = Category::get();

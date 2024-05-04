@@ -45,6 +45,7 @@ import ProfileComponent from './components/ProfileComponent.vue';
 import DamagedReturnComponent from './components/DamagedReturnComponent.vue';
 import DefectiveProductsComponent from './components/DefectiveProductsComponent.vue';
 import ReturnedProductComponent from './components/ReturnedProductComponent.vue';
+import CanceledProductComponent from './components/CanceledProductComponent.vue';
 
 app.config.globalProperties.$swal = Swal;
 app.use(ServerTable, {}, 'bootstrap4')
@@ -79,6 +80,7 @@ app.component('home-component', HomeComponent);
 app.component('returned-product-component', ReturnedProductComponent);
 app.component('damaged-return-component', DamagedReturnComponent);
 app.component('defective-products-component', DefectiveProductsComponent);
+app.component('canceled-product-component', CanceledProductComponent);
 
 /**
  * The following block of code may be used to automatically register your

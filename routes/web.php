@@ -80,6 +80,7 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('/supplier/show',[App\Http\Controllers\SupplierController::class, 'show']);
         Route::post('/supplier/filterData',[App\Http\Controllers\SupplierController::class, 'filterData']);
         Route::post('/supplier/purchaseProduct',[App\Http\Controllers\SupplierController::class, 'purchaseProduct']);
+        Route::post('/supplier/getId', [App\Http\Controllers\SupplierController::class, 'getId']);
 
         // POWERTOOLS 
         Route::get('/powertools',[App\Http\Controllers\PowerToolsController::class, 'index']);
@@ -188,7 +189,16 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('products/show', [App\Http\Controllers\ProductController::class, 'show']);
         Route::post('products/store', [App\Http\Controllers\ProductController::class, 'store']);
         Route::get('products/edit/{product}', [App\Http\Controllers\ProductController::class, 'edit']);
-        Route::get('products/destroy/{product}', [App\Http\Controllers\ProductController::class, 'destroy']);
+        Route::post('products/releasedProduct', [App\Http\Controllers\ProductController::class, 'releasedProduct']);
+        Route::post('products/isRemoved', [App\Http\Controllers\ProductController::class, 'isRemoved']);
+        Route::post('products/canceledProduct', [App\Http\Controllers\ProductController::class, 'canceledProduct']);
+        Route::post('products/filterData', [App\Http\Controllers\ProductController::class, 'filterData']);
+
+        Route::get('canceled-product', [App\Http\Controllers\CanceledProductController::class, 'index']);
+        Route::get('canceled-product/show', [App\Http\Controllers\CanceledProductController::class, 'show']);
+        Route::post('canceled-product/release', [App\Http\Controllers\CanceledProductController::class, 'release']);
+        Route::post('canceled-product/filterData', [App\Http\Controllers\CanceledProductController::class, 'filterData']);
+
     });
 
 });

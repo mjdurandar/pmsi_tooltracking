@@ -26,8 +26,13 @@
     <div>
         <slot name="filter-control"></slot>
         <div>
-            <div class="btn-position" v-if="addButton">
-                <button class="btn btn-primary" @click="addClicked(props)">{{ btnName }}</button>
+            <div class="d-flex justify-content-end">
+                <div class="btn-position" v-if="addButton">
+                    <button class="btn btn-primary" @click="addClicked(props)">{{ btnName }}</button>
+                </div>
+                <div class="ml-2 btn-position" v-if="otherButton">
+                    <button :class="buttonOptionColor" @click="otherClicked(props)">{{ otherBtnName }}</button>
+                </div>
             </div>
             <v-client-table :data="data" :columns="columns" :options="options" v-if="tableSwitch">
                 <template #action="props">
@@ -152,6 +157,18 @@
                 type: Boolean,
                 default: true
             },
+            otherButton: {
+                type: Boolean,
+                default: false
+            },
+            otherBtnName: {
+                type: String,
+                default: "Other"
+            },
+            buttonOptionColor: {
+                type: String,
+                default: "btn btn-danger"
+            }
         },
         data(){ 
             return {
@@ -171,6 +188,9 @@
             },
             addClicked(){
                 this.$emit('addClicked');
+            },
+            otherClicked(){
+                this.$emit('otherClicked');
             }
         },
     };

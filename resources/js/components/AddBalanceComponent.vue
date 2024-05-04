@@ -52,7 +52,7 @@
                 </div>
 
                 <div class="col-12" v-if="dataValues.card_type === 'Gcash'">
-                    <label for="">GCash Information: Your GCash information here.</label>
+                    
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa-solid fa-credit-card"></i></span>
@@ -61,7 +61,7 @@
                     </div>
                 </div>
                 <div class="col-12" v-if="dataValues.card_type === 'Paypal'">
-                    <label for="">PayPal Information: Your PayPal information here.</label>
+                    
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa-solid fa-credit-card"></i></span>
@@ -70,7 +70,7 @@
                     </div>
                 </div>
                 <div class="col-12" v-if="dataValues.card_type === 'Card'">
-                    <label for="">Card Information: Your card information here.</label>
+                    
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa-solid fa-credit-card"></i></span>
