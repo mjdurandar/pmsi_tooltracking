@@ -73,6 +73,8 @@ class PowerToolsController extends Controller
         if (!empty($specs)) {
             $query->where('products.powerSources', 'like', '%' . $specs . '%');
         }
+
+        $query->where('tools_and_equipment.is_delivered', true);
     
         $products = $query->get();
     

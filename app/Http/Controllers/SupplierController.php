@@ -8,6 +8,7 @@ use App\Models\SerialNumber;
 use Illuminate\Http\Request;
 use App\Models\Supplier;
 use App\Models\ToolsAndEquipment;
+use App\Models\TrackOrder;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
@@ -77,6 +78,7 @@ class SupplierController extends Controller
     }
 
     public function purchaseProduct(Request $request) {
+        $uniqueId = mt_rand(100000, 999999);
 
         $selectedSerialNumbers = $request->selectedSerialNumbers;
         $serialNumbers = SerialNumber::whereIn('serial_number', $selectedSerialNumbers)->get();
@@ -101,6 +103,13 @@ class SupplierController extends Controller
             $toolsAndEquipment->serial_number_id = $serialNumber->id;
             $toolsAndEquipment->is_delivered = 0;
             $toolsAndEquipment->save();
+
+            $trackOrder = new TrackOrder();
+            $trackOrder->tools_and_equipment_id = $toolsAndEquipment->id;
+            $trackOrder->status = 'Pending';
+            $trackOrder->unique_id = $uniqueId;
+            $trackOrder->user_id = Auth::id();
+            $trackOrder->save();
         }
 
         $user = User::find(Auth::id());

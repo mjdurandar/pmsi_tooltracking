@@ -123,7 +123,7 @@
         </div>
 
         <!-- RESTOCK MODAL -->
-        <ModalComponent :id="modalId" :title="modalTitle" :size="modalSize" :position="modalPosition">
+        <ModalComponent :id="modalIdRestock" :title="modalTitle" :size="modalSizeRestock" :position="modalPosition">
             <template #modalHeader>
                 <div class="m-auto">
                     <h4>Restock Product</h4>
@@ -132,15 +132,15 @@
             <template #modalBody>
                 <div class="row">
                     <div class="col-12">
-                        <label for="">Name</label>
-                        <input type="text" class="form-control" v-model="dataValues.name">
-                        <div class="text-danger" v-if="errors.name">{{ errors.name[0] }}</div>
+                        <label for="">How many Products?</label>
+                        <input type="number" class="form-control" v-model="dataValues.reStocked" min="0">
+                        <div class="text-danger" v-if="errors.reStocked">{{ errors.reStocked[0] }}</div>
                     </div>  
                 </div>
             </template>
             <template #modalFooter>
                 <div class="text-right">
-                    <button class="btn btn-success" v-on:click="storeData">Save</button>
+                    <button class="btn btn-success" v-on:click="addProduct">Confirm</button>
                 </div>
             </template>
         </ModalComponent>
@@ -515,6 +515,8 @@ export default{
                 modalIdCode : 'modal-product-code',
                 modalIdRelease : 'modal-product-release',
                 modalIdCancel : 'modal-product-cancel',
+                modalIdRestock : 'modal-product-restock',
+                modalSizeRestock : 'modal-sm',
                 modalSizeCode : 'modal-md',
                 modalSizeView : 'modal-lg',
                 modalTitle : 'Add a Product',
@@ -530,6 +532,12 @@ export default{
     methods: {
         refresh(){
             window.location.reload();
+        },
+        reStocked(props){
+            this.dataValues = props;
+            console.log(this.dataValues);
+            this.modalTitle = 'Restock Product';
+            $('#' + this.modalIdRestock).modal('show');
         },
         onFileChange(event) {
             const file = event.target.files[0];
@@ -775,10 +783,18 @@ export default{
         },
         addProduct() {
             if (this.validateForm()) {
-                // Proceed with adding the product
-                this.numberOfFields = parseInt(this.dataValues.stocks);
-                $('#' + this.modalIdCode).modal('show');
-                $('#' + this.modalId).modal('hide');
+                if(this.dataValues.reStocked)
+                {   
+                    this.numberOfFields = parseInt(this.dataValues.reStocked);
+                    $('#' + this.modalIdCode).modal('show');
+                    $('#' + this.modalIdRestock).modal('hide');
+                }
+                else{
+                    // Proceed with adding the product
+                    this.numberOfFields = parseInt(this.dataValues.stocks);
+                    $('#' + this.modalIdCode).modal('show');
+                    $('#' + this.modalId).modal('hide');
+                }
             }
         },
         storeData(){
@@ -803,6 +819,7 @@ export default{
             formData.append('material', this.dataValues.material);
             formData.append('stocks', this.dataValues.stocks);
             formData.append('price', this.dataValues.price);
+            formData.append('reStocked', this.dataValues.reStocked);
 
             const serialNumbers = [];
             for (let index = 1; index <= this.numberOfFields; index++) {    
@@ -829,6 +846,7 @@ export default{
                     this.getData();
                     $('#' + this.modalId).modal('hide');
                     $('#' + this.modalIdCode).modal('hide');
+                    $('#' + this.modalIdRestock).modal('hide');
                 }).catch(error => {
                     if (error.response) {
                         Swal.fire({

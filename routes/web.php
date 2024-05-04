@@ -101,6 +101,11 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('/users/destroy/{users}',[App\Http\Controllers\UsersController::class, 'destroy']);
         Route::post('/users/filterData',[App\Http\Controllers\UsersController::class, 'filterData']);
 
+        //TRACK ORDER
+        Route::get('/track-order',[App\Http\Controllers\TrackOrderController::class, 'index']);
+        Route::get('/track-order/show',[App\Http\Controllers\TrackOrderController::class, 'show']);
+        Route::post('/track-order/cancelOrder',[App\Http\Controllers\TrackOrderController::class, 'cancelOrder']);
+
         //ORDER
         Route::get('/order',[App\Http\Controllers\OrderController::class, 'index']);
         Route::get('/order/show',[App\Http\Controllers\OrderController::class, 'show']);
@@ -185,6 +190,8 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('profile/show', [App\Http\Controllers\ProfileController::class, 'show']);
         Route::post('profile/store', [App\Http\Controllers\ProfileController::class, 'store']);
 
+        //PRODUCTS AND CANCELED PRODUCTS
+
         Route::get('products', [App\Http\Controllers\ProductController::class, 'index']);
         Route::get('products/show', [App\Http\Controllers\ProductController::class, 'show']);
         Route::post('products/store', [App\Http\Controllers\ProductController::class, 'store']);
@@ -198,6 +205,10 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('canceled-product/show', [App\Http\Controllers\CanceledProductController::class, 'show']);
         Route::post('canceled-product/release', [App\Http\Controllers\CanceledProductController::class, 'release']);
         Route::post('canceled-product/filterData', [App\Http\Controllers\CanceledProductController::class, 'filterData']);
+
+        //ORDERED PRODUCTS
+        Route::get('ordered-products', [App\Http\Controllers\OrderedProductsController::class, 'index']);
+        Route::get('ordered-products/show', [App\Http\Controllers\OrderedProductsController::class, 'show']);
 
     });
 

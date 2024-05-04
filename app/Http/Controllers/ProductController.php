@@ -92,21 +92,38 @@ class ProductController extends Controller
                 $image->move(public_path('images'), $imageName);
                 $data->image = $imageName;
             }
+
+            // If restocked quantity is provided, update the stocks attribute
+            if ($request->reStocked) {
+                $data->stocks += intval($request->reStocked);
+            }
     
             $data->save();
-
-            // Delete existing serial numbers associated with the product
-            $data->serialNumbers()->delete();
-
+            
             // Decode the serial numbers from the request
             $serialNumbers = json_decode($request->serial_numbers);
 
-            // Store or update serial numbers associated with the product
+            // Iterate through the decoded serial numbers
             foreach ($serialNumbers as $serialNumber) {
-                $serial = new SerialNumber();
-                $serial->product_id = $data->id;
-                $serial->serial_number = $serialNumber;
-                $serial->save();
+                // Find the existing serial number associated with the product
+                $existingSerial = SerialNumber::where('product_id', $data->id)
+                                            ->where('serial_number', $serialNumber)
+                                            ->first();
+
+                // If the existing serial number is found, update it
+                if ($existingSerial) {
+                    // Update the existing serial number
+                    $existingSerial->update([
+                        'product_id' => $data->id,
+                        'serial_number' => $serialNumber,
+                    ]);
+                } else {
+                    // If not found, create a new serial number entry
+                    $serial = new SerialNumber();
+                    $serial->product_id = $data->id;
+                    $serial->serial_number = $serialNumber;
+                    $serial->save();
+                }
             }
             
             return response()->json(['message' => 'Product added successfully'], 200);

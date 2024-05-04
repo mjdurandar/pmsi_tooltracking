@@ -348,6 +348,12 @@ return [
             'can' => ['supplier'], 
             'url' => '/products' 
         ],
+        [
+            'text' => 'Orders',
+            'icon' => 'fa-solid fa-box-open', 
+            'can' => ['supplier'],  
+            'url'  => '/ordered-products',
+        ],
         // [
         //     'text'    => 'Orders',
         //     'icon'    => 'fa-solid fa-truck', 
@@ -428,6 +434,12 @@ return [
                 //     'url'  => '#',
                 // ],
             ],
+        ],
+        [
+            'text' => 'Track Orders',
+            'icon' => 'fa-solid fa-truck', 
+            'can' => ['admin'],  
+            'url'  => '/track-order',
         ],
         [
             'text' => 'Orders',
