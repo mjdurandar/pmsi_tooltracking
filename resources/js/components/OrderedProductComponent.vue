@@ -7,13 +7,18 @@
                     :data="data"
                     :columns="columns"
                     :options="options"
-                    :addButton="false"
+                    :addButton="true"
+                    btnName="Completed Order"
                     :option1Switch="false"
                     :option2Switch="false"
                     :option3Switch="true"
+                    addButtonColor="btn btn-success"
                     option3Name="Update Status"
                     option3Icon="fa fa-eye mr-2"
                     @optionalClicked="optionalClicked"
+                    :otherButton=true
+                    otherBtnName="Canceled Order"
+                    @otherClicked="canceledOrder"
                 >
                 </FormComponent>
             </div>
@@ -87,14 +92,14 @@ export default{
     data(){
         return{
                 data : [],
-                columns : ['brand_name', 'tool_name', 'type' ,'status' ,'action'],
+                columns : ['brand_name', 'tool_name' ,'status', 'ordered_at' ,'action'],
                 errors: [],
                 options : {
                     headings : {
                         brand_name : 'Brand',
                         tool_name : 'Tool',
-                        type : 'Type',
                         status : 'Status',
+                        ordered_at : 'Ordered At',
                         action : 'Action',
                     },
                     filterable: false,
@@ -131,6 +136,9 @@ export default{
         getData() {
             axios.get('/ordered-products/show').then(response => {
                 this.data = response.data.data;
+                this.data.forEach(item => {
+                    item.created_at = new Date(item.created_at).toLocaleString(); // Format to the user's locale
+                })
             })
         },
         clearInputs() {

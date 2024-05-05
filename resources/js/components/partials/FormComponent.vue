@@ -28,7 +28,7 @@
         <div>
             <div class="d-flex justify-content-end">
                 <div class="btn-position" v-if="addButton">
-                    <button class="btn btn-primary" @click="addClicked(props)">{{ btnName }}</button>
+                    <button :class="addButtonColor" @click="addClicked(props)">{{ btnName }}</button>
                 </div>
                 <div class="ml-2 btn-position" v-if="otherButton">
                     <button :class="buttonOptionColor" @click="otherClicked(props)">{{ otherBtnName }}</button>
@@ -164,6 +164,10 @@
             otherBtnName: {
                 type: String,
                 default: "Other"
+            },
+            addButtonColor: {
+                type: String,
+                default: "btn btn-primary"
             },
             buttonOptionColor: {
                 type: String,

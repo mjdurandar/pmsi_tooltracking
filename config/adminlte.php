@@ -354,6 +354,12 @@ return [
             'can' => ['supplier'],  
             'url'  => '/ordered-products',
         ],
+        [
+            'text' => 'Earnings',
+            'icon' => 'fa-solid fa-money-bill', 
+            'can' => ['supplier'],  
+            'url'  => '/',
+        ],
         // [
         //     'text'    => 'Orders',
         //     'icon'    => 'fa-solid fa-truck', 
@@ -436,41 +442,47 @@ return [
             ],
         ],
         [
-            'text' => 'Track Orders',
-            'icon' => 'fa-solid fa-truck', 
-            'can' => ['admin'],  
-            'url'  => '/track-order',
-        ],
-        [
             'text' => 'Orders',
             'icon' => 'fa-solid fa-cube',
             'can' => ['admin'],  
             'url'  => '/order',
         ],
         [
-            'text' => 'Returned Product', 
-            'icon' => 'fa-solid fa-people-carry-box',
+            'text'    => 'Products',
+            'icon'    => 'fa-solid fa-box',
             'can' => ['admin'], 
-            'url'  => '/returned-product',
+            'url' => '/admin-products' 
         ],
         [
-            'text' => 'Purhased History',
-            'icon'    => 'fa-solid fa-book',
-            'can' => ['admin'], 
-            'url'  => '/product-history',
+            'text' => 'Track Orders',
+            'icon' => 'fa-solid fa-truck', 
+            'can' => ['admin'],  
+            'url'  => '/track-order',
         ],
-        [
-            'text' => 'Canceled History',
-            'icon'    => 'fa-solid fa-x', 
-            'can' => ['admin'], 
-            'url'  => '/cancel-history',
-        ],
-        [  
-            'text' => 'Defective Products', 
-            'icon' => 'fa-regular fa-rectangle-xmark',
-            'can' => ['admin'], 
-            'url'  => '/defective-products',
-        ],
+        // [
+        //     'text' => 'Returned Product', 
+        //     'icon' => 'fa-solid fa-people-carry-box',
+        //     'can' => ['admin'], 
+        //     'url'  => '/returned-product',
+        // ],
+        // [
+        //     'text' => 'Purhased History',
+        //     'icon'    => 'fa-solid fa-book',
+        //     'can' => ['admin'], 
+        //     'url'  => '/product-history',
+        // ],
+        // [
+        //     'text' => 'Canceled History',
+        //     'icon'    => 'fa-solid fa-x', 
+        //     'can' => ['admin'], 
+        //     'url'  => '/cancel-history',
+        // ],
+        // [  
+        //     'text' => 'Defective Products', 
+        //     'icon' => 'fa-regular fa-rectangle-xmark',
+        //     'can' => ['admin'], 
+        //     'url'  => '/defective-products',
+        // ],
         [
             'text' => 'Buy Tools',
             'icon'    => 'fa-solid fa-cart-shopping', 
@@ -512,6 +524,12 @@ return [
             'icon' => 'fa-solid fa-circle-exclamation',
             'can' => ['user'], 
             'url'  => '/damaged-return',
+        ],
+        [ 
+            'text' => 'Receipts', 
+            'icon' => 'fa-solid fa-receipt',
+            'can' => ['admin'], 
+            'url'  => '/admin-receipts',
         ],
         [
             'text' => 'Add Balance',

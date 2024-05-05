@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AdminHistory;
+use App\Models\OrderedProducts;
 use App\Models\Product;
 use App\Models\SerialNumber;
 use Illuminate\Http\Request;
@@ -110,6 +111,15 @@ class SupplierController extends Controller
             $trackOrder->unique_id = $uniqueId;
             $trackOrder->user_id = Auth::id();
             $trackOrder->save();
+
+            $orderedProduct = new OrderedProducts();
+            $orderedProduct->tools_and_equipment_id = $request->id;
+            $orderedProduct->user_id = Auth::id();
+            $orderedProduct->status = 'Pending';
+            $orderedProduct->track_orders_id = $trackOrder->id;
+            $orderedProduct->is_completed = false;
+            $orderedProduct->is_canceled = false;
+            $orderedProduct->save();
         }
 
         $user = User::find(Auth::id());

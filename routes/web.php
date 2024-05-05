@@ -30,7 +30,8 @@ Route::group(['middleware' => 'auth'], function(){
     Route::get('home', function () {
         return view('home');
     });
-
+    
+    Route::get('/qr/{id}',[App\Http\Controllers\QRController::class, 'index']);
     // Route::get('/powertools/show',[App\Http\Controllers\PowerToolsController::class, 'show']);
 
     // Route::get('/buyinghistory',[App\Http\Controllers\BuyToolsController::class, 'history']);
@@ -101,10 +102,18 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('/users/destroy/{users}',[App\Http\Controllers\UsersController::class, 'destroy']);
         Route::post('/users/filterData',[App\Http\Controllers\UsersController::class, 'filterData']);
 
+        // ADMIN PRODUCTS
+        Route::get('/admin-products',[App\Http\Controllers\AdminProductsController::class, 'index']);
+        Route::get('/admin-products/show',[App\Http\Controllers\AdminProductsController::class, 'show']);
+
         //TRACK ORDER
         Route::get('/track-order',[App\Http\Controllers\TrackOrderController::class, 'index']);
         Route::get('/track-order/show',[App\Http\Controllers\TrackOrderController::class, 'show']);
         Route::post('/track-order/cancelOrder',[App\Http\Controllers\TrackOrderController::class, 'cancelOrder']);
+
+        //CANCELED ORDER
+        Route::get('/canceled-order',[App\Http\Controllers\CanceledOrderController::class, 'index']);
+        Route::get('/canceled-order/show',[App\Http\Controllers\CanceledOrderController::class, 'show']);
 
         //ORDER
         Route::get('/order',[App\Http\Controllers\OrderController::class, 'index']);
@@ -138,7 +147,6 @@ Route::group(['middleware' => 'auth'], function(){
     Route::middleware(['CheckRole:user'])->group(function() {
 
         //QR REDIRECT
-        Route::get('/qr/{id}',[App\Http\Controllers\QRController::class, 'index']);
         // Route::get('/qr/show/',[App\Http\Controllers\QRController::class, 'show']);
 
         // Route::get('/',[App\Http\Controllers\BuyToolsController::class, 'index']);
