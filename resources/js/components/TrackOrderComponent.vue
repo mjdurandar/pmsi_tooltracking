@@ -17,9 +17,12 @@
                     :option3Switch="true"
                     option3Icon="fa-solid fa-eye"
                     option3Name=""
-                    :addButton="false"
+                    :addButton="true"
+                    addButtonColor="btn btn-success"
+                    btnName="Completed"
                     :otherButton=true
-                    otherBtnName="Canceled Order"
+                    otherBtnName="Canceled"
+                    @addClicked="completedOrder"
                     @deleteClicked="cancelOrderReason"
                     @editClicked="generateQrCode"
                     @optionalClicked="viewOrder"
@@ -57,7 +60,6 @@
         <ModalComponent :id="modalIdView" :title="modalTitle" :size="modalSizeView" :position="modalPosition">
             <template #modalHeader>
                 <div class="m-auto">
-                    <h4>View your Product</h4>
                 </div>
             </template>
             <template #modalBody>
@@ -68,6 +70,9 @@
                     <div class="col-6">
                         <p>
                             <b>{{ this.dataValues.brand_name }} {{ this.dataValues.tool_name }}</b> with the voltage of {{ this.dataValues.voltage }}, dimension of {{ this.dataValues.dimensions }}, weight of {{ this.dataValues.weight }} and powerSources of {{ this.dataValues.powerSources }}.
+                        </p>
+                        <p>
+                            With a total of: <b>₱{{ this.dataValues.total_price }}</b>
                         </p>
                         <p>
                             You ordered it At : <b>{{this.dataValues.created_at}}</b>
@@ -89,7 +94,6 @@
         <ModalComponent :id="modalIdCancel" :title="modalTitle" :size="modalSizeView" :position="modalPosition">
             <template #modalHeader>
                 <div class="m-auto">
-                    <h4>Cancel Order</h4>
                 </div>
             </template>
             <template #modalBody>
@@ -175,9 +179,8 @@ export default{
         BreadCrumbComponent,
     },
     methods: {
-        addClicked(props){
-            $('#' + this.modalId).modal('show');
-            this.clearInputs();
+        completedOrder(){
+            window.location.href = '/completed-order-admin';
         },
         getData() {
             axios.get('/track-order/show').then(response => {

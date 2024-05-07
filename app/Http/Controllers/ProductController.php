@@ -138,7 +138,7 @@ class ProductController extends Controller
 
         $product = Product::findOrFail($product->id);
         $serialNumbers = $product->serialNumbers()->pluck('serial_number')->toArray();
-        $productCodes = $product->productCodes()->pluck('product_code')->toArray();
+
         
         return response()->json([
             'data' => $product,

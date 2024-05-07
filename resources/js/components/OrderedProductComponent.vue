@@ -8,16 +8,19 @@
                     :columns="columns"
                     :options="options"
                     :addButton="true"
-                    btnName="Completed Order"
-                    :option1Switch="false"
+                    btnName="Completed"
+                    :option1Switch="true"
                     :option2Switch="false"
                     :option3Switch="true"
+                    option1Name="Check Order"
                     addButtonColor="btn btn-success"
                     option3Name="Update Status"
                     option3Icon="fa fa-eye mr-2"
+                    @editClicked="checkOrder"
                     @optionalClicked="optionalClicked"
+                    @addClicked="completedOrder"
                     :otherButton=true
-                    otherBtnName="Canceled Order"
+                    otherBtnName="Canceled"
                     @otherClicked="canceledOrder"
                 >
                 </FormComponent>
@@ -66,14 +69,45 @@
                     </div>  
                     <div class="col-12">
                         <label for="">Deliver to this Location: </label>
-                        <input type="text" class="form-control" v-model="dataValues.location" disabled>
+                        <textarea ype="text" class="form-control" v-model="dataValues.location" disabled></textarea>
                     </div>  
                 </div>
             </template>
             <template #modalFooter>
                 <div class="text-right">
-                    <button class="btn btn-success" v-on:click="storeData">Update</button>
+                    <button class="btn btn-success" v-on:click="updateStatus">Update</button>
                 </div>
+            </template>
+        </ModalComponent>
+
+        <ModalComponent :id="modalIdCheckOrder" :title="modalTitle" :size="modalIdCheckOrderSize" :position="modalPosition">
+            <template #modalHeader>
+                <div class="m-auto">
+                    <h4>Ordered Product</h4>
+                </div>
+            </template>
+            <template #modalBody>
+                <div class="row">
+                    <div class="col-6 text-center m-auto" v-if="dataValues.image">
+                        <img :src="'/images/' + dataValues.image" alt="Current Image" class="img-fluid" style="height:300px;">
+                    </div>
+                    <div class="col-6">
+                        <p>
+                            <b>{{ this.dataValues.brand_name }} {{ this.dataValues.tool_name }}</b> with the voltage of {{ this.dataValues.voltage }}, dimension of {{ this.dataValues.dimensions }}, weight of {{ this.dataValues.weight }} and powerSources of {{ this.dataValues.powerSources }}.
+                        </p>
+                        <p>
+                            The User ordered a total of <b>{{ this.dataValues.serial_numbers_count }}</b> product(s) with the total price of <b>₱{{ this.dataValues.total_price }}.</b>
+                        </p>
+                        <p>
+                            The Price of : <b>₱{{ this.dataValues.total_price }}</b> is already credited to your Account.
+                        </p>
+                        <p>
+                            Please ship the product to the following address: <b>{{ this.dataValues.location }}</b>
+                        </p>
+                    </div>
+                </div>
+            </template>
+            <template #modalFooter>
             </template>
         </ModalComponent>
 
@@ -109,9 +143,11 @@ export default{
                     name: '',
                 },
                 modalId : 'modal-unit',
+                modalIdCheckOrder : 'modal-check-order',
                 modalTitle : 'Unit',
                 modalPosition: 'modal-dialog-centered',
                 modalSize : 'modal-md',
+                modalIdCheckOrderSize : 'modal-lg',
         }
     },
     components: {
@@ -133,6 +169,17 @@ export default{
             $('#' + this.modalId).modal('show');
             this.clearInputs();
         },
+        completedOrder(){
+            window.location.href = '/completed-ordered-products';
+        },
+        canceledOrder(){
+            window.location.href = '/canceled-ordered-products';
+        },
+        checkOrder(props){
+            this.dataValues = props.data;
+            this.modalTitle= 'View Order';
+            $('#' + this.modalIdCheckOrder).modal('show');
+        },
         getData() {
             axios.get('/ordered-products/show').then(response => {
                 this.data = response.data.data;
@@ -140,6 +187,28 @@ export default{
                     item.created_at = new Date(item.created_at).toLocaleString(); // Format to the user's locale
                 })
             })
+        },
+        validateForm() {
+            this.errors = [];
+
+            if (!this.dataValues.shipment_date) {
+                this.errors.shipment_date = ['Shipment Date is required'];
+            }
+
+            if (!this.dataValues.delivery_date) {
+                this.errors.delivery_date = ['Delivery Date is required'];
+            }
+
+            if (!this.dataValues.status_data) {
+                this.errors.status_data = ['Status is required'];
+            }
+
+            // Check if any errors are present
+            if (Object.keys(this.errors).length > 0) {
+                return false; // Validation failed
+            }
+
+            return true; // Validation passed
         },
         clearInputs() {
             this.dataValues = {
@@ -152,8 +221,9 @@ export default{
             this.modalTitle= 'View Order';
             $('#' + this.modalId).modal('show');
         },
-        storeData() {
-                axios.post('/order/store', this.dataValues).then(response => {
+        updateStatus() {
+            if (this.validateForm()) {
+                axios.post('/ordered-products/updateStatus', this.dataValues).then(response => {
                     if(response.status === 200) {
                         Swal.fire({
                             title: "Success",
@@ -167,7 +237,8 @@ export default{
                 })
                 .catch(errors => {
                         this.errors = errors.response.data.errors;
-                })
+                });
+            }
             },
         },
         mounted() {

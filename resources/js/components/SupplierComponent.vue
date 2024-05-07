@@ -118,7 +118,7 @@
                         <label for="">Supplier</label>
                         <input type="text" class="form-control" v-model="dataValues.supplier_name" disabled>
                     </div>
-                    <div class="col-12">
+                    <div class="col-6">
                         <label for="">Price per pc</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
@@ -127,18 +127,31 @@
                             <input type="text" class="form-control" v-model="dataValues.price" disabled>
                         </div>
                     </div>  
-                    <div class="col-12">
+                    <div class="col-6">
+                        <label for="">12% Vat</label>
+                        <input type="number" class="form-control" v-model="vat" disabled>
+                    </div>
+                    <div class="col-6">
                         <label for="">How many?</label>
                         <input type="number" class="form-control" v-model="requestedItems" @input="calculateTotal" min="0">
                         <div class="text-danger" v-if="errors.requestedItems">{{ errors.requestedItems[0] }}</div>
                     </div>  
-                    <div class="col-12">
+                    <div class="col-6">
                         <label for="">Total</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text">₱</span>
                             </div>
                             <input type="text" class="form-control" v-model="total" disabled>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <label for="">Grand Total including 12% Vat</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">₱</span>
+                            </div>
+                            <input type="text" class="form-control" v-model="vatTotal" disabled>
                         </div>
                     </div>
                 </div>
@@ -307,6 +320,7 @@ export default{
                 selectedSpecs : '',
                 requestedItems : '',
                 userLocation : [],
+                vat: 12,
                 selectedSerialNumbers : [],
                 serialNumbers: [],
                 selectedIndexes: [],
@@ -445,7 +459,7 @@ export default{
         yesProduct() {
             this.selectedIndexes.length = 0;
             if (this.validateForm()) {
-                if(this.requestedItems >= this.dataValues.stocks){
+                if(this.requestedItems > this.dataValues.stocks){
                     Swal.fire({
                             title: "Insufficient Stocks!",
                             icon: 'warning',
@@ -467,7 +481,7 @@ export default{
                     const requestData = {
                         id: this.dataValues.id,
                         requestedItems: this.requestedItems,
-                        total: this.total
+                        total: this.vatTotal
                     }
                     this.requestData = requestData;
                     $('#' + this.modalIdPurchaseProduct).modal('hide');
@@ -480,10 +494,12 @@ export default{
         },
         calculateTotal() {
             this.total = this.requestedItems * this.dataValues.price;
+
+            this.vatTotal = this.total + (this.total * (this.vat / 100));
         },
         getProduct(){
             this.requestedItems = 0;
-            this.total = 0;
+            this.vatTotal = 0;
             this.agreementChecked = false;
             this.requestData.selectedSerialNumbers = this.selectedSerialNumbers;
             axios.post('/supplier/purchaseProduct', this.requestData)

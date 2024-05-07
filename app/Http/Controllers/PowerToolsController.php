@@ -21,14 +21,12 @@ class PowerToolsController extends Controller
     }
     
     public function show(){
-        $data = ToolsAndEquipment::leftjoin('categories', 'tools_and_equipment.category_id', '=', 'categories.id')
-                                ->leftjoin('products', 'tools_and_equipment.product_id', '=', 'products.id')
-                                ->leftjoin('users', 'users.id', '=', 'products.user_id')
-                                ->select('tools_and_equipment.*', 'categories.name as category_name', 'products.brand as product_brand', 'products.tool as product_tool', 
-                                'products.image as product_image', 'products.powerSources as product_powerSources', 'products.voltage as product_voltage',
-                                'products.weight as product_weight', 'products.dimensions as product_dimensions', 'products.material as product_material', 'users.name as supplier_name')
-                                ->where('tools_and_equipment.is_delivered', true)
-                                ->get();
+
+        $data = ToolsAndEquipment::leftjoin('products', 'products.id', 'tools_and_equipment.product_id')
+                                    ->leftjoin('categories', 'categories.id', 'tools_and_equipment.category_id')
+                                    ->select('tools_and_equipment.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as image', 'categories.name as category_name'
+                                    ,'products.powerSources as powerSources', 'products.voltage as voltage', 'products.weight as weight', 'products.dimensions as dimensions', 'products.material as material')
+                                    ->get();
 
         $categories = Category::get();
 
@@ -84,11 +82,7 @@ class PowerToolsController extends Controller
 
     public function releaseProduct(ToolsAndEquipment $toolsAndEquipment){
         
-        $toolsAndEquipment = ToolsAndEquipment::leftjoin('categories', 'tools_and_equipment.category_id', '=', 'categories.id')
-                                ->leftjoin('suppliers', 'tools_and_equipment.supplier_id', '=', 'suppliers.id')
-                                ->select('tools_and_equipment.*', 'categories.name as category_name', 'suppliers.name as supplier_name')
-                                ->where('tools_and_equipment.id', $toolsAndEquipment->id)
-                                ->first();
+
 
         return response()->json(['data' => $toolsAndEquipment]);
     }

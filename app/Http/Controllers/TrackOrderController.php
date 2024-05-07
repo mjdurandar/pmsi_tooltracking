@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\CanceledOrder;
-use App\Models\ToolsAndEquipment;
+use App\Models\Product;
+use App\Models\SerialNumber;
 use App\Models\TrackOrder;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class TrackOrderController extends Controller
@@ -15,51 +17,58 @@ class TrackOrderController extends Controller
 
     public function show()
     {
-        $data = TrackOrder::leftJoin('tools_and_equipment', function($join) {
-            $join->on('tools_and_equipment.id', '=', 'track_orders.tools_and_equipment_id');
-        })
-        ->leftJoin('products', function($join) {
-            $join->on('products.id', '=', 'tools_and_equipment.product_id');
-        })
-        ->leftJoin('users', function($join) {
-            $join->on('users.id', '=', 'products.user_id');
-        })
-        ->leftJoin('serial_numbers', function($join) {
-            $join->on('serial_numbers.id', '=', 'tools_and_equipment.serial_number_id');
-        })
-        ->select('track_orders.*', 'products.brand as brand_name', 'products.tool as tool_name', 'serial_numbers.serial_number as serial_number',
-            'products.image as image', 'users.name as supplier_name', 'users.location as supplier_location', 'products.voltage as voltage',
-            'products.powerSources as powerSources', 'products.weight as weight', 'products.dimensions as dimensions', 'products.material as material')
-        ->where('track_orders.is_canceled', false) 
-        ->whereIn('track_orders.id', function($query) {
-            $query->selectRaw('MIN(id)')
-                  ->from('track_orders')
-                  ->groupBy('created_at');
-        })
-        ->get();
-    
-    
+        $data = TrackOrder::leftjoin('products', 'track_orders.product_id', '=', 'products.id')
+            ->select('track_orders.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as image',
+            'products.voltage as voltage', 'products.dimensions as dimensions', 'products.weight as weight', 'products.powerSources as powerSources')
+            ->where('track_orders.is_canceled', false)
+            ->where('track_orders.is_completed', false)
+            ->get();
 
         return response()->json([ 'data' => $data, ]);
     }
 
     public function cancelOrder(Request $request)
     {   
+        //UPDATE THE TRACK ORDER DATA TO CANCELED
+        $trackOrder = TrackOrder::find($request->id);
 
-        $trackOrder = TrackOrder::findOrFail($request->id);
-        if($trackOrder->status === 'Pending'){
+        if($trackOrder->status == 'Pending'){
+            $trackOrder->status = 'Canceled';
             $trackOrder->is_canceled = true;
             $trackOrder->save();
     
+            //ADD THE DATA OF CANCLED ORDER TO CANCELED ORDER TABLE
             $canceledOrder = new CanceledOrder();
             $canceledOrder->track_order_id = $trackOrder->id;
             $canceledOrder->reason = $request->reason;
             $canceledOrder->save();
-        
+    
+            //UPDATE THE SERIAL NUMBER DATA TO AVAILABLE
+            $serialNumbers = json_decode($trackOrder->serial_numbers, true);
+            // Iterate through each serial number and update its status to available
+            foreach ($serialNumbers as $serialNumber) {
+                $serial = SerialNumber::where('serial_number', $serialNumber)->first();
+                if ($serial) {
+                    $serial->is_selected = false;
+                    $serial->save();
+                }
+            }
+            // UPDATE THE STOCKS OF THE PRODUCT
+            $product = Product::find($trackOrder->product_id);
+            $product->stocks += count($serialNumbers);
+            $product->save();
+    
+            // UPDATE THE BALANCE OF THE USER
+            $userBalance = User::find($trackOrder->user_id);
+            $userBalance->balance += $trackOrder->total_price;
+            $userBalance->save();
             return response()->json(['status' => 'success', 'message' => 'Order has been Canceled']);
         }
-        
-        return response()->json(['status' => 'error', 'message' => 'Order cannot be canceled']);
-     
+        else{
+            return response()->json(['status' => 'warning', 'message' => 'Order cannot be canceled because it is already '.$trackOrder['status']]);
+        }
     }
+    
+    
+    
 }

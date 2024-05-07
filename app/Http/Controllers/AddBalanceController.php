@@ -48,7 +48,7 @@ class AddBalanceController extends Controller
         $addbalance->card_number = $request->card_number;
         $addbalance->total_balance = $request->balance;
         $addbalance->card_type = $request->card_type; // Use payment method from request
-        $addbalance->description = 'You Cash In ₱' . $request->balance . ' to your ' . $request->card_type . ' account';
+        $addbalance->description = 'You Cash In ₱' . $request->balance . ' using your ' . $request->card_type . ' account';
         $addbalance->save();
     
         return response()->json(['message' => 'Success'], 200);

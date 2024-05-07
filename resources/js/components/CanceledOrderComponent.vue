@@ -44,6 +44,9 @@
                         <p>
                             Reason : <b>{{this.dataValues.reason}}</b>
                         </p>
+                        <p>
+                            The Price of : <b>₱{{ this.dataValues.total_price }}</b> is already credited to your Account.
+                        </p>
                     </div>
                 </div>
             </template>

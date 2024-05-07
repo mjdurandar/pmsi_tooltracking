@@ -105,11 +105,20 @@ Route::group(['middleware' => 'auth'], function(){
         // ADMIN PRODUCTS
         Route::get('/admin-products',[App\Http\Controllers\AdminProductsController::class, 'index']);
         Route::get('/admin-products/show',[App\Http\Controllers\AdminProductsController::class, 'show']);
+        Route::post('/admin-products/returnProduct',[App\Http\Controllers\AdminProductsController::class, 'returnProduct']);
+        Route::get('/admin-returned-product',[App\Http\Controllers\AdminProductsController::class, 'returnedProductIndex']);
+        Route::get('/admin-returned-product/returnedProductShow',[App\Http\Controllers\AdminProductsController::class, 'returnedProductShow']);
+        Route::post('/admin-products/approvedProduct',[App\Http\Controllers\AdminProductsController::class, 'approvedProduct']);
+
 
         //TRACK ORDER
         Route::get('/track-order',[App\Http\Controllers\TrackOrderController::class, 'index']);
         Route::get('/track-order/show',[App\Http\Controllers\TrackOrderController::class, 'show']);
         Route::post('/track-order/cancelOrder',[App\Http\Controllers\TrackOrderController::class, 'cancelOrder']);
+
+        //COMPLETED ORDER
+        Route::get('/completed-order-admin',[App\Http\Controllers\CompletedOrderAdminController::class, 'index']);
+        Route::get('/completed-order-admin/show',[App\Http\Controllers\CompletedOrderAdminController::class, 'show']);
 
         //CANCELED ORDER
         Route::get('/canceled-order',[App\Http\Controllers\CanceledOrderController::class, 'index']);
@@ -217,7 +226,12 @@ Route::group(['middleware' => 'auth'], function(){
         //ORDERED PRODUCTS
         Route::get('ordered-products', [App\Http\Controllers\OrderedProductsController::class, 'index']);
         Route::get('ordered-products/show', [App\Http\Controllers\OrderedProductsController::class, 'show']);
-
+        Route::get('completed-ordered-products', [App\Http\Controllers\OrderedProductsController::class, 'completedIndex']);
+        Route::get('completed-ordered-products/completedShow', [App\Http\Controllers\OrderedProductsController::class, 'completedShow']);
+        Route::get('canceled-ordered-products', [App\Http\Controllers\OrderedProductsController::class, 'canceledIndex']);
+        Route::get('canceled-ordered-products/canceledShow', [App\Http\Controllers\OrderedProductsController::class, 'canceledShow']);
+        Route::post('ordered-products/updateStatus', [App\Http\Controllers\OrderedProductsController::class, 'updateStatus']);
+        
     });
 
 });

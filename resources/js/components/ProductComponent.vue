@@ -170,9 +170,9 @@
                             <option value="Ridgid">Ridgid</option>
                             <option value="Metabo">Metabo</option>
                             <option value="Ryobi">Ryobi</option>
-                            <option value="Other">Other</option>
+                            <!-- <option value="Other">Other</option> -->
                         </select>
-                        <input type="text" v-if="dataValues.brand === 'Other'" v-model="dataValues.other_brand" class="form-control mt-2" placeholder="Enter other brand">
+                        <!-- <input type="text" v-if="dataValues.brand === 'Other'" v-model="dataValues.other_brand" class="form-control mt-2" placeholder="Enter other brand"> -->
                         <div class="text-danger" v-if="errors.brand">{{ errors.brand[0] }}</div>
                     </div>  
                     <div class="col-lg-6">
@@ -184,10 +184,10 @@
                             <option value="Grinder">Grinder</option>
                             <option value="Jigsaw">Jigsaw</option>
                             <option value="Saw">Saw</option>
-                            <option value="Other">Other</option>
+                            <!-- <option value="Other">Other</option> -->
                         </select>
                         <input type="text" v-if="dataValues.tool === 'Other'" v-model="dataValues.other_tool" class="form-control mt-2" placeholder="Enter other tool">
-                        <div class="text-danger" v-if="errors.tool">{{ errors.tool[0] }}</div>
+                        <!-- <div class="text-danger" v-if="errors.tool">{{ errors.tool[0] }}</div> -->
                     </div>
                     <div class="col-12">
                         <label for="image" v-if="!viewMode">Image</label>
@@ -221,9 +221,9 @@
                             <option value="110 Volts">110 Volts</option>
                             <option value="120 Volts">120 Volts</option>
                             <option value="210 Volts">210 Volts</option>
-                            <option value="Other">Other</option>
+                            <!-- <option value="Other">Other</option> -->
                         </select>
-                        <input type="text" v-if="dataValues.voltage === 'Other'" v-model="dataValues.other_voltage" class="form-control mt-2" placeholder="Enter Voltage">
+                        <!-- <input type="text" v-if="dataValues.voltage === 'Other'" v-model="dataValues.other_voltage" class="form-control mt-2" placeholder="Enter Voltage"> -->
                         <div class="text-danger" v-if="errors.voltage">{{ errors.voltage[0] }}</div>
                     </div>
                     <div class="col-lg-6">
@@ -235,9 +235,9 @@
                             <option value="8kg">8kg</option>
                             <option value="10kg">10kg</option>
                             <option value="12kg">12kg</option>
-                            <option value="Other">Other</option>
+                            <!-- <option value="Other">Other</option> -->
                         </select>
-                        <input type="text" v-if="dataValues.weight === 'Other'" v-model="dataValues.other_weight" class="form-control mt-2" placeholder="Enter Weight">
+                        <!-- <input type="text" v-if="dataValues.weight === 'Other'" v-model="dataValues.other_weight" class="form-control mt-2" placeholder="Enter Weight"> -->
                         <div class="text-danger" v-if="errors.weight">{{ errors.weight[0] }}</div>
                     </div>
                     <div class="col-lg-6">
@@ -248,9 +248,9 @@
                             <option value="30 x 40 x 36">30 x 40 x 36</option>
                             <option value="15 x 20 x 12">15 x 20 x 12</option>
                             <option value="24 x 70 x 20">24 x 70 x 20</option>
-                            <option value="Other">Other</option>
+                            <!-- <option value="Other">Other</option> -->
                         </select>
-                        <input type="text" v-if="dataValues.dimensions === 'Other'" v-model="dataValues.other_dimensions" class="form-control mt-2" placeholder="Enter Dimensions">
+                        <!-- <input type="text" v-if="dataValues.dimensions === 'Other'" v-model="dataValues.other_dimensions" class="form-control mt-2" placeholder="Enter Dimensions"> -->
                         <div class="text-danger" v-if="errors.dimensions">{{ errors.dimensions[0] }}</div>
                     </div>
                     <div class="col-lg-6">
@@ -264,14 +264,14 @@
                             <option value="Carbon Fiber">Carbon Fiber</option>
                             <option value="Ceramic">Ceramic</option>
                             <option value="Composite Materials">Composite Materials</option>
-                            <option value="Other">Other</option>
+                            <!-- <option value="Other">Other</option> -->
                         </select>
                         <input type="text" v-if="dataValues.material === 'Other'" v-model="dataValues.other_material" class="form-control mt-2" placeholder="Enter Material">
-                        <div class="text-danger" v-if="errors.dimensions">{{ errors.dimensions[0] }}</div>
+                        <!-- <div class="text-danger" v-if="errors.dimensions">{{ errors.dimensions[0] }}</div> -->
                     </div>
                     <div class="col-12 mt-2">
                         <label for="">Stocks</label>
-                        <input type="number" class="form-control" v-model="dataValues.stocks" :disabled="viewMode">
+                        <input type="number" class="form-control" v-model="dataValues.stocks" :disabled="viewMode" min="0">
                         <div class="text-danger" v-if="errors.stocks">{{ errors.stocks[0] }}</div>
                     </div>
                     <div class="col-12">

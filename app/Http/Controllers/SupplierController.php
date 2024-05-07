@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AdminHistory;
+use App\Models\Order;
 use App\Models\OrderedProducts;
 use App\Models\Product;
 use App\Models\SerialNumber;
@@ -79,105 +80,45 @@ class SupplierController extends Controller
     }
 
     public function purchaseProduct(Request $request) {
-        $uniqueId = mt_rand(100000, 999999);
-
-        $selectedSerialNumbers = $request->selectedSerialNumbers;
-        $serialNumbers = SerialNumber::whereIn('serial_number', $selectedSerialNumbers)->get();
         
-        foreach ($serialNumbers as $serialNumber) {
-            $serialNumber->is_selected = true;
-            $serialNumber->save();
+        $selectedSerialNumbers = $request->selectedSerialNumbers;
+        $serializedSerialNumbers = json_encode($selectedSerialNumbers);
 
-            $product = Product::find($serialNumber->product_id);
-            $product->stocks -= 1;
-            $product->save();
+        //THE ORDER WILL BE TRACKED
+        $trackOrder = new TrackOrder();
+        $trackOrder->status = 'Pending';
+        $trackOrder->product_id = $request->id;
+        $trackOrder->serial_numbers = $serializedSerialNumbers;
+        $trackOrder->total_price = $request->total;
+        $trackOrder->user_id = Auth::id();
+        $trackOrder->save();
 
-            $user = User::find($product->user_id);
-      
-            $toolsAndEquipment = new ToolsAndEquipment();
-            $toolsAndEquipment->product_id = $request->id;
-            $toolsAndEquipment->stocks = 1;
-            $toolsAndEquipment->category_id = 1;
-            $toolsAndEquipment->price = 0;
-            $toolsAndEquipment->supplier_name = $user->name;
-            $toolsAndEquipment->is_approved = 0;
-            $toolsAndEquipment->serial_number_id = $serialNumber->id;
-            $toolsAndEquipment->is_delivered = 0;
-            $toolsAndEquipment->save();
+        // THE PRODUCTS STOCKS WILL BE DEDUCTED
+        $product = Product::find($request->id);
+        $product->stocks -= count($selectedSerialNumbers);
+        $product->save();
 
-            $trackOrder = new TrackOrder();
-            $trackOrder->tools_and_equipment_id = $toolsAndEquipment->id;
-            $trackOrder->status = 'Pending';
-            $trackOrder->unique_id = $uniqueId;
-            $trackOrder->user_id = Auth::id();
-            $trackOrder->save();
-
-            $orderedProduct = new OrderedProducts();
-            $orderedProduct->tools_and_equipment_id = $request->id;
-            $orderedProduct->user_id = Auth::id();
-            $orderedProduct->status = 'Pending';
-            $orderedProduct->track_orders_id = $trackOrder->id;
-            $orderedProduct->is_completed = false;
-            $orderedProduct->is_canceled = false;
-            $orderedProduct->save();
-        }
-
+        //THE USER BALANCE WILL BE DEDUCTED
         $user = User::find(Auth::id());
         $user->balance -= $request->total;
         $user->save();
-        
 
-        // $user_id = Auth::id();
-        // $user = User::findOrFail($user_id);
-        
-        // $product = Product::findOrFail($request->id);
-        // $product->stocks -= $request->requestedItems;
+        //THE ORDERED PRODUCTS WILL SAVE IN SUPPLIER SIDE
+        $orderedProduct = new OrderedProducts();
+        $orderedProduct->user_id = Auth::id();
+        $orderedProduct->track_orders_id = $trackOrder->id;
+        // $orderedProduct->is_completed = false;
+        // $orderedProduct->is_canceled = false;
+        $orderedProduct->shipment_date = '00/00/0000';
+        $orderedProduct->delivery_date = '00/00/0000';
+        $orderedProduct->save();
 
-        // $serialNumbers = SerialNumber::where('product_id',$request->id)->get();
-
-        // if($product->stocks <= 0)
-        // {
-        //     return response()->json(['error' => 'Low Stocks'], 400);
-        // }
-
-        // $requestedItems = $request->requestedItems;
-        // $productId = $request->id;
-        // $total = $request->total; 
-
-        // $remaining_balance = $user->balance - $total;
-
-        // if ($remaining_balance >= 0) {
-        //     $product = Product::findOrFail($productId);
-        //     $user->balance = $remaining_balance;
-        //     $user->save();
-        //     for ($i = 0; $i < $requestedItems; $i++) {
-        //         $productCode = 'P-' . str_pad(ToolsAndEquipment::count() + 1, 3, '0', STR_PAD_LEFT);
-        //         $tool = new ToolsAndEquipment();
-        //         $tool->product_code = $productCode;
-        //         $tool->product_id = $productId;
-        //         $tool->price = 0;
-        //         $tool->stocks =  1; 
-        //         $tool->is_approved = 0;
-        //         $tool->save();
-        //     }
-    
-        //     $history = new AdminHistory();
-        //     $history->tools_and_equipment_id = $tool->id;
-        //     $history->items = $requestedItems;
-        //     $history->total_price = $total;
-        //     $history->user_id = $user->id;
-        //     $history->status = 'Unrealeased';
-            
-        //     $history->save();
-    
-        //     $product->decrement('stocks', $requestedItems);
-
-        //     return response()->json(['message' => 'Products Requested Successfully'], 200);
-
-        // } else {
-        //     // Return response indicating insufficient funds
-        //     return response()->json(['error' => 'Insufficient funds'], 400);
-        // }
+        //THE SERIAL NUMBERS WILL BE SELECTED
+        foreach ($selectedSerialNumbers as $selectedSerialNumber) {
+            $serialNumber = SerialNumber::where('serial_number', $selectedSerialNumber)->first();
+            $serialNumber->is_selected = true;
+            $serialNumber->save();
+        }
     
     }
     

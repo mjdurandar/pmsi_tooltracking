@@ -50,6 +50,10 @@ import TrackOrderComponent from './components/TrackOrderComponent.vue';
 import OrderedProductComponent from './components/OrderedProductComponent.vue';
 import CanceledOrderComponent from './components/CanceledOrderComponent.vue';
 import AdminProductsComponent from './components/AdminProductsComponent.vue';
+import CompletedOrderAdminComponent from './components/CompletedOrderAdminComponent.vue';
+import CompletedOrderedProductComponent from './components/CompletedOrderedProductComponent.vue';
+import CanceledOrderedProductComponent from './components/CanceledOrderedProductComponent.vue';
+import AdminReturnedProductComponent from './components/AdminReturnedProductComponent.vue';
 
 app.config.globalProperties.$swal = Swal;
 app.use(ServerTable, {}, 'bootstrap4')
@@ -89,6 +93,10 @@ app.component('track-order-component', TrackOrderComponent);
 app.component('ordered-product-component', OrderedProductComponent);
 app.component('canceled-order-component', CanceledOrderComponent);
 app.component('admin-products-component', AdminProductsComponent);
+app.component('completed-order-admin-component', CompletedOrderAdminComponent);
+app.component('completed-ordered-product-component', CompletedOrderedProductComponent);
+app.component('canceled-ordered-product-component', CanceledOrderedProductComponent);
+app.component('admin-returned-product-component', AdminReturnedProductComponent);
 
 /**
  * The following block of code may be used to automatically register your

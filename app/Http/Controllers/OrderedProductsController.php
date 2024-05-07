@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CanceledOrder;
+use App\Models\CompletedOrderAdmin;
 use App\Models\OrderedProducts;
-use App\Models\ToolsAndEquipment;
+use App\Models\TrackOrder;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use function Laravel\Prompts\select;
 
 class OrderedProductsController extends Controller
 {
@@ -13,46 +18,110 @@ class OrderedProductsController extends Controller
         return view('supplier.ordered-product');
     }
 
+    public function completedIndex()
+    {
+        return view('supplier.completed-ordered-product');
+    }
+
+    public function canceledIndex()
+    {
+        return view('supplier.canceled-ordered-product');
+    }
+
     public function show()
     {   
-        $data = OrderedProducts::leftJoin('tools_and_equipment', 'tools_and_equipment.id', 'ordered_products.tools_and_equipment_id')
-        ->leftJoin('products', 'products.id', 'tools_and_equipment.product_id')
-        ->leftjoin('track_orders', 'track_orders.id', 'ordered_products.track_orders_id')
-        ->selectRaw('MAX(ordered_products.id) as id, MAX(ordered_products.tools_and_equipment_id) as tools_and_equipment_id, 
-                    MAX(ordered_products.created_at) as created_at, MAX(ordered_products.updated_at) as updated_at, 
-                    MAX(ordered_products.status) as status,
-                    MAX(products.brand) as brand_name, MAX(products.tool) as tool_name, MAX(products.image) as image, 
-                    MAX(products.voltage) as voltage, MAX(products.dimensions) as dimensions, MAX(products.weight) as weight, 
-                    MAX(products.powerSources) as powerSources, MAX(tools_and_equipment.is_delivered) as is_delivered,
-                    MAX(track_orders.created_at) as ordered_at')
-        ->groupBy('products.created_at')
+        $data = OrderedProducts::leftJoin('track_orders', 'ordered_products.track_orders_id', 'track_orders.id')
+        ->leftJoin('products', 'track_orders.product_id', 'products.id')
+        ->leftjoin('users', 'track_orders.user_id', 'users.id')
+        ->select(
+            'ordered_products.*', 
+            'products.brand as brand_name', 
+            'products.tool as tool_name',
+            'track_orders.status as status', 
+            'track_orders.created_at as ordered_at', 
+            'users.name as user_name',
+            'users.location as location', 
+            'products.image as image', 
+            'products.dimensions as dimensions', 
+            'products.weight as weight', 
+            'products.powerSources as powerSources',
+            'track_orders.total_price as total_price',
+            'users.location as location',
+            DB::raw('LENGTH(track_orders.serial_numbers) - LENGTH(REPLACE(track_orders.serial_numbers, ",", "")) + 1 as serial_numbers_count')
+        )
+        ->whereNotIn('track_orders.status', ['Canceled', 'Completed'])
         ->get();
     
-
-        // $data = ToolsAndEquipment::leftJoin('products', 'products.id', 'tools_and_equipment.product_id')
-        //                         ->selectRaw('MIN(tools_and_equipment.id) as id, 
-        //                                     products.brand as brand_name, 
-        //                                     products.tool as tool_name, 
-        //                                     products.created_at as date_ordered, 
-        //                                     products.image as image,
-        //                                     products.voltage as voltage, 
-        //                                     products.dimensions as dimensions, 
-        //                                     products.weight as weight, 
-        //                                     products.powerSources as powerSources,
-        //                                     tools_and_equipment.is_delivered') // Include is_delivered column
-        //                         ->groupBy('tools_and_equipment.product_id', 
-        //                                 'products.brand', 
-        //                                 'products.tool', 
-        //                                 'products.created_at', 
-        //                                 'products.image', 
-        //                                 'products.voltage', 
-        //                                 'products.dimensions', 
-        //                                 'products.weight', 
-        //                                 'products.powerSources', 
-        //                                 'tools_and_equipment.is_delivered') // Group by is_delivered as well
-        //                         ->where('tools_and_equipment.is_delivered', 0) // Filter only those that are not delivered
-        //                         ->get();
+        $data->transform(function ($item) {
+            $item->ordered_at = $item->ordered_at ? \Carbon\Carbon::parse($item->ordered_at)->setTimezone('Asia/Manila')->format('m/d/Y h:i:s A') : null;
+            return $item;
+        });
 
         return response()->json(['data' => $data]);
+    }
+    
+    public function completedShow()
+    {
+        $data = TrackOrder::leftjoin('products', 'track_orders.product_id', 'products.id')
+                            ->leftjoin('users', 'track_orders.user_id', 'users.id')
+                            ->select('track_orders.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.voltage as voltage', 'products.image as image',
+                                    'products.dimensions as dimensions', 'products.weight as weight', 'products.powerSources as powerSources',
+                                    'track_orders.created_at as completed_at', 'users.name as user_name', 'users.location as location')
+                            ->where('track_orders.is_completed', true)
+                           ->get(); 
+                           
+        $data->transform(function ($item) {
+            $item->completed_at = $item->completed_at ? \Carbon\Carbon::parse($item->completed_at)->setTimezone('Asia/Manila')->format('m/d/Y h:i:s A') : null;
+            return $item;
+        });
+
+        return response()->json(['data' => $data]);
+    }
+
+    public function canceledShow()
+    {
+        $data = CanceledOrder::leftjoin('track_orders', 'canceled_orders.track_order_id', 'track_orders.id')
+                            ->leftjoin('products', 'track_orders.product_id', 'products.id')
+                            ->leftjoin('users', 'track_orders.user_id', 'users.id')
+                            ->select('canceled_orders.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.voltage as voltage', 'products.image as image',
+                                    'products.dimensions as dimensions', 'products.weight as weight', 'products.powerSources as powerSources',
+                                    'canceled_orders.created_at as canceled_at', 'users.name as user_name', 'users.location as location',
+                                    'track_orders.serial_numbers as serial_numbers', 'track_orders.total_price as total_price')
+                            ->get();
+
+        $data->transform(function ($item) {
+        $item->canceled_at = $item->canceled_at ? \Carbon\Carbon::parse($item->canceled_at)->setTimezone('Asia/Manila')->format('m/d/Y h:i:s A') : null;
+        return $item;
+        });
+
+        return response()->json(['data' => $data]);
+    }
+
+    public function updateStatus(Request $request)
+    {   
+        $orderedProducts = OrderedProducts::find($request->id);
+        // Parse and format the shipment date
+        $shipmentDate = Carbon::parse($request->shipment_date)->format('m/d/Y');
+        $orderedProducts->shipment_date = $shipmentDate;
+        
+        // Parse and format the delivery date
+        $deliveryDate = Carbon::parse($request->delivery_date)->format('m/d/Y');
+        $orderedProducts->delivery_date = $deliveryDate;
+        $orderedProducts->save();
+
+        $trackOrders = TrackOrder::find($orderedProducts->track_orders_id);
+        $trackOrders->status = $request->status_data;
+        $trackOrders->save();
+
+        if($request->status_data == 'Completed'){
+            $trackOrders->is_completed = true;
+            $trackOrders->save();
+
+            $completedOrder = new CompletedOrderAdmin();
+            $completedOrder->track_order_id = $trackOrders->id;
+            $completedOrder->save();
+        }
+
+        return response()->json(['message' => 'Status updated successfully']);
     }
 }
