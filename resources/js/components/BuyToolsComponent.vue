@@ -61,10 +61,13 @@
                 <button class="btn btn-success ml-1" @click="refresh"><i class="fas fa-sync-alt"></i></button>
             </div>
         </div>
+
+
+        <!-- PRODUCT CARD -->
         <div class="row">
             <div class="col-md-4" v-for="(tool, index) in data" :key="index">
                 <!-- Card component for each tool -->
-                <div class="card" :class="{ 'sold-out': tool.status === 'Sold' }">
+                <div class="card">
                     <div class="card-body">
                         <!-- Display tool information -->
                         <div class="d-flex justify-content-between">
@@ -78,11 +81,7 @@
                                 <p v-else>No Image</p>
                             </div>
                         </div>
-                        <button :class="tool.status === 'Sold' ? 'btn btn-dark' : 'btn btn-success'"
-                                v-on:click="showDetails(tool)"
-                                :disabled="tool.status === 'Sold'">
-                            {{ tool.status === 'Sold' ? 'Sold' : 'Buy Tool' }}
-                        </button>
+                        <button class="btn btn-success" v-on:click="showDetails(tool)">Buy</button>
                     </div>
                 </div>
             </div>
@@ -111,10 +110,6 @@
                         <input type="text" v-model="dataValues.tool_name" class="form-control" disabled> 
                     </div>
                     <div class="col-12 pb-2">
-                        <label for="">Product Code</label>
-                        <input type="text" v-model="dataValues.product_code" class="form-control" disabled> 
-                    </div>
-                    <div class="col-12 pb-2">
                         <label for="">Power Source</label>
                         <input type="text" v-model="dataValues.powerSources" class="form-control" disabled> 
                     </div>
@@ -134,13 +129,34 @@
                         <label for="">Material</label>
                         <input type="text" v-model="dataValues.material" class="form-control" disabled> 
                     </div>   
-                    <div class="col-12 pb-2">
+                    <div class="col-6 pb-2">
                         <label for="">Price</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text">₱</span>
                             </div>
-                            <input type="text" class="form-control" v-model="dataValues.price" disabled>
+                            <input type="number" class="form-control" v-model="dataValues.price" disabled>
+                        </div>
+                    </div>  
+                    <div class="col-6 pb-2">
+                        <label for="">12% Vat</label>
+                            <input type="text" class="form-control" v-model="vat" disabled>
+                    </div>  
+                    <div class="col-12 pb-2">
+                        <label for="serialNumber">Please select Serial Number(s):</label>
+                        <div class="form-check" v-for="(serialNumber, index) in this.dataValues.serial_numbers" :key="index">
+                            <input class="form-check-input" type="checkbox" :id="'serialNumber_' + index" :value="serialNumber" @change="updateCheckedValues($event.target.value)">
+                            <label class="form-check-label" :for="'serialNumber_' + index">{{ serialNumber }}</label>
+                        </div>
+                        <div class="text-danger" v-if="errors.serial_numbers">{{ errors.serial_numbers[0] }}</div>
+                    </div>
+                    <div class="col-12 pb-2">
+                        <label for="">Grand Total including Vat:</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">₱</span>
+                            </div>
+                            <input type="number" class="form-control" v-model="dataValues.price" disabled>
                         </div>
                     </div>  
                 </div>
@@ -172,6 +188,7 @@ export default{
             selectedBrand: '',
             selectedTool: '',
             selectedSpecs: '',
+            vat: 12,
             dataValues: {
             },
             modalId : 'modal-buytools',
@@ -188,6 +205,7 @@ export default{
     methods: {
         showDetails(tool) {
             this.dataValues = tool;
+            console.log(this.dataValues);
             $('#' + this.modalId).modal('show');
         },
         getData() {

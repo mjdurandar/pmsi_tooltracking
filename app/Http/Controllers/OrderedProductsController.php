@@ -6,6 +6,7 @@ use App\Models\CanceledOrder;
 use App\Models\CompletedOrderAdmin;
 use App\Models\OrderedProducts;
 use App\Models\TrackOrder;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -29,10 +30,14 @@ class OrderedProductsController extends Controller
     }
 
     public function show()
-    {   
+    {   $authUser = auth()->user();
+        $userName = User::findOrFail($authUser->id);
+        $supplierName = $userName->name;
+
         $data = OrderedProducts::leftJoin('track_orders', 'ordered_products.track_orders_id', 'track_orders.id')
         ->leftJoin('products', 'track_orders.product_id', 'products.id')
         ->leftjoin('users', 'track_orders.user_id', 'users.id')
+        ->leftjoin('users as admin', 'products.user_id', 'admin.id')
         ->select(
             'ordered_products.*', 
             'products.brand as brand_name', 
@@ -47,11 +52,12 @@ class OrderedProductsController extends Controller
             'products.powerSources as powerSources',
             'track_orders.total_price as total_price',
             'users.location as location',
+            'admin.name as supplier_name',
             DB::raw('LENGTH(track_orders.serial_numbers) - LENGTH(REPLACE(track_orders.serial_numbers, ",", "")) + 1 as serial_numbers_count')
         )
         ->whereNotIn('track_orders.status', ['Canceled', 'Completed'])
+        ->where('admin.name', $supplierName)
         ->get();
-    
         $data->transform(function ($item) {
             $item->ordered_at = $item->ordered_at ? \Carbon\Carbon::parse($item->ordered_at)->setTimezone('Asia/Manila')->format('m/d/Y h:i:s A') : null;
             return $item;

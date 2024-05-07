@@ -156,7 +156,7 @@ export default{
     data(){
         return{
                 data : [],
-                checkedSerialNumbers: [],
+                checkedSerialNumbers: [], 
                 columns : ['brand_name', 'tool_name', 'supplier_name', 'stocks' ,'action'],
                 errors: [],
                 isChecked1: false,

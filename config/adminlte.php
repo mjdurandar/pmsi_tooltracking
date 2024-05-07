@@ -343,23 +343,29 @@ return [
             'url' => '/profile' 
         ],
         [
-            'text'    => 'Products',
-            'icon'    => 'fa-solid fa-box',
-            'can' => ['supplier'], 
-            'url' => '/products' 
-        ],
-        [
             'text' => 'Orders',
             'icon' => 'fa-solid fa-box-open', 
             'can' => ['supplier'],  
             'url'  => '/ordered-products',
         ],
         [
-            'text' => 'Earnings',
-            'icon' => 'fa-solid fa-money-bill', 
-            'can' => ['supplier'],  
-            'url'  => '/',
+            'text'    => 'Products',
+            'icon'    => 'fa-solid fa-box',
+            'can' => ['supplier'], 
+            'url' => '/products' 
         ],
+        [
+            'text'    => 'Returned Products',
+            'icon'    => 'fa-solid fa-people-carry-box',
+            'can' => ['supplier'], 
+            'url' => '/returned-products-supplier' 
+        ],
+        // [
+        //     'text' => 'Earnings',
+        //     'icon' => 'fa-solid fa-money-bill', 
+        //     'can' => ['supplier'],  
+        //     'url'  => '/',
+        // ],
         // [
         //     'text'    => 'Orders',
         //     'icon'    => 'fa-solid fa-truck', 

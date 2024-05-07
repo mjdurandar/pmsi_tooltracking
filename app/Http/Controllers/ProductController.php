@@ -162,6 +162,7 @@ class ProductController extends Controller
     {
         $releasedProduct = new ReleasedProduct();
         $releasedProduct->product_id = $request->id;
+        $releasedProduct->is_supplier = true;
         $releasedProduct->save();
 
         $product = Product::find($request->id);

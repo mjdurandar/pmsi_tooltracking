@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AdminReleasedProducts;
 use App\Models\BuyTools;
 use Illuminate\Http\Request;
 use App\Models\Category;
@@ -29,11 +30,23 @@ class BuyToolsController extends Controller
 
     public function show(){
 
-        $data = ToolsAndEquipment::leftjoin('products', 'products.id', '=', 'tools_and_equipment.product_id')
-                ->select('tools_and_equipment.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as product_image',
-                 'products.powerSources as powerSources', 'products.voltage as voltage', 'products.weight as weight', 'products.dimensions as dimensions', 'products.material as material')
-                ->where('category_id', 2)
-                ->get();
+        $data = AdminReleasedProducts::leftjoin('tools_and_equipment', 'tools_and_equipment.id', 'admin_released_products.tools_and_equipment_id')    
+                                    ->leftjoin('products', 'products.id', 'tools_and_equipment.product_id')
+                                    ->select('admin_released_products.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as product_image',
+                                    'products.powerSources as powerSources', 'products.voltage as voltage', 'products.weight as weight', 'products.dimensions as dimensions', 'products.material as material')
+                                    ->where('status', 'For Sale')
+                                    ->get();
+
+                                    foreach ($data as $order) {
+                                        $order->serial_numbers = json_decode($order->serial_numbers);
+                                    }
+                            
+
+        // ToolsAndEquipment::leftjoin('products', 'products.id', '=', 'tools_and_equipment.product_id')
+        //         ->select('tools_and_equipment.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as product_image',
+        //          'products.powerSources as powerSources', 'products.voltage as voltage', 'products.weight as weight', 'products.dimensions as dimensions', 'products.material as material')
+        //         ->where('category_id', 2)
+        //         ->get();
 
         return response()->json([ 'data' => $data]);
     }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CanceledOrder;
 use App\Models\Product;
+use App\Models\ReleasedProduct;
 use App\Models\SerialNumber;
 use App\Models\TrackOrder;
 use App\Models\User;
@@ -53,6 +54,11 @@ class TrackOrderController extends Controller
                     $serial->save();
                 }
             }
+
+            $releasedProduct = ReleasedProduct::findOrFail($trackOrder->product_id);
+            $releasedProduct->is_sold = false;
+            $releasedProduct->save();
+
             // UPDATE THE STOCKS OF THE PRODUCT
             $product = Product::find($trackOrder->product_id);
             $product->stocks += count($serialNumbers);

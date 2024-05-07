@@ -6,6 +6,7 @@ use App\Models\AdminHistory;
 use App\Models\Order;
 use App\Models\OrderedProducts;
 use App\Models\Product;
+use App\Models\ReleasedProduct;
 use App\Models\SerialNumber;
 use Illuminate\Http\Request;
 use App\Models\Supplier;
@@ -83,6 +84,10 @@ class SupplierController extends Controller
         
         $selectedSerialNumbers = $request->selectedSerialNumbers;
         $serializedSerialNumbers = json_encode($selectedSerialNumbers);
+
+        $releasedProduct = ReleasedProduct::findOrFail($request->id);
+        $releasedProduct->is_sold = true;
+        $releasedProduct->save();
 
         //THE ORDER WILL BE TRACKED
         $trackOrder = new TrackOrder();

@@ -102,8 +102,8 @@
                     +63
                 </div>
             </div> 
-            <input type="number" name="contact_address" maxlength="11" class="form-control @error('contact_address') is-invalid @enderror"
-                   value="{{ old('contact_address') }}" placeholder="Contact Number">
+            <input type="number" name="contact_address" class="form-control @error('contact_address') is-invalid @enderror"
+                value="{{ old('contact_address') }}" placeholder="Contact Number" min="0" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength="10">
 
             @error('contact_address')
                 <span class="invalid-feedback" role="alert">

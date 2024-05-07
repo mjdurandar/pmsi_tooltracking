@@ -60,6 +60,7 @@
                                 <h2 class="card-title" style="font-weight: bold;">{{ product.brand_name }} {{ product.tool_name }}</h2>
                                 <h6 class="card-text">{{ product.category_name }}</h6>
                                 <h6 class="card-text">{{ product.supplier_name }}</h6>
+                                <h6 class="card-text">Stocks: {{ product.stocks }}</h6>
                             </div>
                             <div style="width: 50%;">
                                 <img v-if="product.image" :src="'/images/' + product.image" alt="Product Image" class="img-fluid" style="height: 250px;">
@@ -92,12 +93,13 @@
                         </p>
                         <p>
                             <b>Status:</b>
-                            <select class="form-control" v-model="category_id">
-                                <option v-for="category in filteredCategories" :value="category.id">{{ category.name }}</option>
+                            <select class="form-control" v-model="dataValues.status">
+                                <option value="For Sale">For Sale</option>
+                                <option value="For Borrowing">For Borrowing</option>
                             </select>  
-                            <div class="text-danger" v-if="errors.category">{{ errors.category[0] }}</div>
+                            <div class="text-danger" v-if="errors.status">{{ errors.status[0] }}</div>
                         </p>
-                        <p v-if="category_id === 2"> 
+                        <p v-if="dataValues.status === 'For Sale'"> 
                             Set Price for Selling:
                             <div class="input-group">
                                 <div class="input-group-prepend">
@@ -105,8 +107,9 @@
                                 </div>
                                 <input type="number" class="form-control" v-model="selectedPrice" min="0">
                             </div>
+                            <div class="text-danger" v-if="errors.selectedPrice">{{ errors.selectedPrice[0] }}</div>
                         </p>
-                        <p v-if="category_id === 3"> 
+                        <p v-if="dataValues.status === 'For Borrowing'"> 
                             Set Price for Borrowing:
                             <div class="input-group">
                                 <div class="input-group-prepend">
@@ -114,12 +117,54 @@
                                 </div>
                                 <input type="number" class="form-control" v-model="selectedPrice" min="0">
                             </div>
-                        </p>
+                            <div class="text-danger" v-if="errors.selectedPrice">{{ errors.selectedPrice[0] }}</div>
+                        </p>   
+                        <div class="col-12">
+                            <label for="serialNumber">Please select Serial Number(s) for Product:</label>
+                            <div class="form-check" v-for="(serialNumber, index) in this.dataValues.serial_numbers" :key="index">
+                                <input class="form-check-input" type="checkbox" :id="'serialNumber_' + index" :value="serialNumber" @change="updateCheckedValues($event.target.value)">
+                                <label class="form-check-label" :for="'serialNumber_' + index">{{ serialNumber }}</label>
+                            </div>
+                            <div class="text-danger" v-if="errors.serial_numbers">{{ errors.serial_numbers[0] }}</div>
+                        </div>
                     </div>
                 </div>
             </template>
             <template #modalFooter>
                 <button class="btn btn-primary" v-on:click="reviewProduct">Review</button>
+            </template>
+        </ModalComponent>
+
+        <!-- FINAL RELEASE MODAL -->
+        <ModalComponent :id="modalIdFinal" :title="modalTitle" :size="modalSize" :position="modalPosition">
+            <template #modalHeader>
+                <div class="m-auto">
+                    <h3>Review your Product</h3>
+                </div>
+            </template>
+            <template #modalBody>
+                <div class="row">
+                    <div class="col-6 text-center m-auto" v-if="dataValues.image">
+                        <img :src="'/images/' + dataValues.image" alt="Current Image" class="img-fluid" style="height:300px;">
+                    </div>
+                    <div class="col-6">
+                        <p>
+                            <b>{{ this.dataValues.brand_name }} {{ this.dataValues.tool_name }}</b> with the voltage of {{ this.dataValues.voltage }}, dimension of {{ this.dataValues.dimensions }}, weight of {{ this.dataValues.weight }} and powerSources of {{ this.dataValues.powerSources }}.
+                        </p>
+                        <p>
+                            This Product will be<div v-if="category_id === 2"> <b> For Sale </b> </div> <div v-if="category_id === 3"> <b>For Borrowing</b></div>
+                        </p>
+                        <p>
+                            With the price of <b>₱{{ this.selectedPrice }} each.</b>
+                        </p>
+                        <p>
+                            The Serial Number(s) selected are: <b>{{ this.checkedSerialNumbers.join(', ') }}</b> 
+                        </p>
+                    </div>
+                </div>
+            </template>
+            <template #modalFooter>
+                <button class="btn btn-success" v-on:click="sellProduct">Release Product</button>
             </template>
         </ModalComponent>
 
@@ -156,13 +201,16 @@ export default{
                 category_id: '',
                 supplier_name: '',
                 selectedPrice : 0,
+                checkedSerialNumbers: [],
                 dataValues: {
                     name: '',
                     category_id: '',
                     supplier_id: '',
                 },
                 modalId : 'modal-release-product',
+                modalIdFinal : 'modal-final-release-product',
                 modalTitle : 'Power Tools',
+                modalSizeFinal : "modal-md",
                 modalPosition: 'modal-dialog-centered',
                 modalSize : 'modal-lg',
         }
@@ -195,6 +243,35 @@ export default{
         },
         refresh(){
             window.location.reload();
+        },
+        validateForm() {
+            this.errors = [];
+
+            if (this.checkedSerialNumbers.length === 0) {
+                this.errors.serial_numbers = ['Please select at least one serial number'];
+            }
+ 
+            if (!this.selectedPrice) {
+                this.errors.selectedPrice = ['Price is required'];
+            }
+
+            if (!this.dataValues.status) {
+                this.errors.status = ['Status is required'];
+            }
+
+            // Check if any errors are present
+            if (Object.keys(this.errors).length > 0) {
+                return false; // Validation failed
+            }
+
+            return true; // Validation passed
+        },
+        updateCheckedValues(serialNumber) {
+            if (this.checkedSerialNumbers.includes(serialNumber)) {
+                this.checkedSerialNumbers = this.checkedSerialNumbers.filter(num => num !== serialNumber);
+            } else {
+                this.checkedSerialNumbers.push(serialNumber);
+            }
         },
         filterData(){
             const searchData = {
@@ -229,7 +306,57 @@ export default{
         releaseProduct(props){
             this.dataValues = props;
             $('#' + this.modalId).modal('show'); 
-        }
+        },
+        reviewProduct(){
+            if (!this.validateForm()) {
+                    return;
+                }
+            $('#' + this.modalId).modal('hide'); 
+            $('#' + this.modalIdFinal).modal('show'); 
+        },
+        sellProduct()
+        {   
+            const data = {
+                category_id: this.category_id,
+                price: this.selectedPrice,
+                serial_numbers: this.checkedSerialNumbers,
+                dataValues: this.dataValues
+            };
+
+            Swal.fire({
+                title: 'Are you sure you want to Release the Product?',
+                text: 'This Product will be For Sale/For Borrowing!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Release it!',
+                cancelButtonText: 'Cancel',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    axios.post('/powertools/releasedProduct', data).then(response => {
+                        if(response.status === 200) {
+                            Swal.fire({
+                                title: "Success",
+                                text: response.data.message,
+                                icon: 'success',
+                                timer: 3000
+                            });
+                        }
+                        $('#' + this.modalIdFinal).modal('hide');
+                        this.getData();
+                    }).catch(errors => {
+                        if(errors.response.data.message.length > 0) {
+                            Swal.fire({
+                                title: "Failed",
+                                text: errors.response.data.message,
+                                icon: 'error',
+                                timer: 3000
+                            });
+                        }
+                    });
+                }
+            });
+            
+        },
         },
         mounted() {
             this.getData();

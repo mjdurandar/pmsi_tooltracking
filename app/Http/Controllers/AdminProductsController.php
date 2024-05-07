@@ -26,8 +26,16 @@ class AdminProductsController extends Controller
     {
         $data = AdminReturnedProducts::leftjoin('track_orders', 'track_orders.id', 'admin_returned_products.track_order_id')
                                     ->leftjoin('products', 'products.id', 'track_orders.product_id')
-                                    ->select('track_orders.*', 'products.brand as brand_name', 'products.tool as tool_name', 'admin_returned_products.reason')
-                                    ->get();
+                                    ->select('admin_returned_products.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as image',
+                                    'products.voltage as voltage', 'products.dimensions as dimensions', 'products.weight as weight', 'products.powerSources as powerSources', 
+                                    'admin_returned_products.reason', 'admin_returned_products.created_at as requested_date_return')
+                                    ->get();      
+                                    
+                                    
+                                    $data->transform(function ($item) {
+                                        $item->requested_date_return = $item->requested_date_return ? \Carbon\Carbon::parse($item->requested_date_return)->setTimezone('Asia/Manila')->format('m/d/Y h:i:s A') : null;
+                                        return $item;
+                                    });
 
         return response()->json(['data' => $data]);
     }
@@ -53,6 +61,7 @@ class AdminProductsController extends Controller
                         )
                         ->where('track_orders.is_completed', true)
                         ->where('track_orders.is_approved', false)
+                        ->where('track_orders.serial_numbers', '!=', '[]')
                         ->get();
     
         // Decode the JSON string into an array
@@ -69,15 +78,30 @@ class AdminProductsController extends Controller
         $trackOrder->is_returned = true;
         $trackOrder->save();
 
-        $adminReturn = new AdminReturnedProducts();
-        $adminReturn->track_order_id = $request->id;
-        $adminReturn->reason = $request->reason;
-        $adminReturn->save();
+        // Decode the JSON string of serial numbers stored in the database column
+        $serialNumbers = json_decode($trackOrder->serial_numbers);
 
-        foreach ($request->serial_numbers as $serial_number) {
+        // Remove the returned serial numbers from the array
+        $returnedSerialNumbers = $request->serial_numbers;
+        $serialNumbers = is_array($serialNumbers) ? array_diff($serialNumbers, $returnedSerialNumbers) : [];
+
+        // Update the serial_numbers column in the database with the updated array
+        $trackOrder->serial_numbers = json_encode($serialNumbers);
+        $trackOrder->save();
+
+        // Save each returned serial number along with the reason
+        foreach ($returnedSerialNumbers as $serial_number) {
+            $adminReturn = new AdminReturnedProducts();
+            $adminReturn->track_order_id = $request->dataValues['id'];
+            $adminReturn->serial_number = $serial_number;
+            $adminReturn->reason = $request->reason;
+            $adminReturn->save();
+
             $serialNumber = SerialNumber::where('serial_number', $serial_number)->first();
-            $serialNumber->is_returned = true;
-            $serialNumber->save();
+            if ($serialNumber) {
+                $serialNumber->is_returned = true;
+                $serialNumber->save();
+            }
         }
 
         return response()->json(['status' => 'success', 'message' => 'Product requested for return.']);

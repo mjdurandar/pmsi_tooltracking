@@ -11,8 +11,9 @@
                     :option1Switch="false"
                     :option2Switch="false"
                     :option3Switch="true"
-                    option3Name="View"
+                    option3Name=""
                     option3Icon="fa fa-eye mr-2"
+                    @optionalClicked="viewProduct"
                 >
                 </FormComponent>
             </div>
@@ -21,24 +22,33 @@
         <ModalComponent :id="modalId" :title="modalTitle" :size="modalSize" :position="modalPosition">
             <template #modalHeader>
                 <div class="m-auto">
-                    <h4>Add Unit</h4>
                 </div>
             </template>
             <template #modalBody>
                 <div class="row">
-                    <div class="col-12">
-                        <label for="">Name</label>
-                        <input type="text" class="form-control" v-model="dataValues.name">
-                        <div class="text-danger" v-if="errors.name">{{ errors.name[0] }}</div>
-                    </div>  
+                    <div class="col-6 text-center m-auto" v-if="dataValues.image">
+                        <img :src="'/images/' + dataValues.image" alt="Current Image" class="img-fluid" style="height:300px;">
+                    </div>
+                    <div class="col-6">
+                        <p>
+                            <b>{{ this.dataValues.brand_name }} {{ this.dataValues.tool_name }}</b> with the voltage of {{ this.dataValues.voltage }}, dimension of {{ this.dataValues.dimensions }}, weight of {{ this.dataValues.weight }} and powerSources of {{ this.dataValues.powerSources }}.
+                        </p>
+                        <p>
+                            You Requested to return it At : <b>{{this.dataValues.requested_date_return}}</b>
+                        </p>
+                        <p>
+                            Reason : <b>{{this.dataValues.reason}}</b>
+                        </p>
+                        <p>
+                            Please wait for <b>2-3 business days</b> and the supplier will contact you for the return process.
+                        </p>
+                    </div>
                 </div>
             </template>
             <template #modalFooter>
-                <div class="text-right">
-                    <button class="btn btn-success" v-on:click="storeData">Save</button>
-                </div>
             </template>
         </ModalComponent>
+
 
     </div>
 </template>
@@ -55,14 +65,15 @@ export default{
     data(){
         return{
                 data : [],
-                columns : ['brand_name', 'tool_name', 'reason' ,'created_at' ,'action'],
+                columns : ['brand_name', 'tool_name', 'serial_number' ,'reason' ,'requested_date_return' ,'action'],
                 errors: [],
                 options : {
                     headings : {
                         brand_name : 'Brand',
                         tool_name : 'Tool',
+                        serial_number : 'Serial Number',
                         reason : 'Reason',
-                        created_at : 'Returned At',
+                        requested_date_return : 'Requested Date Return',
                         action : 'Action',
                     },
                     filterable: false,
@@ -74,7 +85,7 @@ export default{
                 modalId : 'modal-unit',
                 modalTitle : 'Unit',
                 modalPosition: 'modal-dialog-centered',
-                modalSize : 'modal-md',
+                modalSize : 'modal-lg',
         }
     },
     components: {
@@ -86,6 +97,12 @@ export default{
         addClicked(props){
             $('#' + this.modalId).modal('show');
             this.clearInputs();
+        },
+        viewProduct(props)
+        {
+            this.dataValues = props.data;
+            this.modalTitle= 'View Product';
+            $('#' + this.modalId).modal('show');
         },
         getData() {
             axios.get('/admin-returned-product/returnedProductShow').then(response => {

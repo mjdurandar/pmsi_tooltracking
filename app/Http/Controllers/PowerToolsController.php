@@ -2,16 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AdminReleasedProducts;
 use App\Models\ToolsAndEquipment;
 use Illuminate\Http\Request;
 use App\Models\Category;
-use App\Models\AdminHistory;
-use App\Models\CancelHistory;
-use App\Models\PowerTools;
-use App\Models\Unit;
-use App\Models\Supplier;
-use Validator;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use App\Models\User;
 
 class PowerToolsController extends Controller
@@ -25,12 +20,18 @@ class PowerToolsController extends Controller
         $data = ToolsAndEquipment::leftjoin('products', 'products.id', 'tools_and_equipment.product_id')
                                     ->leftjoin('categories', 'categories.id', 'tools_and_equipment.category_id')
                                     ->select('tools_and_equipment.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as image', 'categories.name as category_name'
-                                    ,'products.powerSources as powerSources', 'products.voltage as voltage', 'products.weight as weight', 'products.dimensions as dimensions', 'products.material as material')
+                                    ,'products.powerSources as powerSources', 'products.voltage as voltage', 'products.weight as weight', 'products.dimensions as dimensions', 
+                                    'products.material as material',
+                                    DB::raw('JSON_LENGTH(tools_and_equipment.serial_numbers) as stocks'))
                                     ->get();
 
         $categories = Category::get();
 
         $suppliers = User::where('role', 2)->get();
+
+        foreach ($data as $order) {
+            $order->serial_numbers = json_decode($order->serial_numbers);
+        }
 
         return response()->json([ 'data' => $data, 'categories' => $categories, 'suppliers' => $suppliers ]);
     }
@@ -80,147 +81,26 @@ class PowerToolsController extends Controller
     
     }    
 
-    public function releaseProduct(ToolsAndEquipment $toolsAndEquipment){
+    public function releasedProduct(Request $request){
         
+        $adminReleasedProducts = new AdminReleasedProducts();
+        $adminReleasedProducts->tools_and_equipment_id = $request->dataValues['id'];
+        $adminReleasedProducts->serial_numbers = json_encode($request->serial_numbers);
+        $adminReleasedProducts->status = $request->dataValues['status'];
+        $adminReleasedProducts->price = $request->price;
+        $adminReleasedProducts->save();
 
+        $toolsAndEquipment = ToolsAndEquipment::find($request->dataValues['id']);
+        // Remove the returned serial numbers from the array
+        $serialNumbers = json_decode($toolsAndEquipment->serial_numbers);
+        $returnedSerialNumbers = $request->serial_numbers;
+        $serialNumbers = is_array($serialNumbers) ? array_diff($serialNumbers, $returnedSerialNumbers) : [];
 
-        return response()->json(['data' => $toolsAndEquipment]);
-    }
-
-    public function updateProduct(Request $request){
-        
-        $toolsAndEquipment = ToolsAndEquipment::findOrFail($request->id);
-        $selectedCategory = $request->selectedCategory;
-        $selectedPrice = $request->selectedPrice; 
-
-        // $categoryName = Category::findOrFail($selectedCategory)->name;
-        
-        // $adminHistory = new AdminHistory();
-        // $adminHistory->tools_and_equipment_id = $toolsAndEquipment->id; 
-        // $adminHistory->status = $categoryName;
-        // $adminHistory->save();
-
-        $toolsAndEquipment->category_id = $selectedCategory;
-        $toolsAndEquipment->price = $selectedPrice;
-
-        if($selectedCategory === 1){
-            $toolsAndEquipment->is_approved = 0;
-            $toolsAndEquipment->status = 'Unrealeased';
-        }
-        else if ($selectedCategory === 2){
-            $toolsAndEquipment->is_approved = 1;
-            $toolsAndEquipment->status = 'For Sale';
-        }
-        else if ($selectedCategory === 3){
-            $toolsAndEquipment->is_approved = 1;
-            $toolsAndEquipment->status = 'For Borrowing';
-        }
-
+        // Update the serial_numbers column in the database with the updated array
+        $toolsAndEquipment->serial_numbers = json_encode($serialNumbers);
         $toolsAndEquipment->save();
-        
+
+        return response()->json(['message' => 'Product has been released!']);
     }
 
-    public function cancelProduct(Request $request){
-        $userId = Auth::user()->id;
-
-        $adminHistory = new CancelHistory();
-        
-        $selectedId = $request->id;
-        $description = $request->description; 
-
-        $toolsAndEquipment = ToolsAndEquipment::findOrFail($selectedId);
-        $toolsAndEquipment->category_id = 1;
-        $toolsAndEquipment->price = 0;
-        $toolsAndEquipment->is_approved = 0;
-        $toolsAndEquipment->status = 'Canceled';
-
-        $adminHistory->tools_and_equipment_id = $selectedId;
-        $adminHistory->user_id = $userId;
-        $adminHistory->cancel_reason = $description;
-
-        $toolsAndEquipment->save();
-        $adminHistory->save();
-
-    }
-
-    // public function store(Request $request)
-    // {
-    //     $validator = Validator::make($request->all(), [
-    //         'name' => 'required|string',
-    //         'price' => 'required|numeric',
-    //         'category_id' => 'required|exists:categories,id',
-    //         'unit_id' => 'required|exists:units,id',
-    //         'supplier_id' => 'required|exists:suppliers,id',
-    //         'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-    //     ]);
-
-    //     $request->validate([
-    //         'name' => 'required|string',
-    //         'price' => 'required|numeric',
-    //         'category_id' => 'required|exists:categories,id',
-    //         'unit_id' => 'required|exists:units,id',
-    //         'supplier_id' => 'required|exists:suppliers,id',
-    //         'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-    //     ], [
-    //         'name.required' => "The Name field is required",
-    //         'price.required' => "The Price field is required",
-    //         'category_id.required' => "The Category field is required",
-    //         'unit_id.required' => "The Unit field is required",
-    //         'supplier_id.required' => "The Supplier field is required",
-    //     ]);
-
-    //     if ($validator->fails()) {
-    //         return response()->json(['errors' => $validator->errors()], 422);
-    //     }
-
-    //     // Check if an ID is provided
-    //     if (isset($request->id)) {
-    //         // Attempt to find the existing record
-    //         try {
-    //             $powerTool = PowerTools::findOrFail($request->id);
-    //         } catch (\Exception $e) {
-    //             // Log the error for debugging
-    //             \Log::error('Error finding PowerTool by ID: ' . $e->getMessage());
-
-    //             // Return a response indicating that the record was not found
-    //             return response()->json(['error' => 'Power Tool not found'], 404);
-    //         }
-    //     } else {
-    //         // If no ID is provided, create a new instance
-    //         $powerTool = new PowerTools();
-    //     }
-
-    //     $productCode = 'P-' . str_pad(PowerTools::count() + 1, 3, '0', STR_PAD_LEFT);
-
-    //     $powerTool = isset($request->id) ? PowerTools::where('id', $request->id)->first() : new PowerTools();
-    //     $powerTool->name = $request->name;
-    //     $powerTool->price = $request->price;
-    //     $powerTool->category_id = $request->category_id;
-    //     $powerTool->unit_id = $request->unit_id;
-    //     $powerTool->supplier_id = $request->supplier_id;
-    //     $powerTool->product_code = $productCode;
-
-    //     // Check if an image file is uploaded
-    //     if ($request->hasFile('image')) {
-    //         $image = $request->file('image');
-    //         $imageName = time() . '.' . $image->getClientOriginalExtension();
-    //         $image->move(public_path('images'), $imageName);
-    //         $powerTool->image = $imageName;
-    //     }
-
-    //     $powerTool->save();
-
-    //     return response()->json(['message' => 'Power Tool added successfully'], 200);
-    // }
-
-    // public function edit(PowerTools $powertools)
-    // {
-    //     return response()->json(['data' => $powertools]);
-    // }
-
-    // public function destroy(PowerTools $powertools)
-    // {
-    //     $powertools->delete();
-    //     return response()->json(['data' => $powertools]);
-    // }
 }
