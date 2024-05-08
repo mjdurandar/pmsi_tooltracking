@@ -107,7 +107,6 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('/admin-returned-product/returnedProductShow',[App\Http\Controllers\AdminProductsController::class, 'returnedProductShow']);
         Route::post('/admin-products/approvedProduct',[App\Http\Controllers\AdminProductsController::class, 'approvedProduct']);
 
-
         //TRACK ORDER
         Route::get('/track-order',[App\Http\Controllers\TrackOrderController::class, 'index']);
         Route::get('/track-order/show',[App\Http\Controllers\TrackOrderController::class, 'show']);
@@ -125,6 +124,14 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('/order',[App\Http\Controllers\OrderController::class, 'index']);
         Route::get('/order/show',[App\Http\Controllers\OrderController::class, 'show']);
         Route::post('/order/store',[App\Http\Controllers\OrderController::class, 'store']);
+        Route::post('/order/updateStatus',[App\Http\Controllers\OrderController::class, 'updateStatus']);
+        //order complete
+        Route::get('/complete-order-admin-product',[App\Http\Controllers\OrderController::class, 'completeOrderAdminIndex']);
+        Route::get('/complete-order-admin-product/completeOrderAdminShow',[App\Http\Controllers\OrderController::class, 'completeOrderAdminShow']);
+        //order cancel
+        Route::get('/canceled-order-admin-product',[App\Http\Controllers\OrderController::class, 'canceledOrderAdminIndex']);
+        Route::get('/canceled-order-admin-product/canceledOrderAdminShow',[App\Http\Controllers\OrderController::class, 'canceledOrderAdminShow']);
+
 
         //PRODUCT HISTORY
         Route::get('/product-history',[App\Http\Controllers\ProductHistoryController::class, 'index']);
@@ -158,16 +165,15 @@ Route::group(['middleware' => 'auth'], function(){
         // Route::get('/',[App\Http\Controllers\BuyToolsController::class, 'index']);
         Route::get('/buytools',[App\Http\Controllers\BuyToolsController::class, 'index']);
         Route::get('/buytools/show',[App\Http\Controllers\BuyToolsController::class, 'show']);
-        Route::post('/buytools/store',[App\Http\Controllers\BuyToolsController::class, 'store']);
+        Route::post('/buytools/buyTools',[App\Http\Controllers\BuyToolsController::class, 'buyTools']);
         Route::get('/buytools/edit/{buytools}',[App\Http\Controllers\BuyToolsController::class, 'edit']);
         Route::get('/buytools/destroy/{buytools}',[App\Http\Controllers\BuyToolsController::class, 'destroy']);
         Route::post('/buytools/filterData',[App\Http\Controllers\BuyToolsController::class, 'filterData']);
 
+        //BORROW TOOLS
         Route::get('/borrowtools',[App\Http\Controllers\BorrowToolsController::class, 'index']);
         Route::get('/borrowtools/show',[App\Http\Controllers\BorrowToolsController::class, 'show']);
-        Route::post('/borrowtools/store',[App\Http\Controllers\BorrowToolsController::class, 'store']);
-        Route::get('/borrowtools/edit/{borrowtools}',[App\Http\Controllers\BorrowToolsController::class, 'edit']);
-        Route::get('/borrowtools/destroy/{borrowtools}',[App\Http\Controllers\BorrowToolsController::class, 'destroy']);
+        Route::post('/borrowtools/borrowTools',[App\Http\Controllers\BorrowToolsController::class, 'borrowTools']);
         Route::post('/borrowtools/filterData',[App\Http\Controllers\BorrowToolsController::class, 'filterData']); 
 
         //BUYING HISTORY
@@ -184,7 +190,12 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('/delivery',[App\Http\Controllers\DeliveryController::class, 'index']);
         Route::get('/delivery/show',[App\Http\Controllers\DeliveryController::class, 'show']);
         Route::post('/delivery/cancelOrder',[App\Http\Controllers\DeliveryController::class, 'cancelOrder']);
-        Route::get('/delivery/destroy/{delivery}', [App\Http\Controllers\DeliveryController::class, 'destroy']);
+        //COMPLETED ORDER
+        Route::get('/completed-order-user',[App\Http\Controllers\DeliveryController::class, 'completedOrderUserIndex']);
+        Route::get('/completed-order-user/completedOrderUserShow',[App\Http\Controllers\DeliveryController::class, 'completedOrderUserShow']);
+        //canceled order
+        Route::get('/canceled-order-user',[App\Http\Controllers\DeliveryController::class, 'canceledOrderUserIndex']);
+        Route::get('/canceled-order-user/canceledOrderUserShow',[App\Http\Controllers\DeliveryController::class, 'canceledOrderUserShow']);
 
         //RETURN A PRODUCT
         Route::get('/return-product',[App\Http\Controllers\ReturnProductController::class, 'index']);
@@ -195,6 +206,7 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('/damaged-return',[App\Http\Controllers\DamagedReturnController::class, 'index']);
         Route::get('/damaged-return/show',[App\Http\Controllers\DamagedReturnController::class, 'show']);
         Route::post('/damaged-return/store',[App\Http\Controllers\DamagedReturnController::class, 'store']);
+
 
     });
 

@@ -622,7 +622,17 @@ export default{
                     $('#' + this.modalIdCancel).modal('hide');
                 })
                 .catch(errors => {
-                        this.errors = errors.response.data.errors;
+                        if (errors.response.status === 422) {
+                    Swal.fire({
+                        title: "Failed",
+                        text: errors.response.data.errors,
+                        icon: 'error',
+                        timer: 3000
+                    });
+                    } else {
+                        // Handle other errors here
+                        console.error(error);
+                    }
                 });
             }
         },

@@ -1,7 +1,7 @@
 <template>
     <div class="p-3">
         <BreadCrumbComponent tab_title="Delivery"></BreadCrumbComponent>
-        <div class="row mb-3">
+        <!-- <div class="row mb-3">
             <div class="col-lg-2">
                 <select v-model="selectedBrand" class="form-control">
                     <option value="" disabled selected>Select Brand</option>
@@ -35,7 +35,7 @@
                 <button class="btn btn-primary" @click="filterData">Search</button>
                 <button class="btn btn-success ml-1" @click="refresh"><i class="fas fa-sync-alt"></i></button>
             </div>
-        </div>
+        </div> -->
         <div class="card">
             <div class="card-body">
                 <FormComponent 
@@ -45,13 +45,23 @@
                     :option2Switch="true"
                     option1Color="color: #0000FF;"
                     option1Icon="fa-solid fa-qrcode"
-                    option1Name="QR Code"
+                    option1Name=""
                     option2Color="color: #FF0000;"
                     option2Icon="fa-solid fa-xmark"
-                    option2Name="Cancel Order"
-                    :addButton="false"
-                    @deleteClicked="cancelOrder"
+                    option2Name=""
+                    :option3Switch="true"
+                    option3Icon="fa-solid fa-eye"
+                    option3Name=""
+                    :addButton="true"
+                    addButtonColor="btn btn-success"
+                    btnName="Completed"
+                    :otherButton=true
+                    otherBtnName="Canceled"
+                    @addClicked="completedOrder"
+                    @deleteClicked="cancelOrderReason"
                     @editClicked="generateQrCode"
+                    @optionalClicked="viewOrder"
+                    @otherClicked="canceledOrder"
                 >
                 </FormComponent>
             </div>
@@ -79,6 +89,80 @@
                 </div>
             </template>
         </ModalComponent>
+
+                <!-- VIEW ORDER -->
+        <ModalComponent :id="modalIdView" :title="modalTitle" :size="modalSizeView" :position="modalPosition">
+            <template #modalHeader>
+                <div class="m-auto">
+                </div>
+            </template>
+            <template #modalBody>
+                <div class="row">
+                    <div class="col-6 text-center m-auto" v-if="dataValues.image">
+                        <img :src="'/images/' + dataValues.image" alt="Current Image" class="img-fluid" style="height:300px;">
+                    </div>
+                    <div class="col-6">
+                        <p>
+                            <b>{{ this.dataValues.brand_name }} {{ this.dataValues.tool_name }}</b> with the voltage of {{ this.dataValues.voltage }}, dimension of {{ this.dataValues.dimensions }}, weight of {{ this.dataValues.weight }} and powerSources of {{ this.dataValues.powerSources }}.
+                        </p>
+                        <p>
+                            With a total of: <b>₱{{ this.dataValues.total_price }}</b>
+                        </p>
+                        <p>
+                            You ordered it At : <b>{{this.dataValues.ordered_at}}</b>
+                        </p>
+                        <p>
+                            Please wait for your Product usually it takes <b> 2-3 business days</b> to deliver. 
+                        </p>
+                        <p>
+                            You can always track your order by clicking the <b>QR code</b>.
+                        </p>
+                    </div>
+                </div>
+            </template>
+            <template #modalFooter>
+            </template>
+        </ModalComponent>
+
+        <!-- CANCEL ORDER -->
+        <ModalComponent :id="modalIdCancel" :title="modalTitle" :size="modalSizeView" :position="modalPosition">
+            <template #modalHeader>
+                <div class="m-auto">
+                </div>
+            </template>
+            <template #modalBody>
+                <div class="row">
+                    <div class="col-6 text-center m-auto" v-if="dataValues.image">
+                        <img :src="'/images/' + dataValues.image" alt="Current Image" class="img-fluid" style="height:300px;">
+                    </div>
+                    <div class="col-6">
+                        <form>
+                            <div>
+                                <p><strong>Disclaimer:</strong> Please read the following terms and conditions carefully before proceeding with your request.</p>
+                                <p>This service is provided on an "as is" and "as available" basis without warranties of any kind, either express or implied.</p>
+                                <p>We reserve the right to modify or discontinue the service at any time without prior notice.</p>
+                                <p>By proceeding with your request, you agree to abide by our terms and conditions.</p>
+                            </div>
+                            <div class="form-group">
+                                <label for="cancelReason">Reason for Cancelation:</label>
+                                <select class="form-control" id="cancelReason" v-model="dataValues.reason">
+                                    <option value="" selected disabled>Select Reason</option>
+                                    <option value="Change of Plans">Change of Plans</option>
+                                    <option value="Item Unavailable">Item Unavailable</option>
+                                    <option value="Delayed Delivery">Delayed Delivery</option>
+                                    <option value="Quality Concerns">Quality Concerns</option>
+                                    <option value="Found a Better Deal">Found a Better Deal</option>
+                                </select>
+                            </div>
+                            <div class="text-danger" v-if="errors.reason">{{ errors.reason[0] }}</div>
+                        </form>
+                    </div>
+                </div>
+            </template>
+            <template #modalFooter>
+                <button class="btn btn-success" v-on:click="cancelOrder">Submit</button>
+            </template>
+        </ModalComponent> 
 
     </div>
 </template>
@@ -108,15 +192,13 @@ export default{
                 selectedBrand : '',
                 selectedTool : '',
                 globalId : '',
-                columns : [ 'brand_name', 'tool_name', 'product_code' ,'price', 'type' , 'status', 'action'],
+                columns : ['brand_name', 'tool_name' ,'status', 'ordered_at' ,'action'],
                 options : {
                     headings : {
                         brand_name : 'Brand',
                         tool_name : 'Tool',
-                        product_code : 'Product Code',
-                        price : 'Price',
-                        type : 'Type',
                         status : 'Status',
+                        ordered_at : 'Ordered At',
                         action : 'Action',
                     },
                     filterable: false,
@@ -127,8 +209,11 @@ export default{
                 },
                 modalId : 'modal-delivery',
                 modalTitle : 'Delivery',
+                modalIdView : 'modal-delivery-view',
+                modalIdCancel : 'modal-delivery-cancel',
                 modalPosition: 'modal-dialog-centered',
                 modalSize : 'modal-sm',
+                modalSizeView : 'modal-lg',
         }
     },
     components: {
@@ -148,6 +233,10 @@ export default{
         },
         refresh(){
             window.location.reload();
+        },
+        viewOrder(props) {
+            this.dataValues = props.data;
+            $('#' + this.modalIdView).modal('show');
         },
         filterData() {
             const searchData = {
@@ -176,7 +265,33 @@ export default{
                     console.error(error);
                 });
         },
+        canceledOrder(){
+            window.location.href = '/canceled-order-user';
+        },
+        completedOrder(){
+            window.location.href = '/completed-order-user';
+        },
+        cancelOrderReason(props) {
+            this.dataValues = props.data;
+            $('#' + this.modalIdCancel).modal('show');
+        },
+        validateForm() {
+            this.errors = [];
+            if (!this.dataValues.reason) {
+                this.errors.reason = ['Reason is required'];
+            }
+
+              // Check if any errors are present
+              if (Object.keys(this.errors).length > 0) {
+                return false; // Validation failed
+            }
+
+            return true; // Validation passed
+        },
         cancelOrder(props) {
+            if (!this.validateForm()) {
+                return;
+            }
             Swal.fire({
                 title: 'Are you sure?',
                 text: 'You can always order again!',
@@ -186,7 +301,7 @@ export default{
                 cancelButtonText: 'No, keep it!',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    axios.get('/delivery/destroy/' + props.data.id)
+                    axios.post('/delivery/cancelOrder/', this.dataValues)
                         .then(response => {
                             if (response.status === 200) {
                                 if (response.data.status === 'success') {
@@ -205,6 +320,7 @@ export default{
                                     });
                                 }
                                 this.getData();
+                                $('#' + this.modalIdCancel).modal('hide');
                             }
                         })
                         .catch(errors => {

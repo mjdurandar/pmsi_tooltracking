@@ -7,14 +7,18 @@ use App\Models\BuyTools;
 use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Models\CustomerHistory;
+use App\Models\CustomerOrderedProducts;
 use App\Models\Unit;
 use App\Models\Supplier;
 use App\Models\User;
 use App\Models\DeliverHistory;
 use App\Models\Order;
+use App\Models\OrderedProducts;
 use App\Models\PurchasedItems;
 use App\Models\Sold;
 use App\Models\ToolsAndEquipment;
+use App\Models\TrackOrder;
+use App\Models\UserDelivery;
 use Illuminate\Support\Facades\Auth;
 
 class BuyToolsController extends Controller
@@ -30,89 +34,87 @@ class BuyToolsController extends Controller
 
     public function show(){
 
+        $user_id = Auth::id();
+        $userName = User::findOrFail($user_id);
+        $userLocation = $userName->location;
+
         $data = AdminReleasedProducts::leftjoin('tools_and_equipment', 'tools_and_equipment.id', 'admin_released_products.tools_and_equipment_id')    
                                     ->leftjoin('products', 'products.id', 'tools_and_equipment.product_id')
                                     ->select('admin_released_products.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as product_image',
                                     'products.powerSources as powerSources', 'products.voltage as voltage', 'products.weight as weight', 'products.dimensions as dimensions', 'products.material as material')
                                     ->where('status', 'For Sale')
+                                    ->where('admin_released_products.serial_numbers', '!=', '[]')
                                     ->get();
 
                                     foreach ($data as $order) {
                                         $order->serial_numbers = json_decode($order->serial_numbers);
                                     }
-                            
 
-        // ToolsAndEquipment::leftjoin('products', 'products.id', '=', 'tools_and_equipment.product_id')
-        //         ->select('tools_and_equipment.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as product_image',
-        //          'products.powerSources as powerSources', 'products.voltage as voltage', 'products.weight as weight', 'products.dimensions as dimensions', 'products.material as material')
-        //         ->where('category_id', 2)
-        //         ->get();
-
-        return response()->json([ 'data' => $data]);
+        return response()->json([ 'data' => $data, 'userLocation' => $userLocation]);
     }
 
-    public function store(Request $request)
-    {
+    public function buyTools(Request $request)
+    {   
         // Get the authenticated user's ID
         $user_id = Auth::id();
-    
         // Find the user record
         $user = User::findOrFail($user_id);
-    
         // Calculate the remaining balance after deducting the requested balance
         $remaining_balance = $user->balance - $request->price;
-    
+        
         // Check if the remaining balance is sufficient
         if ($remaining_balance >= 0) {
             // Update the user's balance
             $user->balance = $remaining_balance;
             $user->save();
     
-            // Proceed with the rest of the operations
-            $sold = new Sold();
-            $sold->user_id = $user_id;
-            $sold->tools_and_equipment_id = $request->id;
-            $sold->sold_at = now();
-            $sold->type = 'Buying';
-            $sold->save();
+            // Find all AdminReleasedProducts for the given tools_and_equipment_id
+            $adminReleasedProducts = AdminReleasedProducts::where('tools_and_equipment_id', $request->dataValues['tools_and_equipment_id'])->get();
     
-            $tools = ToolsAndEquipment::findOrFail($request->id);
-            $tools->status = 'Sold';
-            $tools->save();
+            // Iterate through each AdminReleasedProduct
+            foreach ($adminReleasedProducts as $adminReleasedProduct) {
+                // Decode the JSON string of serial numbers stored in the database column
+                $releasedSerialNumbers = json_decode($adminReleasedProduct->serial_numbers);
     
-            $customer_history = new CustomerHistory();
-            $customer_history->user_id = $user_id;
-            $customer_history->tools_and_equipment_id = $request->id;
-            $customer_history->save();
+                // Iterate through the selected serial numbers
+                foreach ($request->serial_numbers as $selectedSerialNumber) {
+                    // Check if the selected serial number exists in the released serial numbers
+                    if (($key = array_search($selectedSerialNumber, $releasedSerialNumbers)) !== false) {
+                        // Remove the selected serial number from the released serial numbers
+                        unset($releasedSerialNumbers[$key]);
+                    }
+                }
     
-            $delivery = new DeliverHistory();
-            $delivery->user_id = $user_id;
-            $delivery->tools_and_equipment_id = $request->id;
-            $delivery->status = 'Preparing';
-            $delivery->type = 'Sold';
-            $delivery->save();
+                // Update the serial_numbers column in the database with the updated array
+                $adminReleasedProduct->serial_numbers = json_encode($releasedSerialNumbers);
+                $adminReleasedProduct->save();
+            }
     
-            $orders = new Order();
-            $orders->user_id = $user_id;
-            $orders->tools_and_equipment_id = $request->id;
-            $orders->status = 'Preparing';
-            $orders->type = 'Buying';
-            $orders->shipment_date = '0000-00-00';
-            $orders->delivery_date = '0000-00-00';
-            $orders->save();
-
-            $purchasedItems = new PurchasedItems();
-            $purchasedItems->user_id = $user_id;
-            $purchasedItems->tools_and_equipment_id = $request->id;
-            $purchasedItems->status = 'Bought';
-            $purchasedItems->save();
+            // Create a new track order
+            $trackOrder = new TrackOrder();
+            $trackOrder->status = 'Pending';
+            $trackOrder->product_id = $request->dataValues['tools_and_equipment_id'];
+            $trackOrder->serial_numbers = json_encode($request->serial_numbers);
+            $trackOrder->total_price = $request->total_price;
+            $trackOrder->user_id = $user_id;
+            $trackOrder->save();
     
-            return response()->json(['message' => 'Data Successfully Saved']);
+            // Create a new ordered product
+            $orderedProduct = new OrderedProducts();
+            $orderedProduct->user_id = $user_id;
+            $orderedProduct->track_orders_id = $trackOrder->id;
+            $orderedProduct->shipment_date = '00/00/0000'; // Set the default shipment date
+            $orderedProduct->delivery_date = '00/00/0000'; // Set the default delivery date
+            $orderedProduct->save();
+    
+            return response()->json(['message' => 'Product Ordered Successfully']);
         } else {
             // Return response indicating insufficient funds
             return response()->json(['error' => 'Insufficient funds'], 400);
         }
     }
+    
+    
     
     public function filterData(Request $request)
     {

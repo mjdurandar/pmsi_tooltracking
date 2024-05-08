@@ -30,7 +30,8 @@ class OrderedProductsController extends Controller
     }
 
     public function show()
-    {   $authUser = auth()->user();
+    {   
+        $authUser = auth()->user();
         $userName = User::findOrFail($authUser->id);
         $supplierName = $userName->name;
 
@@ -53,6 +54,8 @@ class OrderedProductsController extends Controller
             'track_orders.total_price as total_price',
             'users.location as location',
             'admin.name as supplier_name',
+            'users.contact_address as contact_address',
+            'users.email as email',
             DB::raw('LENGTH(track_orders.serial_numbers) - LENGTH(REPLACE(track_orders.serial_numbers, ",", "")) + 1 as serial_numbers_count')
         )
         ->whereNotIn('track_orders.status', ['Canceled', 'Completed'])
@@ -106,6 +109,7 @@ class OrderedProductsController extends Controller
     public function updateStatus(Request $request)
     {   
         $orderedProducts = OrderedProducts::find($request->id);
+        
         // Parse and format the shipment date
         $shipmentDate = Carbon::parse($request->shipment_date)->format('m/d/Y');
         $orderedProducts->shipment_date = $shipmentDate;

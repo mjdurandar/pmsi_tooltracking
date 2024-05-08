@@ -9,6 +9,7 @@ use App\Models\SerialNumber;
 use App\Models\TrackOrder;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class TrackOrderController extends Controller
 {
@@ -23,6 +24,7 @@ class TrackOrderController extends Controller
             'products.voltage as voltage', 'products.dimensions as dimensions', 'products.weight as weight', 'products.powerSources as powerSources')
             ->where('track_orders.is_canceled', false)
             ->where('track_orders.is_completed', false)
+            ->where('track_orders.user_id', '=', Auth::id())
             ->get();
 
         return response()->json([ 'data' => $data, ]);
@@ -42,6 +44,7 @@ class TrackOrderController extends Controller
             $canceledOrder = new CanceledOrder();
             $canceledOrder->track_order_id = $trackOrder->id;
             $canceledOrder->reason = $request->reason;
+            $canceledOrder->user_id = Auth::id();
             $canceledOrder->save();
     
             //UPDATE THE SERIAL NUMBER DATA TO AVAILABLE

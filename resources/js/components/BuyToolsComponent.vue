@@ -1,14 +1,3 @@
-<style>
-    .sold-out .card-body {
-        background-color: #f8f9fa; /* Change background color for sold-out cards */
-        opacity: 0.5; /* Set opacity to 80% */
-    }
-
-    .btn-sold-out {
-        color: #000 !important; /* Change button text color to black */
-    }
-</style>
-
 <template>
     <div class="p-3">
         <BreadCrumbComponent tab_title="Buy Tools"></BreadCrumbComponent>
@@ -67,14 +56,13 @@
         <div class="row">
             <div class="col-md-4" v-for="(tool, index) in data" :key="index">
                 <!-- Card component for each tool -->
-                <div class="card">
+                <div class="card" :class="noStock">
                     <div class="card-body">
                         <!-- Display tool information -->
                         <div class="d-flex justify-content-between">
                             <div style="width: 50%;">
                                 <h5 class="card-title">{{ tool.brand_name }} {{ tool.tool_name }}</h5>
                                 <p class="card-text">Price: {{ tool.price }}</p>
-                                <p class="card-text">Product Code: {{ tool.product_code }}</p>
                             </div>
                             <div style="width: 50%;">
                                 <img v-if="tool.product_image" :src="'/images/' + tool.product_image" alt="Tool Image" class="img-fluid" style="height: 250px;">
@@ -95,11 +83,6 @@
                 </div>
             </template>
             <template #modalBody>
-                <!-- <div class="row">
-                    <div class="col-12" v-if="dataValues.product_image">
-                        <img :src="'/images/' + dataValues.product_image" alt="Current Image" class="img-fluid"  style="height: 150px;">
-                    </div>
-                </div> -->
                 <div class="row">
                     <div class="col-6 pb-2">
                         <label for="">Brand</label>
@@ -140,7 +123,7 @@
                     </div>  
                     <div class="col-6 pb-2">
                         <label for="">12% Vat</label>
-                            <input type="text" class="form-control" v-model="vat" disabled>
+                            <input type="number" class="form-control" v-model="vat" disabled>
                     </div>  
                     <div class="col-12 pb-2">
                         <label for="serialNumber">Please select Serial Number(s):</label>
@@ -156,15 +139,54 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text">₱</span>
                             </div>
-                            <input type="number" class="form-control" v-model="dataValues.price" disabled>
+                            <input type="number" class="form-control" v-model="totalPrice" disabled>
                         </div>
                     </div>  
                 </div>
             </template>
             <template #modalFooter>
                 <div class="text-right">
-                    <button class="btn btn-success" v-on:click="storeData">Buy</button>
+                    <button class="btn btn-primary" v-on:click="reviewProduct">Review</button>
                 </div>
+            </template>
+        </ModalComponent>
+
+        <!-- REVIEW PRODUCT MODAL -->
+        <ModalComponent :id="modalIdFinal" :title="modalTitle" :size="modalSizeFinal" :position="modalPosition">
+            <template #modalHeader>
+                <div class="m-auto">
+                    <h3></h3>
+                </div>
+            </template>
+            <template #modalBody>
+                <div class="row">
+                    <div class="col-6 text-center m-auto" v-if="dataValues.product_image">
+                        <img :src="'/images/' + dataValues.product_image" alt="Current Image" class="img-fluid" style="height:300px;">
+                    </div>
+                    <div class="col-6">
+                        <p>
+                            <b>{{ this.dataValues.brand_name }} {{ this.dataValues.tool_name }}</b> with the voltage of {{ this.dataValues.voltage }}, dimension of {{ this.dataValues.dimensions }}, weight of {{ this.dataValues.weight }} and powerSources of {{ this.dataValues.powerSources }}.
+                        </p>
+                        <p>
+                            The Serial Number(s) selected are: <b>{{ this.checkedSerialNumbers.join(', ') }}</b> 
+                        </p>
+                        <p>
+                            You are about to purchase this tool for <b>₱{{ this.totalPrice }}</b> including VAT.
+                        </p>
+                        <p>
+                            Delivery will be made within 3-5 working days.
+                        </p>
+                        <p>
+                            This Product will be Delivered at: <b>{{ this.userLocation }}</b>
+                        </p>
+                        <p>
+                            If all details are correct, click the "Buy Product" button to proceed.
+                        </p>
+                    </div>
+                </div>
+            </template>
+            <template #modalFooter>
+                <button class="btn btn-success" v-on:click="buyProduct()">Buy Product</button>
             </template>
         </ModalComponent>
 
@@ -183,18 +205,24 @@ export default{
     data(){
         return{
             data : [],
+            userLocation: [],
             errors: [],
             selectedStatus: '',
             selectedBrand: '',
             selectedTool: '',
             selectedSpecs: '',
+            totalPrice: 0,
+            checkedSerialNumbers: [],
             vat: 12,
+            vatPercentage: 0.12,
             dataValues: {
             },
             modalId : 'modal-buytools',
+            modalIdFinal : 'modal-buytools-final',
             modalTitle : 'Buy Tools',
             modalPosition: 'modal-dialog-centered',
             modalSize : 'modal-md',
+            modalSizeFinal : 'modal-lg',
         }
     },
     components: {
@@ -205,12 +233,12 @@ export default{
     methods: {
         showDetails(tool) {
             this.dataValues = tool;
-            console.log(this.dataValues);
             $('#' + this.modalId).modal('show');
         },
         getData() {
             axios.get('/buytools/show').then(response => {
                 this.data = response.data.data;
+                this.userLocation = response.data.userLocation;
             })
         },
         clearInputs() {
@@ -221,6 +249,45 @@ export default{
         },
         refresh(){
             window.location.reload();
+        },
+        updateCheckedValues(serialNumber) {
+            if (this.checkedSerialNumbers.includes(serialNumber)) {
+                this.checkedSerialNumbers = this.checkedSerialNumbers.filter(num => num !== serialNumber);
+            } else {
+                this.checkedSerialNumbers.push(serialNumber);
+            }
+
+             // Calculate the subtotal based on the number of selected serial numbers
+                const subtotal = this.dataValues.price * this.checkedSerialNumbers.length;
+
+            // Calculate the total price including VAT
+            const vat = this.vatPercentage; // Assuming VAT is defined in the data or a constant
+            const totalPrice = (subtotal * (1 + vat)).toFixed(2);
+            // Update the total price
+            this.totalPrice = totalPrice;
+        },
+        validateForm() {
+            this.errors = [];
+
+            if (this.checkedSerialNumbers.length === 0) {
+                this.errors.serial_numbers = ['Please select at least one serial number'];
+            }
+            // Check if any errors are present
+            if (Object.keys(this.errors).length > 0) {
+                return false; // Validation failed
+            }
+
+            return true; // Validation passed
+        },
+        reviewProduct() {
+            // Validate the form
+            if (!this.validateForm()) {
+                return;
+            }
+
+            // Show the final modal
+            $('#' + this.modalIdFinal).modal('show');
+            $('#' + this.modalId).modal('hide');
         },
         filterData() {
             const searchData = {
@@ -251,55 +318,36 @@ export default{
                     console.error(error);
                 });
         },
-        storeData() {
-            Swal.fire({
-                title: 'Are you sure?',
-                text: 'Do you want to buy this tool?',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Yes, buy it!',
-                cancelButtonText: 'No, cancel!',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    axios.post('/buytools/store', this.dataValues)
-                        .then(response => {
-                            if(response.status === 200) {
-                                Swal.fire({
-                                    title: 'Success',
-                                    text: response.data.message,
-                                    icon: 'success',
-                                    timer: 3000
-                                });
-                            }
-                            this.getData();
-                            $('#' + this.modalId).modal('hide');
-                        })
-                        .catch(errors => {
-                            // Check if the response contains an error indicating insufficient funds
-                            if(errors.response.data.error === 'Insufficient funds') {
-                                // Display SweetAlert for insufficient funds
-                                Swal.fire({
-                                    title: 'Insufficient Funds',
-                                    text: errors.response.data.error,
-                                    icon: 'error',
-                                    timer: 3000
-                                });
-                            } else {
-                                // Display general warning message for other errors
-                                Swal.fire({
-                                    title: 'Warning',
-                                    text: 'An error occurred. Please try again later.',
-                                    icon: 'warning',
-                                    timer: 3000
-                                });
-                            }
-                            this.errors = errors.response.data.errors;
-                        });
-                } else if (result.dismiss === Swal.DismissReason.cancel) {
-                    Swal.fire('Cancelled', 'Your purchase has been cancelled.', 'error');
-                }
-            });
-        },
+        buyProduct(){
+
+            const data = {
+                serial_numbers: this.checkedSerialNumbers,
+                total_price: this.totalPrice,
+                dataValues: this.dataValues
+            };
+
+            axios.post('/buytools/buyTools', data)
+                .then(response => {
+                    Swal.fire({
+                        title: "Success!",
+                        text: "Product has been successfully purchased.",
+                        icon: 'success',
+                        timer: 3000
+                    });
+                    $('#' + this.modalIdFinal).modal('hide');
+                    this.getData();
+                })
+                .catch(error => {
+                    Swal.fire({
+                        title: "Error!",
+                        text: "Failed to purchase product.",
+                        icon: 'error',
+                        timer: 3000
+                    });
+                    console.error(error);
+                });
+
+        }
     },
     mounted() {
             this.getData();

@@ -507,30 +507,30 @@ return [
             'can' => ['user'],
             'url'  => '/delivery',
         ],
+        // [
+        //     'text' => 'Buying History', 
+        //     'icon'    => 'fa-solid fa-book',  
+        //     'can' => ['user'],
+        //     'url'  => '/buyinghistory',
+        // ],
+        // [
+        //     'text' => 'Borrowing History', 
+        //     'icon'    => 'fa-solid fa-book',  
+        //     'can' => ['user'],
+        //     'url'  => '/borrowedhistory',
+        // ],
         [
-            'text' => 'Buying History', 
-            'icon'    => 'fa-solid fa-book',  
-            'can' => ['user'],
-            'url'  => '/buyinghistory',
-        ],
-        [
-            'text' => 'Borrowing History', 
-            'icon'    => 'fa-solid fa-book',  
-            'can' => ['user'],
-            'url'  => '/borrowedhistory',
-        ],
-        [
-            'text' => 'Return a Product', 
+            'text' => 'Borrowed Product', 
             'icon' => 'fa-solid fa-people-carry-box',
             'can' => ['user'], 
             'url'  => '/return-product',
         ],
-        [ 
-            'text' => 'Damaged Return', 
-            'icon' => 'fa-solid fa-circle-exclamation',
-            'can' => ['user'], 
-            'url'  => '/damaged-return',
-        ],
+        // [ 
+        //     'text' => 'Damaged Return', 
+        //     'icon' => 'fa-solid fa-circle-exclamation',
+        //     'can' => ['user'], 
+        //     'url'  => '/damaged-return',
+        // ],
         [ 
             'text' => 'Receipts', 
             'icon' => 'fa-solid fa-receipt',
@@ -542,6 +542,12 @@ return [
             'icon' => 'fa-solid fa-money-bill',
             'can' => ['admin', 'user'], 
             'url'  => '/add-balance',
+        ],
+         [
+            'text' => 'History', 
+            'icon'    => 'fa-solid fa-book',  
+            'can' => ['user', 'admin', 'supplier'],
+            'url'  => '/history',
         ],
         // ['header' => 'labels'],
         // [

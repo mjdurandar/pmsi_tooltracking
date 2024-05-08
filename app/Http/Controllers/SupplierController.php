@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AdminHistory;
+use App\Models\History;
 use App\Models\Order;
 use App\Models\OrderedProducts;
 use App\Models\Product;
@@ -81,7 +82,7 @@ class SupplierController extends Controller
     }
 
     public function purchaseProduct(Request $request) {
-        
+
         $selectedSerialNumbers = $request->selectedSerialNumbers;
         $serializedSerialNumbers = json_encode($selectedSerialNumbers);
 
@@ -124,7 +125,14 @@ class SupplierController extends Controller
             $serialNumber->is_selected = true;
             $serialNumber->save();
         }
-    
+
+        $history = new History();
+        $history->user_id = Auth::id();
+        $history->product_id = $request->id;
+        $history->action = 'You Purchased a Product';
+        $history->save();
+        
+        return response()->json(['message' => 'Product Purchased Successfully'], 200);
     }
     
 

@@ -151,9 +151,9 @@
                         <p>
                             <b>{{ this.dataValues.brand_name }} {{ this.dataValues.tool_name }}</b> with the voltage of {{ this.dataValues.voltage }}, dimension of {{ this.dataValues.dimensions }}, weight of {{ this.dataValues.weight }} and powerSources of {{ this.dataValues.powerSources }}.
                         </p>
-                        <p>
+                        <!-- <p>
                             This Product will be<div v-if="category_id === 2"> <b> For Sale </b> </div> <div v-if="category_id === 3"> <b>For Borrowing</b></div>
-                        </p>
+                        </p> -->
                         <p>
                             With the price of <b>₱{{ this.selectedPrice }} each.</b>
                         </p>
@@ -305,6 +305,14 @@ export default{
         },
         releaseProduct(props){
             this.dataValues = props;
+            if(this.dataValues.stocks === 0){
+                Swal.fire({
+                    title: "No Stocks Available!",
+                    icon: 'warning',
+                    timer: 3000
+                });
+                return;
+            }
             $('#' + this.modalId).modal('show'); 
         },
         reviewProduct(){

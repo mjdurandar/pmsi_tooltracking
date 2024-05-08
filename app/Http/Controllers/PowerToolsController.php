@@ -6,8 +6,10 @@ use App\Models\AdminReleasedProducts;
 use App\Models\ToolsAndEquipment;
 use Illuminate\Http\Request;
 use App\Models\Category;
+use App\Models\History;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class PowerToolsController extends Controller
 {
@@ -99,6 +101,12 @@ class PowerToolsController extends Controller
         // Update the serial_numbers column in the database with the updated array
         $toolsAndEquipment->serial_numbers = json_encode($serialNumbers);
         $toolsAndEquipment->save();
+
+        $history = new History();
+        $history->user_id = Auth::id();
+        $history->product_id = $request->dataValues['product_id'];
+        $history->action = 'You Released this Product for ' . $request->dataValues['status'] . ' with a price of ' . '₱' . $request->price;
+        $history->save();
 
         return response()->json(['message' => 'Product has been released!']);
     }

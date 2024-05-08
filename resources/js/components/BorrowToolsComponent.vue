@@ -1,18 +1,14 @@
-<style>
-    .sold-out .card-body {
-        background-color: #f8f9fa; /* Change background color for sold-out cards */
-        opacity: 0.5; /* Set opacity to 80% */
-    }
-
-    .btn-sold-out {
-        color: #000 !important; /* Change button text color to black */
-    }
-</style>
-
 <template>
     <div class="p-3">
         <BreadCrumbComponent tab_title="Borrow Tools"></BreadCrumbComponent>
         <div class="row mb-3">
+            <div class="col-lg-2">
+                <select v-model="selectedStatus" class="form-control">
+                    <option value="" disabled selected>Select Status</option> 
+                    <option value="Sale">For Sale</option>
+                    <option value="Sold">Sold</option>
+                </select>
+            </div>
             <div class="col-lg-2">
                 <select v-model="selectedBrand" class="form-control">
                     <option value="" disabled selected>Select Brand</option>
@@ -54,34 +50,36 @@
                 <button class="btn btn-success ml-1" @click="refresh"><i class="fas fa-sync-alt"></i></button>
             </div>
         </div>
+
+
+        <!-- PRODUCT CARD -->
         <div class="row">
             <div class="col-md-4" v-for="(tool, index) in data" :key="index">
-                <div class="card" :class="{ 'sold-out': tool.status === 'Borrowed' || tool.status === 'Returning' }">
+                <!-- Card component for each tool -->
+                <div class="card">
                     <div class="card-body">
+                        <!-- Display tool information -->
                         <div class="d-flex justify-content-between">
                             <div style="width: 50%;">
                                 <h5 class="card-title">{{ tool.brand_name }} {{ tool.tool_name }}</h5>
                                 <p class="card-text">Price: {{ tool.price }}</p>
-                                <p class="card-text">Product Code: {{ tool.product_code }}</p>
                             </div>
                             <div style="width: 50%;">
                                 <img v-if="tool.product_image" :src="'/images/' + tool.product_image" alt="Tool Image" class="img-fluid" style="height: 250px;">
                                 <p v-else>No Image</p>
                             </div>
                         </div>
-                        <button :class="tool.status === 'Borrowed' || tool.status === 'Returning' ? 'btn btn-dark' : 'btn btn-primary'"
-                                v-on:click="showDetails(tool)"
-                                :disabled="tool.status === 'Borrowed' || tool.status === 'Returning'">
-                            {{ tool.status === 'Borrowed' || tool.status === 'Returning' ? 'Borrowed' : 'Borrow Tool' }}
-                        </button>
+                        <button class="btn btn-primary" v-on:click="showDetails(tool)">Borrow</button>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Borrow a Tool Modal -->
         <ModalComponent :id="modalId" :title="modalTitle" :size="modalSize" :position="modalPosition">
             <template #modalHeader>
                 <div class="m-auto">
-                    <h4>Borrow a Tool</h4>
+                    <h4>Purchase a Tool</h4>
                 </div>
             </template>
             <template #modalBody>
@@ -93,10 +91,6 @@
                     <div class="col-6 pb-2">
                         <label for="">Tool</label>
                         <input type="text" v-model="dataValues.tool_name" class="form-control" disabled> 
-                    </div>
-                    <div class="col-12 pb-2">
-                        <label for="">Product Code</label>
-                        <input type="text" v-model="dataValues.product_code" class="form-control" disabled> 
                     </div>
                     <div class="col-12 pb-2">
                         <label for="">Power Source</label>
@@ -118,6 +112,27 @@
                         <label for="">Material</label>
                         <input type="text" v-model="dataValues.material" class="form-control" disabled> 
                     </div>   
+                    <div class="col-6 pb-2">
+                        <label for="">Price</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">₱</span>
+                            </div>
+                            <input type="number" class="form-control" v-model="dataValues.price" disabled>
+                        </div>
+                    </div>  
+                    <div class="col-6 pb-2">
+                        <label for="">12% Vat</label>
+                            <input type="number" class="form-control" v-model="vat" disabled>
+                    </div>  
+                    <div class="col-12 pb-2">
+                        <label for="serialNumber">Please select Serial Number(s):</label>
+                        <div class="form-check" v-for="(serialNumber, index) in this.dataValues.serial_numbers" :key="index">
+                            <input class="form-check-input" type="checkbox" :id="'serialNumber_' + index" :value="serialNumber" @change="updateCheckedValues($event.target.value)">
+                            <label class="form-check-label" :for="'serialNumber_' + index">{{ serialNumber }}</label>
+                        </div>
+                        <div class="text-danger" v-if="errors.serial_numbers">{{ errors.serial_numbers[0] }}</div>
+                    </div>
                     <div class="col-12 pb-2">
                         <label for="">Return Days</label>
                         <select class="form-control" v-model="dataValues.return_days_id">
@@ -133,22 +148,73 @@
                             </div>
                             <input type="text" class="form-control" v-model="dataValues.penalty" disabled>
                         </div>
-                    </div> 
-                    <div class="col-12 pb-2">
-                        <label for="">Price</label>
+                    </div>
+                    <!-- <div class="col-12 pb-2">
+                        <label for="">Total:</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text">₱</span>
                             </div>
-                            <input type="text" class="form-control" v-model="dataValues.price" disabled>
+                            <input type="number" class="form-control" v-model="totalPrice" disabled>
                         </div>
                     </div>  
+                    <div class="col-12 pb-2">
+                        <label for="">Total including Penalty if not Return:</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">₱</span>
+                            </div>
+                            <input type="number" class="form-control" v-model="totalPrice" disabled>
+                        </div>
+                    </div>   -->
                 </div>
             </template>
             <template #modalFooter>
                 <div class="text-right">
-                    <button class="btn btn-primary" v-on:click="storeData">Borrow a Tool</button>
+                    <button class="btn btn-primary" v-on:click="reviewProduct">Review</button>
                 </div>
+            </template>
+        </ModalComponent>
+
+        <!-- REVIEW PRODUCT MODAL -->
+        <ModalComponent :id="modalIdFinal" :title="modalTitle" :size="modalSizeFinal" :position="modalPosition">
+            <template #modalHeader>
+                <div class="m-auto">
+                    <h3></h3>
+                </div>
+            </template>
+            <template #modalBody>
+                <div class="row">
+                    <div class="col-6 text-center m-auto" v-if="dataValues.product_image">
+                        <img :src="'/images/' + dataValues.product_image" alt="Current Image" class="img-fluid" style="height:300px;">
+                    </div>
+                    <div class="col-6">
+                        <p>
+                            <b>{{ this.dataValues.brand_name }} {{ this.dataValues.tool_name }}</b> with the voltage of {{ this.dataValues.voltage }}, dimension of {{ this.dataValues.dimensions }}, weight of {{ this.dataValues.weight }} and powerSources of {{ this.dataValues.powerSources }}.
+                        </p>
+                        <p>
+                            The Serial Number(s) selected are: <b>{{ this.checkedSerialNumbers.join(', ') }}</b> 
+                        </p>
+                        <p>
+                            You are about to purchase this tool for <b>₱{{ this.dataValues.price }}</b>
+                        </p>
+                        <p>
+                            If not return to the given days, a penalty of <b>₱{{ this.dataValues.penalty }}</b> will be charged.
+                        </p>
+                        <p>
+                            Delivery will be made within 3-5 working days.
+                        </p>
+                        <p>
+                            This Product will be Delivered at: <b>{{ this.userLocation }}</b>
+                        </p>
+                        <p>
+                            If all details are correct, click the "Buy Product" button to proceed.
+                        </p>
+                    </div>
+                </div>
+            </template>
+            <template #modalFooter>
+                <button class="btn btn-success" v-on:click="borrowProduct()">Borrow Product</button>
             </template>
         </ModalComponent>
 
@@ -167,16 +233,27 @@ export default{
     data(){
         return{
             data : [],
+            userLocation: [],
             errors: [],
-            returndays: '',
+            selectedStatus: '',
             selectedBrand: '',
             selectedTool: '',
             selectedSpecs: '',
-            dataValues: {},
-            modalId : 'modal-borrowtools',
-            modalTitle : 'Borrow Tools',
+            numberPrice: 0,
+            totalPrice: 0,
+            serialNumberChecked : 0,
+            returndays: [],
+            checkedSerialNumbers: [],
+            vat: 12,
+            vatPercentage: 0.12,
+            dataValues: {
+            },
+            modalId : 'modal-buytools',
+            modalIdFinal : 'modal-buytools-final',
+            modalTitle : 'Buy Tools',
             modalPosition: 'modal-dialog-centered',
             modalSize : 'modal-md',
+            modalSizeFinal : 'modal-lg',
         }
     },
     components: {
@@ -199,13 +276,11 @@ export default{
             this.dataValues = tool;
             $('#' + this.modalId).modal('show');
         },
-        refresh(){
-            window.location.reload();
-        },
         getData() {
             axios.get('/borrowtools/show').then(response => {
                 this.data = response.data.data;
                 this.returndays = response.data.returndays;
+                this.userLocation = response.data.userLocation;
             })
         },
         clearInputs() {
@@ -214,8 +289,51 @@ export default{
             }
             this.errors = [];
         },
+        refresh(){
+            window.location.reload();
+        },
+        updateCheckedValues(serialNumber) {
+            if (this.checkedSerialNumbers.includes(serialNumber)) {
+                this.checkedSerialNumbers = this.checkedSerialNumbers.filter(num => num !== serialNumber);
+            } else {
+                this.checkedSerialNumbers.push(serialNumber);
+            }
+            
+            this.serialNumberChecked = this.checkedSerialNumbers.length;
+             // Calculate the subtotal based on the number of selected serial numbers
+            const subtotal = this.dataValues.price * this.checkedSerialNumbers.length;
+            // Calculate the total price including VAT
+            const penalty = this.dataValues.penalty; // Assuming VAT is defined in the data or a constant
+            const totalPrice = (subtotal + penalty).toFixed(2);
+            // Update the total price
+            this.totalPrice = totalPrice;
+        },
+        validateForm() {
+            this.errors = [];
+
+            if (this.checkedSerialNumbers.length === 0) {
+                this.errors.serial_numbers = ['Please select at least one serial number'];
+            }
+            // Check if any errors are present
+            if (Object.keys(this.errors).length > 0) {
+                return false; // Validation failed
+            }
+
+            return true; // Validation passed
+        },
+        reviewProduct() {
+            // Validate the form
+            if (!this.validateForm()) {
+                return;
+            }
+            this.dataValues.price *= this.checkedSerialNumbers.length; 
+            // Show the final modal
+            $('#' + this.modalIdFinal).modal('show');
+            $('#' + this.modalId).modal('hide');
+        },
         filterData() {
             const searchData = {
+                status: this.selectedStatus,
                 brand: this.selectedBrand,
                 tool: this.selectedTool,
                 specs: this.selectedSpecs
@@ -242,55 +360,35 @@ export default{
                     console.error(error);
                 });
         },
-        storeData() {
-            Swal.fire({
-                title: 'Are you sure?',
-                text: 'Do you want to Borrow this tool?',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Yes, Borrow it!',
-                cancelButtonText: 'No, cancel!',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    axios.post('/borrowtools/store', this.dataValues)
-                        .then(response => {
-                            if(response.status === 200) {
-                                Swal.fire({
-                                    title: 'Success',
-                                    text: response.data.message,
-                                    icon: 'success',
-                                    timer: 3000
-                                });
-                            }
-                            this.getData();
-                            $('#' + this.modalId).modal('hide');
-                        })
-                        .catch(errors => {
-                            // Check if the response contains an error indicating insufficient funds
-                            if(errors.response.data.error === 'Insufficient funds') {
-                                // Display SweetAlert for insufficient funds
-                                Swal.fire({
-                                    title: 'Insufficient Funds',
-                                    text: errors.response.data.error,
-                                    icon: 'error',
-                                    timer: 3000
-                                });
-                            } else {
-                                // Display general warning message for other errors
-                                Swal.fire({
-                                    title: 'Warning',
-                                    text: 'An error occurred. Please try again later.',
-                                    icon: 'warning',
-                                    timer: 3000
-                                });
-                            }
-                            this.errors = errors.response.data.errors;
-                        });
-                } else if (result.dismiss === Swal.DismissReason.cancel) {
-                    Swal.fire('Cancelled', 'Your purchase has been cancelled.', 'error');
-                }
-            });
-        },
+        borrowProduct(){
+            const data = {
+                serial_numbers: this.checkedSerialNumbers,
+                dataValues: this.dataValues
+            };
+
+            axios.post('/borrowtools/borrowTools', data)
+                .then(response => {
+                    Swal.fire({
+                        title: "Success!",
+                        text: "Product has been successfully borrowed.",
+                        icon: 'success',
+                        timer: 3000
+                    });
+                    window.location.reload();
+                    $('#' + this.modalIdFinal).modal('hide');
+                    this.getData();
+                })
+                .catch(error => {
+                    Swal.fire({
+                        title: "Error!",
+                        text: "Failed to borrow product.",
+                        icon: 'error',
+                        timer: 3000
+                    });
+                    console.error(error);
+                });
+
+        }
     },
     mounted() {
             this.getData();

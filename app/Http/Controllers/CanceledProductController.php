@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\CanceledProduct;
+use App\Models\History;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CanceledProductController extends Controller
 {
@@ -30,6 +32,12 @@ class CanceledProductController extends Controller
 
         $cancelProduct = CanceledProduct::where('product_id', $product->id)->first();
         $cancelProduct->delete();
+
+        $history = new History();
+        $history->user_id = Auth::id();
+        $history->product_id = $request->id;
+        $history->action = 'After Cancelation you released the product again';
+        $history->save();
 
         return response()->json([ 'message' => 'Product released successfully' ]);
     }

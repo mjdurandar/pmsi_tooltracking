@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\CanceledProduct;
+use App\Models\History;
 use App\Models\Product;
 use App\Models\ProductCode;
 use App\Models\ReleasedProduct;
 use App\Models\SerialNumber;
+use App\Models\TrackOrder;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -42,6 +44,8 @@ class ProductController extends Controller
             $user = auth()->user();
 
             $data = isset($request->id) ? Product::where('id', $request->id)->first() : new Product();
+
+            $action = isset($request->id) ? 'Edited a Product' : 'Added a Product';
     
             $data->user_id = $user->id;
             $data->brand = $request->brand;
@@ -61,30 +65,6 @@ class ProductController extends Controller
             $data->material = $request->material;
             $data->stocks = $request->stocks;
             $data->price = $request->price;
-    
-            if ($request->brand === 'Other') {
-                $data->brand = $request->other_brand;
-            }
-        
-            if ($request->tool === 'Other') {
-                $data->tool = $request->other_tool;
-            }
-    
-            if ($request->voltage === 'Other') {
-                $data->voltage = $request->other_voltage;
-            }
-    
-            if ($request->weight === 'Other') {
-                $data->weight = $request->other_weight;
-            }
-    
-            if ($request->dimensions === 'Other') {
-                $data->dimensions = $request->other_dimensions;
-            }
-    
-            if ($request->material === 'Other') {
-                $data->material = $request->other_material;
-            }
             
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
@@ -125,6 +105,12 @@ class ProductController extends Controller
                     $serial->save();
                 }
             }
+
+            $history = new History();
+            $history->user_id = $user->id;
+            $history->product_id = $data->id;
+            $history->action = $action;
+            $history->save();
             
             return response()->json(['message' => 'Product added successfully'], 200);
         }
@@ -152,8 +138,13 @@ class ProductController extends Controller
         $product->is_removed = true;
         $product->save();
 
+        $history = new History();
+        $history->user_id = Auth::id();
+        $history->product_id = $request->id;
+        $history->action = 'You Removed a Product';
+        $history->save();
+
         $product->serialNumbers()->delete();
-        $product->productCodes()->delete();
         
         return response()->json(['data' => $product]);
     }
@@ -169,22 +160,41 @@ class ProductController extends Controller
         $product->is_for_sale = true;
         $product->save();
 
+        $history = new History();
+        $history->user_id = Auth::id();
+        $history->product_id = $request->id;
+        $history->action = 'Released a Product';
+        $history->save();
+
         return response()->json(['message' => 'Product released successfully'], 200);
     }
 
     public function canceledProduct(Request $request)
-    {      
-        $cancelledProduct = new CanceledProduct();
-        $cancelledProduct->product_id = $request->id;
-        $cancelledProduct->description = $request->dataValues['description'];
-        $cancelledProduct->save();
+    {     
+        $trackOrder = TrackOrder::where('product_id', $request->id)->first();
+        if($trackOrder){
+            return response()->json(['errors' => 'Product is already ordered.'], 422);
+        }
+        else{
+            $cancelledProduct = new CanceledProduct();
+            $cancelledProduct->product_id = $request->id;
+            $cancelledProduct->description = $request->dataValues['description'];
+            $cancelledProduct->save();
+    
+            $product = Product::find($request->id);
+            $product->is_canceled = true;
+            $product->is_for_sale = false;
+            $product->save();
+    
+            $history = new History();
+            $history->user_id = Auth::id();
+            $history->product_id = $request->id;
+            $history->action = 'Canceled a Product';
+            $history->save();
+    
+            return response()->json(['message' => 'Product canceled successfully'], 200);
+        }
 
-        $product = Product::find($request->id);
-        $product->is_canceled = true;
-        $product->is_for_sale = false;
-        $product->save();
-
-        return response()->json(['message' => 'Product canceled successfully'], 200);
     }
 
     public function filterData(Request $request){

@@ -55,6 +55,10 @@ import CompletedOrderedProductComponent from './components/CompletedOrderedProdu
 import CanceledOrderedProductComponent from './components/CanceledOrderedProductComponent.vue';
 import AdminReturnedProductComponent from './components/AdminReturnedProductComponent.vue';
 import ReturnedProductsSupplierComponent from './components/ReturnedProductsSupplierComponent.vue';
+import CompletedOrderUserComponent from './components/CompletedOrderUserComponent.vue';
+import CanceledOrderUserComponent from './components/CanceledOrderUserComponent.vue';
+import CompleteOrderAdminProductComponent from './components/CompleteOrderAdminProductComponent.vue';
+import CanceledOrderAdminProductComponent from './components/CanceledOrderAdminProductComponent.vue';
 
 app.config.globalProperties.$swal = Swal;
 app.use(ServerTable, {}, 'bootstrap4')
@@ -99,6 +103,10 @@ app.component('completed-ordered-product-component', CompletedOrderedProductComp
 app.component('canceled-ordered-product-component', CanceledOrderedProductComponent);
 app.component('admin-returned-product-component', AdminReturnedProductComponent);
 app.component('returned-products-supplier-component', ReturnedProductsSupplierComponent);
+app.component('completed-order-user-component', CompletedOrderUserComponent);
+app.component('canceled-order-user-component', CanceledOrderUserComponent);
+app.component('complete-order-admin-product-component', CompleteOrderAdminProductComponent);
+app.component('canceled-order-admin-product-component', CanceledOrderAdminProductComponent);
 
 /**
  * The following block of code may be used to automatically register your

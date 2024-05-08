@@ -104,6 +104,14 @@
                         <p>
                             Please ship the product to the following address: <b>{{ this.dataValues.location }}</b>
                         </p>
+                        <p>
+                            Customer Details: 
+                            <ul>
+                                <li>Name: <b>{{ this.dataValues.user_name }}</b></li>
+                                <li>Email: <b>{{ this.dataValues.email }}</b></li>
+                                <li>Contact Number: <b>{{ this.dataValues.contact_address }}</b></li>
+                            </ul>
+                        </p>
                     </div>
                 </div>
             </template>
