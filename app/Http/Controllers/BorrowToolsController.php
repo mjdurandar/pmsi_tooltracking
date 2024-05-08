@@ -14,6 +14,7 @@ use App\Models\Order;
 use App\Models\OrderedProducts;
 use App\Models\PurchasedItems;
 use App\Models\ReturnDays;
+use App\Models\Sales;
 use App\Models\Sold;
 use App\Models\ToolsAndEquipment;
 use App\Models\TrackOrder;
@@ -144,6 +145,11 @@ class BorrowToolsController extends Controller
             $history->product_id = $request->id;
             $history->action = 'You Borrow this Product and need to return at ' . $request->dataValues['return_date'];
             $history->save();
+
+            $sales = new Sales();
+            $sales->users_id = 1;
+            $sales->total_price = $request->total_price;
+            $sales->save();
 
             return response()->json(['message' => 'Data Successfully Saved']);
         } else {

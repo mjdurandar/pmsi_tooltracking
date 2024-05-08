@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\OrderedProducts;
 use App\Models\Product;
 use App\Models\ReleasedProduct;
+use App\Models\Sales;
 use App\Models\SerialNumber;
 use Illuminate\Http\Request;
 use App\Models\Supplier;
@@ -150,64 +151,5 @@ class SupplierController extends Controller
         
         return response()->json(['message' => 'Products Purchased Successfully'], 200);
     }
-    
-
-    
-
-    // public function purchaseProduct(Request $request) {
-    //     $selectedProducts = $request->all();
-    //     dd($selectedProducts);
-    //     $selectedSerialNumbers = $request->selectedSerialNumbers;
-    //     $serializedSerialNumbers = json_encode($selectedSerialNumbers);
-
-    //     $releasedProduct = ReleasedProduct::findOrFail($request->id);
-    //     $releasedProduct->is_sold = true;
-    //     $releasedProduct->save();
-
-    //     //THE ORDER WILL BE TRACKED
-    //     $trackOrder = new TrackOrder();
-    //     $trackOrder->status = 'Pending';
-    //     $trackOrder->product_id = $request->id;
-    //     $trackOrder->serial_numbers = $serializedSerialNumbers;
-    //     $trackOrder->total_price = $request->total;
-    //     $trackOrder->user_id = Auth::id();
-    //     $trackOrder->save();
-
-    //     // THE PRODUCTS STOCKS WILL BE DEDUCTED
-    //     $product = Product::find($request->id);
-    //     $product->stocks -= count($selectedSerialNumbers);
-    //     $product->save();
-
-    //     //THE USER BALANCE WILL BE DEDUCTED
-    //     $user = User::find(Auth::id());
-    //     $user->balance -= $request->total;
-    //     $user->save();
-
-    //     //THE ORDERED PRODUCTS WILL SAVE IN SUPPLIER SIDE
-    //     $orderedProduct = new OrderedProducts();
-    //     $orderedProduct->user_id = Auth::id();
-    //     $orderedProduct->track_orders_id = $trackOrder->id;
-    //     // $orderedProduct->is_completed = false;
-    //     // $orderedProduct->is_canceled = false;
-    //     $orderedProduct->shipment_date = '00/00/0000';
-    //     $orderedProduct->delivery_date = '00/00/0000';
-    //     $orderedProduct->save();
-
-    //     //THE SERIAL NUMBERS WILL BE SELECTED
-    //     foreach ($selectedSerialNumbers as $selectedSerialNumber) {
-    //         $serialNumber = SerialNumber::where('serial_number', $selectedSerialNumber)->first();
-    //         $serialNumber->is_selected = true;
-    //         $serialNumber->save();
-    //     }
-
-    //     $history = new History();
-    //     $history->user_id = Auth::id();
-    //     $history->product_id = $request->id;
-    //     $history->action = 'You Purchased a Product';
-    //     $history->save();
-        
-    //     return response()->json(['message' => 'Product Purchased Successfully'], 200);
-    // }
-    
 
 }

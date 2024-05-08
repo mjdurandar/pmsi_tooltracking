@@ -52,7 +52,6 @@ Route::group(['middleware' => 'auth'], function(){
     Route::get('/history/show',[App\Http\Controllers\HistoryController::class, 'show']);
 
     Route::middleware(['CheckRole:admin'])->group(function() {
-        // DASHBOARD
         Route::get('/dashboard',[App\Http\Controllers\DashboardController::class, 'index']);
         Route::get('/dashboard/productStocks',[App\Http\Controllers\DashboardController::class, 'productStocks']);
         Route::get('/dashboard/statusCount',[App\Http\Controllers\DashboardController::class, 'statusCount']);
@@ -60,6 +59,7 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('/dashboard/balanceData',[App\Http\Controllers\DashboardController::class, 'balanceData']);
         Route::get('/dashboard/supplierCount',[App\Http\Controllers\DashboardController::class, 'supplierCount']);
         Route::get('/dashboard/masterdataCount',[App\Http\Controllers\DashboardController::class, 'masterdataCount']);
+        Route::get('/dashboard/salesData',[App\Http\Controllers\DashboardController::class, 'salesData']);
 
         // PROJECT SITE
         Route::get('/project-site',[App\Http\Controllers\ProjectSiteController::class, 'index']);

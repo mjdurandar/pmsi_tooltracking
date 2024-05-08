@@ -16,6 +16,7 @@ use App\Models\History;
 use App\Models\Order;
 use App\Models\OrderedProducts;
 use App\Models\PurchasedItems;
+use App\Models\Sales;
 use App\Models\Sold;
 use App\Models\ToolsAndEquipment;
 use App\Models\TrackOrder;
@@ -115,6 +116,11 @@ class BuyToolsController extends Controller
             $history->product_id = $request->dataValues['product_id'];
             $history->action = 'You bought this Product at the price of ₱' . $request->total_price . ' including VAT';
             $history->save();
+
+            $sales = new Sales();
+            $sales->users_id = 1;
+            $sales->total_price = $request->total_price;
+            $sales->save();
     
             return response()->json(['message' => 'Product Ordered Successfully']);
         } else {

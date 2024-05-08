@@ -18,29 +18,12 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB; 
 use App\Models\AdminHistory;
 use App\Models\ReturnDays;
+use App\Models\Sales;
 
 class DashboardController extends Controller
 {
     public function index() {
         return view('admin.dashboard');
-    }
-
-    public function productStocks()
-    {
-        // Count the occurrences of each product name
-        $productCounts = ToolsAndEquipment::leftjoin('products', 'products.id', '=', 'tools_and_equipment.product_id')
-            ->select(DB::raw("SUBSTRING_INDEX(products.brand, ' ', 1) as first_word"), DB::raw('COUNT(*) as count'))
-            ->groupBy('first_word')
-            ->get();
-        
-        // Prepare the data for the chart
-        $labels = $productCounts->pluck('first_word');
-        $values = $productCounts->pluck('count');
-    
-        return response()->json([
-            'labels' => $labels,
-            'values' => $values,
-        ]);
     }
 
     public function supplierCount()
@@ -60,21 +43,6 @@ class DashboardController extends Controller
         ]);
     }    
     
-    // public function statusCount()
-    // {
-    //     // Count the occurrences of status 'Borrowed'
-    //     $borrowedCount = ToolsAndEquipment::where('status', 'For Borrowing')->count();
-
-    //     // Count the occurrences of status 'Selling'
-    //     $sellingCount = ToolsAndEquipment::where('status', 'For Sale')->count();
-
-
-    //     return response()->json([
-    //         'borrowedCount' => $borrowedCount,
-    //         'sellingCount' => $sellingCount
-    //     ]);
-    // }
-
     public function masterdataCount(){
         // Count the occurrences of each category of data
         $toolsandEquipmentCounts = ToolsAndEquipment::count();
@@ -92,14 +60,28 @@ class DashboardController extends Controller
         ]);
     }
 
-    // public function balanceData(){{
-    //     $user_id = Auth::id();
-    //     $user = User::findOrFail($user_id);
-    //     $balance = $user->balance; 
-    //     $balance = User::latest()->value('balance'); // Assuming 'amount' is the column storing the balance
-
-    //     // Return the balance data as a JSON response
-    //     return response()->json(['balance' => $balance]);
-    // }}
+    public function salesData()
+    {
+        // Fetch sales data from the database, ordered by creation date
+        $sales = Sales::orderBy('created_at', 'asc')->get();
+    
+        // Initialize arrays to store labels and values for the chart
+        $labels = [];
+        $values = [];
+    
+        // Iterate through each sale record
+        foreach ($sales as $sale) {
+            // Extract the relevant data for the chart
+            $labels[] = $sale->created_at->format('Y-m-d'); // Format the date for labeling
+            $values[] = $sale->total_price; // Use total_price for the chart data
+        }
+    
+        // Return the data as a JSON response
+        return response()->json([
+            'labels' => $labels,
+            'values' => $values
+        ]);
+    }
+    
     
 }

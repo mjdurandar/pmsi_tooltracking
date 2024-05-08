@@ -22229,83 +22229,12 @@ __webpack_require__.r(__webpack_exports__);
     BreadCrumbComponent: _partials_BreadCrumbComponent_vue__WEBPACK_IMPORTED_MODULE_0__["default"]
   },
   methods: {
-    getBalance: function getBalance() {
-      var _this = this;
-      axios__WEBPACK_IMPORTED_MODULE_2__["default"].get('/dashboardCount/counts').then(function (response) {
-        _this.data = response.data;
-      })["catch"](function (error) {
-        console.error('Error fetching balance data', error);
-      });
-    },
-    stocksBarChart: function stocksBarChart() {
-      axios__WEBPACK_IMPORTED_MODULE_2__["default"].get('/dashboard/productStocks').then(function (response) {
-        var data = response.data;
-        var labels = data.labels;
-        var values = data.values;
-
-        // Create a bar chart using Chart.js
-        new chart_js_auto__WEBPACK_IMPORTED_MODULE_1__.Chart(document.getElementById('stocksBarChart'), {
-          type: 'bar',
-          data: {
-            labels: labels,
-            datasets: [{
-              label: 'Product Stocks',
-              backgroundColor: 'rgba(54, 162, 235, 0.5)',
-              borderColor: 'rgba(54, 162, 235, 1)',
-              borderWidth: 1,
-              data: values
-            }]
-          },
-          options: {
-            scales: {
-              yAxes: [{
-                ticks: {
-                  beginAtZero: true
-                }
-              }]
-            }
-          }
-        });
-      })["catch"](function (error) {
-        console.error('Error fetching stock data', error);
-      });
-    },
-    statusCount: function statusCount() {
-      axios__WEBPACK_IMPORTED_MODULE_2__["default"].get('/dashboard/statusCount').then(function (response) {
-        var data = response.data;
-        var borrowedCount = data.borrowedCount;
-        var sellingCount = data.sellingCount;
-        var bothCount = data.bothCount;
-
-        // Create a doughnut chart using Chart.js
-        new chart_js_auto__WEBPACK_IMPORTED_MODULE_1__.Chart(document.getElementById('doughnutChart'), {
-          type: 'doughnut',
-          data: {
-            labels: ['Borrowing', 'Selling'],
-            datasets: [{
-              label: 'Status Counts',
-              data: [borrowedCount, sellingCount],
-              backgroundColor: ['rgba(255, 99, 132, 0.5)', 'rgba(54, 162, 235, 0.5)'],
-              borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
-              borderWidth: 1
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false
-            // You can add more options here as needed
-          }
-        });
-      })["catch"](function (error) {
-        console.error('Error fetching status counts:', error);
-      });
-    },
     getSupplierCounts: function getSupplierCounts() {
-      var _this2 = this;
+      var _this = this;
       axios__WEBPACK_IMPORTED_MODULE_2__["default"].get('/dashboard/supplierCount') // Make a GET request to fetch supplier counts
       .then(function (response) {
         var data = response.data; // Get the response data
-        _this2.createPolarAreaChart(data.labels, data.values); // Call method to create polar area chart with received data
+        _this.createPolarAreaChart(data.labels, data.values); // Call method to create polar area chart with received data
       })["catch"](function (error) {
         console.error('Error fetching supplier counts:', error);
       });
@@ -22340,11 +22269,11 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     getMasterDataCounts: function getMasterDataCounts() {
-      var _this3 = this;
+      var _this2 = this;
       axios__WEBPACK_IMPORTED_MODULE_2__["default"].get('/dashboard/masterdataCount') // Make a GET request to fetch master data counts
       .then(function (response) {
         var data = response.data; // Get the response data
-        _this3.createBarChart(data.labels, data.values); // Call method to create bar chart with received data
+        _this2.createBarChart(data.labels, data.values); // Call method to create bar chart with received data
       })["catch"](function (error) {
         console.error('Error fetching master data counts:', error);
       });
@@ -22374,14 +22303,42 @@ __webpack_require__.r(__webpack_exports__);
           }
         }
       });
+    },
+    getSalesData: function getSalesData() {
+      var _this3 = this;
+      axios__WEBPACK_IMPORTED_MODULE_2__["default"].get('/dashboard/salesData').then(function (response) {
+        var data = response.data;
+        _this3.createLineChart(data.labels, data.values);
+      })["catch"](function (error) {
+        console.error('Error fetching sales data:', error);
+      });
+    },
+    createLineChart: function createLineChart(labels, values) {
+      new chart_js_auto__WEBPACK_IMPORTED_MODULE_1__.Chart(document.getElementById('saleChart'), {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Sales',
+            data: values,
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.1
+          }]
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
     }
   },
   mounted: function mounted() {
-    this.stocksBarChart();
-    this.statusCount();
-    this.getBalance();
     this.getSupplierCounts();
     this.getMasterDataCounts();
+    this.getSalesData();
   }
 });
 
@@ -29491,7 +29448,7 @@ __webpack_require__.r(__webpack_exports__);
 var _hoisted_1 = {
   "class": "p-3"
 };
-var _hoisted_2 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createStaticVNode)("<div class=\"row\"><div class=\"col-lg-12\"><div class=\"card\" style=\"background-color:#f18f4e;color:#fff;\"><div class=\"card-body dash-title\"> Sales </div></div><div class=\"card\"><div class=\"card-body\"><canvas id=\"\"></canvas></div></div></div></div><div class=\"row\"><div class=\"col-lg-6\"><div class=\"card\" style=\"background-color:#f18f4e;color:#fff;\"><div class=\"card-body dash-title\"> Master Data </div></div><div class=\"card\"><div class=\"card-body\"><canvas id=\"masterDataBarChart\"></canvas></div></div></div><div class=\"col-lg-6\"><div class=\"card\" style=\"background-color:#f18f4e;color:#fff;\"><div class=\"card-body dash-title\"> Supplier </div></div><div class=\"card\"><div class=\"card-body\"><canvas id=\"supplierPolarAreaChart\"></canvas></div></div></div></div>", 2);
+var _hoisted_2 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createStaticVNode)("<div class=\"row\"><div class=\"col-lg-12\"><div class=\"card\" style=\"background-color:#f18f4e;color:#fff;\"><div class=\"card-body dash-title\"> Sales </div></div><div class=\"card\"><div class=\"card-body\"><canvas id=\"saleChart\"></canvas></div></div></div></div><div class=\"row\"><div class=\"col-lg-6\"><div class=\"card\" style=\"background-color:#f18f4e;color:#fff;\"><div class=\"card-body dash-title\"> Master Data </div></div><div class=\"card\"><div class=\"card-body\"><canvas id=\"masterDataBarChart\"></canvas></div></div></div><div class=\"col-lg-6\"><div class=\"card\" style=\"background-color:#f18f4e;color:#fff;\"><div class=\"card-body dash-title\"> Supplier </div></div><div class=\"card\"><div class=\"card-body\"><canvas id=\"supplierPolarAreaChart\"></canvas></div></div></div></div>", 2);
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   var _component_BreadCrumbComponent = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("BreadCrumbComponent");
   return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_BreadCrumbComponent, {
@@ -30047,7 +30004,7 @@ var _withScopeId = function _withScopeId(n) {
   return (0,vue__WEBPACK_IMPORTED_MODULE_0__.pushScopeId)("data-v-782dcf83"), n = n(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.popScopeId)(), n;
 };
 var _hoisted_1 = {
-  "class": "d-flex flex-column min-vh-100"
+  "class": "d-flex flex-column min-vh-100 justify-content-center align-items-center"
 };
 var _hoisted_2 = {
   "class": "text-center pt-5 flex-grow-1"
@@ -30058,19 +30015,27 @@ var _hoisted_3 = /*#__PURE__*/_withScopeId(function () {
   }, "Welcome to PMSI", -1 /* HOISTED */);
 });
 var _hoisted_4 = /*#__PURE__*/_withScopeId(function () {
-  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", null, "PMSI is a comprehensive platform for selling and buying tools. We connect tool sellers with buyers, providing a marketplace for all your tool trading needs.", -1 /* HOISTED */);
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", {
+    "class": "text-center"
+  }, "PMSI is a comprehensive platform for selling and buying tools.", -1 /* HOISTED */);
 });
 var _hoisted_5 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", {
+    "class": "text-center mb-5"
+  }, "We connect tool sellers with buyers, providing a marketplace for all your tool trading needs.", -1 /* HOISTED */);
+});
+var _hoisted_6 = /*#__PURE__*/_withScopeId(function () {
   return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("img", {
+    "class": "logo-img",
     src: "/images/pmsi_logo.png",
-    alt: ""
+    alt: "PMSI Logo"
   }, null, -1 /* HOISTED */);
 });
-var _hoisted_6 = {
-  "class": "text-center mt-5"
+var _hoisted_7 = {
+  "class": "text-center reserved"
 };
 function render(_ctx, _cache) {
-  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_2, [_hoisted_3, _hoisted_4, _hoisted_5, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_6, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, "© " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(new Date().getFullYear()) + " PMSI. All rights reserved.", 1 /* TEXT */)])])]);
+  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_2, [_hoisted_3, _hoisted_4, _hoisted_5, _hoisted_6, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_7, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, "© " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(new Date().getFullYear()) + " PMSI. All rights reserved.", 1 /* TEXT */)])])]);
 }
 
 /***/ }),
@@ -41408,7 +41373,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\n.footer[data-v-782dcf83] {\n    width: 100%;\n    height: 60px;\n    line-height: 60px;\n    background-color: #f18f4e;\n}\n.min-vh-100[data-v-782dcf83] {\n    min-height: 100vh;\n}\n.flex-grow-1[data-v-782dcf83] {\n    flex-grow: 1;\n}\n", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "\n.footer[data-v-782dcf83] {\n    width: 100%;\n    height: 60px;\n    line-height: 60px;\n    background-color: #f18f4e;\n}\n.min-vh-100[data-v-782dcf83] {\n    min-height: 100vh;\n}\n.flex-grow-1[data-v-782dcf83] {\n    flex-grow: 1;\n}\n.logo-img[data-v-782dcf83] {\n    width: 200px; /* Adjust the width as needed */\n}\n.reserved[data-v-782dcf83] {\n   margin-top: 120px;\n}\n", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
