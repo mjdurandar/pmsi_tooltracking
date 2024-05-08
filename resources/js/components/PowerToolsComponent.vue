@@ -346,6 +346,7 @@ export default{
                             });
                         }
                         $('#' + this.modalIdFinal).modal('hide');
+                        window.location.reload();
                         this.getData();
                     }).catch(errors => {
                         if(errors.response.data.message.length > 0) {

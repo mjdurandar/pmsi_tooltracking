@@ -10,6 +10,7 @@ use App\Models\TrackOrder;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class TrackOrderController extends Controller
 {
@@ -18,18 +19,19 @@ class TrackOrderController extends Controller
     }
 
     public function show()
-    {
+    {   
+        
         $data = TrackOrder::leftjoin('products', 'track_orders.product_id', '=', 'products.id')
-            ->select('track_orders.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as image',
-            'products.voltage as voltage', 'products.dimensions as dimensions', 'products.weight as weight', 'products.powerSources as powerSources')
-            ->where('track_orders.is_canceled', false)
-            ->where('track_orders.is_completed', false)
-            ->where('track_orders.user_id', '=', Auth::id())
-            ->get();
-
-        return response()->json([ 'data' => $data, ]);
-    }
-
+        ->select('track_orders.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as image',
+        'products.voltage as voltage', 'products.dimensions as dimensions', 'products.weight as weight', 'products.powerSources as powerSources')
+        ->where('track_orders.is_canceled', false)
+        ->where('track_orders.is_completed', false)
+        ->where('track_orders.user_id', '=', Auth::id())
+        ->get();
+    
+        return response()->json(['data' => $data]);
+    }    
+    
     public function cancelOrder(Request $request)
     {   
         //UPDATE THE TRACK ORDER DATA TO CANCELED

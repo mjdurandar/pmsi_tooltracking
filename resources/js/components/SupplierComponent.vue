@@ -190,7 +190,53 @@
             <template #modalFooter>
                 <div class="text-right">
                     <button class="btn btn-primary mr-2" v-on:click="clearSelected">Clear</button>
-                    <button class="btn btn-success" v-on:click="getSelectedValue">Confirm</button>
+                    <button class="btn btn-warning" v-on:click="getSelectedValue">Add to Cart</button>
+                </div>
+            </template>
+        </ModalComponent>
+
+        <!-- REVIEW PURCHASED MODAL -->
+        <ModalComponent :id="modalIdReview" :title="modalTitle" :size="modalSizeTermsandCondition" :position="modalPosition">
+            <template #modalHeader>
+                <div class="m-auto">
+                    <h4>Review your Purchased</h4>
+                </div>
+            </template>
+            <template #modalBody>
+                <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+                    <div v-for="(product, index) in selectedProducts" :key="index">
+                        <div class="row">
+                            <div class="col-6 text-center m-auto" v-if="product.dataValues.image">
+                                <img :src="'/images/' + product.dataValues.image" alt="Product Image" class="img-fluid" style="height:300px;">
+                            </div>
+                            <div class="col-6">
+                                <p>
+                                    You are about to purchase <b>{{ product.dataValues.brand }} {{ product.dataValues.tool }}</b>
+                                    with the voltage of <b>{{ product.dataValues.voltage }}</b>, dimension of <b>{{ product.dataValues.dimensions }}</b>, weight of <b>{{ product.dataValues.weight }}</b> and powerSources of <b>{{ product.dataValues.powerSources }}</b>.
+                                </p>
+                                <p>
+                                    You selected the Serial Number(s) of:
+                                    <ul>
+                                        <li v-for="(serialNumber, index) in product.selectedSerialNumbers" :key="index">
+                                            {{ serialNumber }}{{ index !== product.selectedSerialNumbers.length - 1 ? '' : '' }}
+                                        </li>
+                                    </ul>
+                                </p>
+                                <p>
+                                    The Product will be delivered in this location
+                                    <b>{{ userLocation }}</b>
+                                </p>
+                                <p>
+                                    Once you're confident that everything is in order, proceed by clicking "Confirm" button below.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+            <template #modalFooter>
+                <div class="text-right">
+                    <button class="btn btn-success" v-on:click="termsAndConditionModal">Confirm</button>
                 </div>
             </template>
         </ModalComponent>
@@ -217,7 +263,7 @@
                                 You selected the Serial Number(s) of:
                                 <ul>
                                     <li v-for="(serialNumber, index) in selectedSerialNumbers" :key="index">
-                                        {{ serialNumber }}{{ index !== selectedSerialNumbers.length - 1 ? '' : '' }}
+                                        <b>{{ serialNumber }}{{ index !== selectedSerialNumbers.length - 1 ? '' : '' }}</b>
                                     </li>
                                 </ul>
                             </p>
@@ -299,7 +345,7 @@
             </template>
         </ModalComponent>
         
-        <button class="btn btn-primary" style="float: inline-end;" v-on:click="checkout">Checkout</button>
+        <button class="btn btn-warning" style="float: inline-end;" v-on:click="checkout">Checkout</button>
     </div>
 </template>
 
@@ -329,6 +375,7 @@ export default{
                 products : [],  
                 requestData : [],
                 userBalance: [],
+                selectedProducts: [],
                 agreementChecked: false,
                 requestedItems : 0,
                 total: 0,
@@ -372,17 +419,59 @@ export default{
             if (this.selectedIndexes.length === 0) {
                 Swal.fire({
                     title: 'No Serial Number Selected',
-                    text: 'Please a Serial Number!',
+                    text: 'Please select a Serial Number!',
                     icon: 'warning',
                     timer: 3000
                 });
-            }
-            else
-            {
+            } else {
                 const selectedSerialNumbers = this.selectedIndexes.map(index => this.serialNumbers[index].serial_number);
-                this.selectedSerialNumbers = selectedSerialNumbers;
+                let existingDataIndex = -1;
+                
+                // Find if data with the same values already exists
+                existingDataIndex = this.selectedProducts.findIndex(product => {
+                    // Check if dataValues are the same
+                    return JSON.stringify(product.dataValues) === JSON.stringify(this.dataValues);
+                });
+
+                if (existingDataIndex !== -1) {
+                    // Data with same values already exists
+                    const existingProduct = this.selectedProducts[existingDataIndex];
+                    const newSerialNumbers = selectedSerialNumbers.filter(serial => !existingProduct.selectedSerialNumbers.includes(serial));
+                    
+                    if (newSerialNumbers.length > 0) {
+                        // Add new serial numbers to existing data
+                        existingProduct.selectedSerialNumbers.push(...newSerialNumbers);
+                        Swal.fire({
+                            title: 'Serial Number Added to Existing Data!',
+                            text: '',
+                            icon: 'success',
+                            timer: 3000
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Serial Number Already Selected for This Data!',
+                            text: 'Please select a different one!',
+                            icon: 'warning',
+                            timer: 3000
+                        });
+                        return;
+                    }
+                } else {
+                    // Add new data entry with selected serial numbers
+                    this.selectedProducts.push({
+                        dataValues: this.dataValues,
+                        selectedSerialNumbers: selectedSerialNumbers,
+                    });
+                    Swal.fire({
+                        title: 'Added to Cart!',
+                        text: '',
+                        icon: 'success',
+                        timer: 3000
+                    });
+                }
+
                 $('#' + this.modalIdSelect).modal('hide');
-                $('#' + this.modalIdReview).modal('show');
+                // $('#' + this.modalIdReview).modal('show');
             }
         },
         termsAndConditionModal()
@@ -455,10 +544,20 @@ export default{
             this.dataValues = product;
             this.requestedItems = '';
             this.total = '';
+             // Clear selected serial numbers
+            this.selectedSerialNumbers = [];
             $('#' + this.modalIdPurchaseProduct).modal('show');
         },
         checkout(){
-            console.log(this.dataValues);
+            if(this.selectedProducts.length === 0){
+                Swal.fire({
+                    title: "No Products selected!",
+                    icon: 'warning',
+                    timer: 3000
+                });
+                return;
+            }
+            $('#' + this.modalIdReview).modal('show');
         },
         yesProduct() {
             this.selectedIndexes.length = 0;
@@ -498,7 +597,6 @@ export default{
         },
         calculateTotal() {
             this.total = this.requestedItems * this.dataValues.price;
-
             this.vatTotal = this.total + (this.total * (this.vat / 100));
         },
         getProduct(){
@@ -511,7 +609,9 @@ export default{
                 dataValues: this.dataValues,
                 selectedSerialNumbers: this.selectedSerialNumbers
             }
-            axios.post('/supplier/purchaseProduct', requestData)
+
+            console.log(requestData);
+            axios.post('/supplier/purchaseProduct', this.selectedProducts)
                 .then(response => {
                     Swal.fire({
                         title: "Product Purchased Successfully!",

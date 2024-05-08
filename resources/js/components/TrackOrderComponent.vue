@@ -151,12 +151,11 @@ export default{
                 data : [],
                 qrCodeUrl: '',
                 globalId : '',
-                columns : ['brand_name', 'tool_name', 'status' ,'created_at' ,'action'],
+                columns : ['tracking_number', 'status' ,'created_at' ,'action'],
                 errors: [],
                 options : {
                     headings : {
-                        brand_name : 'Brand',
-                        tool_name : 'Tool',
+                        tracking_number : 'Tracking Number',
                         status : 'Status',
                         created_at : 'Placed Order At',
                         action : 'Action',

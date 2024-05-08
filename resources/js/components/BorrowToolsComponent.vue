@@ -124,7 +124,7 @@
                     <div class="col-6 pb-2">
                         <label for="">Return Days</label>
                         <select class="form-control" v-model="dataValues.return_days_id" @change="calculateReturnDate">
-                            <option v-for="returnday in returndays" :value="returnday.id">{{ returnday.number_of_days }} Days</option>
+                            <option v-for="returnday in returndays" :value="returnday.number_of_days">{{ returnday.number_of_days }} Days</option>
                         </select>
                         <div class="text-danger" v-if="errors.returnday">{{ errors.returnday[0] }}</div>
                     </div> 
@@ -246,10 +246,10 @@ export default{
     watch: {
         'dataValues.return_days_id': function(newVal, oldVal) {
             // If return_days_id changes, update the penalty based on the selected return days
-            const selectedReturnDays = this.returndays.find(day => day.id === newVal);
-            if (selectedReturnDays) {
-                // Assuming penalty is calculated based on some logic
-                this.dataValues.penalty = selectedReturnDays.penalty;
+            const selectedReturnDay = this.returndays.find(day => day.number_of_days === newVal);
+            if (selectedReturnDay) {
+                // Update the penalty based on the selected return days
+                this.dataValues.penalty = selectedReturnDay.penalty;
             }
         }
     },
