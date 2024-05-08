@@ -56,11 +56,17 @@ class OrderedProductsController extends Controller
             'admin.name as supplier_name',
             'users.contact_address as contact_address',
             'users.email as email',
+            'track_orders.serial_numbers as serial_numbers',
             DB::raw('LENGTH(track_orders.serial_numbers) - LENGTH(REPLACE(track_orders.serial_numbers, ",", "")) + 1 as serial_numbers_count')
         )
         ->whereNotIn('track_orders.status', ['Canceled', 'Completed'])
         ->where('admin.name', $supplierName)
         ->get();
+
+        foreach ($data as $order) {
+            $order->serial_numbers = json_decode($order->serial_numbers);
+        }
+
         $data->transform(function ($item) {
             $item->ordered_at = $item->ordered_at ? \Carbon\Carbon::parse($item->ordered_at)->setTimezone('Asia/Manila')->format('m/d/Y h:i:s A') : null;
             return $item;

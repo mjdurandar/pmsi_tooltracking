@@ -99,6 +99,10 @@
                             The User ordered a total of <b>{{ this.dataValues.serial_numbers_count }}</b> product(s) with the total price of <b>₱{{ this.dataValues.total_price }}.</b>
                         </p>
                         <p>
+                            The Serial Numbers are: 
+                            <b>{{ this.dataValues.serial_numbers }}</b>
+                        </p>
+                        <p>
                             The Price of : <b>₱{{ this.dataValues.total_price }}</b> is already credited to your Account.
                         </p>
                         <p>

@@ -1,7 +1,6 @@
 <template>
     <div class="p-3">
         <BreadCrumbComponent tab_title="Supplier"></BreadCrumbComponent>
-
         <!-- FILTER DATA -->
         <div class="row mb-3">
             <div class="col-lg-2">
@@ -299,7 +298,8 @@
                 </div>
             </template>
         </ModalComponent>
-
+        
+        <button class="btn btn-primary" style="float: inline-end;" v-on:click="checkout">Checkout</button>
     </div>
 </template>
 
@@ -332,6 +332,7 @@ export default{
                 agreementChecked: false,
                 requestedItems : 0,
                 total: 0,
+                vatTotal: 0,
                 columns : ['name' ,'action'],
                 errors: [],
                 options : {
@@ -456,6 +457,9 @@ export default{
             this.total = '';
             $('#' + this.modalIdPurchaseProduct).modal('show');
         },
+        checkout(){
+            console.log(this.dataValues);
+        },
         yesProduct() {
             this.selectedIndexes.length = 0;
             if (this.validateForm()) {
@@ -502,7 +506,12 @@ export default{
             this.vatTotal = 0;
             this.agreementChecked = false;
             this.requestData.selectedSerialNumbers = this.selectedSerialNumbers;
-            axios.post('/supplier/purchaseProduct', this.requestData)
+            
+            const requestData = {
+                dataValues: this.dataValues,
+                selectedSerialNumbers: this.selectedSerialNumbers
+            }
+            axios.post('/supplier/purchaseProduct', requestData)
                 .then(response => {
                     Swal.fire({
                         title: "Product Purchased Successfully!",

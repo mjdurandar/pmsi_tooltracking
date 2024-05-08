@@ -221,11 +221,6 @@ export default{
         BreadCrumbComponent,
     },
     computed: {
-        allCheckboxesChecked() {
-            return this.isChecked1 && this.isChecked2 && this.isChecked3 &&
-                   this.isChecked4 && this.isChecked5 && this.isChecked6 &&
-                   this.isChecked7 && this.isChecked8;
-        },
         filteredCategories() {
             // Filter out the 'Unreleased' category if product's category is already 'Unreleased'
             return this.categories.filter(category => {
@@ -304,6 +299,7 @@ export default{
             });
         },
         releaseProduct(props){
+            this.checkedSerialNumbers = [];
             this.dataValues = props;
             if(this.dataValues.stocks === 0){
                 Swal.fire({

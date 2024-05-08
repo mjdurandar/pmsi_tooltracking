@@ -79,7 +79,7 @@
         <ModalComponent :id="modalId" :title="modalTitle" :size="modalSize" :position="modalPosition">
             <template #modalHeader>
                 <div class="m-auto">
-                    <h4>Purchase a Tool</h4>
+                    <h4>Borrow a Tool</h4>
                 </div>
             </template>
             <template #modalBody>
@@ -122,20 +122,8 @@
                         </div>
                     </div>  
                     <div class="col-6 pb-2">
-                        <label for="">12% Vat</label>
-                            <input type="number" class="form-control" v-model="vat" disabled>
-                    </div>  
-                    <div class="col-12 pb-2">
-                        <label for="serialNumber">Please select Serial Number(s):</label>
-                        <div class="form-check" v-for="(serialNumber, index) in this.dataValues.serial_numbers" :key="index">
-                            <input class="form-check-input" type="checkbox" :id="'serialNumber_' + index" :value="serialNumber" @change="updateCheckedValues($event.target.value)">
-                            <label class="form-check-label" :for="'serialNumber_' + index">{{ serialNumber }}</label>
-                        </div>
-                        <div class="text-danger" v-if="errors.serial_numbers">{{ errors.serial_numbers[0] }}</div>
-                    </div>
-                    <div class="col-12 pb-2">
                         <label for="">Return Days</label>
-                        <select class="form-control" v-model="dataValues.return_days_id">
+                        <select class="form-control" v-model="dataValues.return_days_id" @change="calculateReturnDate">
                             <option v-for="returnday in returndays" :value="returnday.id">{{ returnday.number_of_days }} Days</option>
                         </select>
                         <div class="text-danger" v-if="errors.returnday">{{ errors.returnday[0] }}</div>
@@ -149,24 +137,18 @@
                             <input type="text" class="form-control" v-model="dataValues.penalty" disabled>
                         </div>
                     </div>
-                    <!-- <div class="col-12 pb-2">
-                        <label for="">Total:</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">₱</span>
-                            </div>
-                            <input type="number" class="form-control" v-model="totalPrice" disabled>
-                        </div>
-                    </div>  
                     <div class="col-12 pb-2">
-                        <label for="">Total including Penalty if not Return:</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">₱</span>
-                            </div>
-                            <input type="number" class="form-control" v-model="totalPrice" disabled>
+                        <label for="serialNumber">Please select Serial Number(s):</label>
+                        <div class="form-check" v-for="(serialNumber, index) in this.dataValues.serial_numbers" :key="index">
+                            <input class="form-check-input" type="checkbox" :id="'serialNumber_' + index" :value="serialNumber" @change="updateCheckedValues($event.target.value)">
+                            <label class="form-check-label" :for="'serialNumber_' + index">{{ serialNumber }}</label>
                         </div>
-                    </div>   -->
+                        <div class="text-danger" v-if="errors.serial_numbers">{{ errors.serial_numbers[0] }}</div>
+                    </div>
+                    <div class="col-12 pb-2">
+                        <label for="serialNumber">Please Return the Product on or before:</label>
+                        <input type="text" class="form-control" v-model="dataValues.return_date" disabled>
+                    </div>
                 </div>
             </template>
             <template #modalFooter>
@@ -196,13 +178,13 @@
                             The Serial Number(s) selected are: <b>{{ this.checkedSerialNumbers.join(', ') }}</b> 
                         </p>
                         <p>
-                            You are about to purchase this tool for <b>₱{{ this.dataValues.price }}</b>
+                            You are about to purchase this tool for <b>₱{{ this.dataValues.price }}</b> and need to return it on or before <b>{{ this.dataValues.return_date }}</b>.
                         </p>
                         <p>
                             If not return to the given days, a penalty of <b>₱{{ this.dataValues.penalty }}</b> will be charged.
                         </p>
                         <p>
-                            Delivery will be made within 3-5 working days.
+                            Delivery will be made within <b>3-5 working days.</b>
                         </p>
                         <p>
                             This Product will be Delivered at: <b>{{ this.userLocation }}</b>
@@ -272,8 +254,20 @@ export default{
         }
     },
     methods: {
+        calculateReturnDate() {
+            const selectedReturnDays = this.dataValues.return_days_id;
+            const currentDate = new Date();
+            // Add selected return days to the current date
+            currentDate.setDate(currentDate.getDate() + selectedReturnDays);
+            // Format the return date with the month as a word
+            const options = { month: 'long', day: '2-digit', year: 'numeric' };
+            const formattedReturnDate = currentDate.toLocaleDateString("en-US", options);
+            // Set the return date value to the data model
+            this.dataValues.return_date = formattedReturnDate;
+        },
         showDetails(tool) {
             this.dataValues = tool;
+            this.checkedSerialNumbers = [];
             $('#' + this.modalId).modal('show');
         },
         getData() {

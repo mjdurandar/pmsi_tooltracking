@@ -1,6 +1,6 @@
 <template>
     <div class="p-3">
-        <BreadCrumbComponent tab_title="Return a Product"></BreadCrumbComponent>
+        <BreadCrumbComponent tab_title="Borrowed Product"></BreadCrumbComponent>
         <div class="card">
             <div class="card-body">
                 <FormComponent 

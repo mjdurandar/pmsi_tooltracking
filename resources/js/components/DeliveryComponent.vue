@@ -112,6 +112,9 @@
                             You ordered it At : <b>{{this.dataValues.ordered_at}}</b>
                         </p>
                         <p>
+                            You are <b>{{ this.dataValues.type }}</b> this product.
+                        </p>
+                        <p>
                             Please wait for your Product usually it takes <b> 2-3 business days</b> to deliver. 
                         </p>
                         <p>
@@ -192,12 +195,12 @@ export default{
                 selectedBrand : '',
                 selectedTool : '',
                 globalId : '',
-                columns : ['brand_name', 'tool_name' ,'status', 'ordered_at' ,'action'],
+                columns : ['brand_name', 'tool_name' ,'type', 'ordered_at' ,'action'],
                 options : {
                     headings : {
                         brand_name : 'Brand',
                         tool_name : 'Tool',
-                        status : 'Status',
+                        type : 'Type',
                         ordered_at : 'Ordered At',
                         action : 'Action',
                     },

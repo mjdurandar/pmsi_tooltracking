@@ -84,7 +84,8 @@ class OrderController extends Controller
                                 ->select('ordered_products.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as image'
                                         ,'products.powerSources as powerSources', 'products.voltage as voltage', 'products.weight as weight', 
                                         'products.dimensions as dimensions', 'products.material as material', 'track_orders.status as status', 'track_orders.total_price as total_price'
-                                        ,'users.location as location', 'users.contact_address as contact_address', 'users.email as email', 'users.name as user_name' 
+                                        ,'users.location as location', 'users.contact_address as contact_address', 'users.email as email', 'users.name as user_name', 
+                                        'track_orders.type as type', 'track_orders.serial_numbers as serial_numbers' 
                                         , DB::raw('LENGTH(track_orders.serial_numbers) - LENGTH(REPLACE(track_orders.serial_numbers, ",", "")) + 1 as serial_numbers_count'))
                                 ->where('ordered_products.user_id', '!=', Auth::id())
                                 ->where('track_orders.is_canceled', false)

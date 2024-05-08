@@ -8,11 +8,14 @@ use Illuminate\Http\Request;
 use App\Models\DeliverHistory;
 use Carbon\Carbon;
 use App\Models\Borrowed;
+use App\Models\BorrowedProduct;
 use App\Models\Order;
+use App\Models\OrderedProducts;
 use App\Models\PurchasedItems;
 use App\Models\ReturnDays;
 use App\Models\Sold;
 use App\Models\ToolsAndEquipment;
+use App\Models\TrackOrder;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
@@ -77,65 +80,62 @@ class BorrowToolsController extends Controller
     }
 
     public function borrowTools(Request $request) {
-        dd($request->all());
         $user_id = Auth::id();
 
         // Find the user record
         $user = User::findOrFail($user_id);
         $remaining_balance = $user->balance - $request->price;
 
-        return response()->json(['message' => 'Data Successfully Saved']);
         if ($remaining_balance >= 0) {
 
             $user->balance = $remaining_balance;
             $user->save();
+
+            // Find all AdminReleasedProducts for the given tools_and_equipment_id
+            $adminReleasedProducts = AdminReleasedProducts::where('tools_and_equipment_id', $request->dataValues['tools_and_equipment_id'])->get();
+
+            // Iterate through each AdminReleasedProduct
+            foreach ($adminReleasedProducts as $adminReleasedProduct) {
+                // Decode the JSON string of serial numbers stored in the database column and cast it as an array
+                $releasedSerialNumbers = (array) json_decode($adminReleasedProduct->serial_numbers);
+
+                // Iterate through the selected serial numbers
+                foreach ($request->serial_numbers as $selectedSerialNumber) {
+                    // Check if the selected serial number exists in the released serial numbers
+                    if (($key = array_search($selectedSerialNumber, $releasedSerialNumbers)) !== false) {
+                        // Remove the selected serial number from the released serial numbers
+                        unset($releasedSerialNumbers[$key]);
+                    }
+                }
+    
+                // Update the serial_numbers column in the database with the updated array
+                $adminReleasedProduct->serial_numbers = json_encode($releasedSerialNumbers);
+                $adminReleasedProduct->save();
+            }
             
-            // $tools = ToolsAndEquipment::findOrFail($request->id);
-            // $tools->status = 'Borrowed';
-            // $tools->save();
-            
-            // $borrowed = new Borrowed();
-            // $borrowed->user_id = $user->id;
-            // $borrowed->tools_and_equipment_id = $request->id;
-            // $borrowed->return_days_id = $request->return_days_id;
-            // $borrowed->detail = 'Borrowed';
-            // $borrowed->status = 'Preparing';
-        
-            // // Retrieve return days from database
-            // $returnDays = ReturnDays::findOrFail($request->return_days_id);
-            // // Calculate return date based on return days
-            // $returnDate = Carbon::now()->addDays($returnDays->number_of_days);
-            // $borrowed->return_date = $returnDate->setTimezone('Asia/Manila')->format('m/d/Y h:i:s A');
-            // $borrowed->save();
-        
-            // $delivery = new DeliverHistory();
-            // $delivery->user_id = $user->id;
-            // $delivery->tools_and_equipment_id = $request->id;
-            // $delivery->status = 'Preparing';
-            // $delivery->type = 'Borrow';
-            // $delivery->save();
+            // Create a new track order
+            $trackOrder = new TrackOrder();
+            $trackOrder->status = 'Pending';
+            $trackOrder->product_id = $request->dataValues['tools_and_equipment_id'];
+            $trackOrder->serial_numbers = json_encode($request->serial_numbers);
+            $trackOrder->type = "Borrowing";
+            $trackOrder->total_price = $request->dataValues['price'];
+            $trackOrder->user_id = $user_id;
+            $trackOrder->save();
+            // Create a new ordered product
+            $orderedProduct = new OrderedProducts();
+            $orderedProduct->user_id = $user_id;
+            $orderedProduct->track_orders_id = $trackOrder->id;
+            $orderedProduct->status = 'Borrowing';
+            $orderedProduct->shipment_date = '00/00/0000'; // Set the default shipment date
+            $orderedProduct->delivery_date = '00/00/0000'; // Set the default delivery date
+            $orderedProduct->save();
 
-            // $orders = new Order();
-            // $orders->user_id =  $user->id;
-            // $orders->tools_and_equipment_id = $request->id;
-            // $orders->status = 'Preparing';
-            // $orders->type = 'Borrowing';
-            // $orders->shipment_date = '0000-00-00';
-            // $orders->delivery_date = '0000-00-00';
-            // $orders->save();
-
-            // $sold = new Sold();
-            // $sold->user_id = $user_id;
-            // $sold->tools_and_equipment_id = $request->id;
-            // $sold->type = 'Borrowing';
-            // $sold->sold_at = now();
-            // $sold->save();
-
-            // $purchasedItems = new PurchasedItems();
-            // $purchasedItems->user_id = $user_id;
-            // $purchasedItems->tools_and_equipment_id = $request->id;
-            // $purchasedItems->status = 'Borrowed';
-            // $purchasedItems->save();
+            //CREATA A BORROWED PRODUCT DATA
+            $borrowed = new BorrowedProduct();
+            $borrowed->ordered_product_id = $orderedProduct->id;
+            $borrowed->return_date = Carbon::now()->addDays($request->return_days)->format('m/d/Y');
+            $borrowed->save();
 
             return response()->json(['message' => 'Data Successfully Saved']);
         } else {

@@ -75,6 +75,9 @@
                             With a total of: <b>₱{{ this.dataValues.total_price }}</b>
                         </p>
                         <p>
+                            Serial Numbers are: <b>{{ this.dataValues.serial_numbers }}</b>
+                        </p>
+                        <p>
                             You ordered it At : <b>{{this.dataValues.created_at}}</b>
                         </p>
                         <p>

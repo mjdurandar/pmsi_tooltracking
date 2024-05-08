@@ -95,6 +95,7 @@ class BuyToolsController extends Controller
             $trackOrder->status = 'Pending';
             $trackOrder->product_id = $request->dataValues['tools_and_equipment_id'];
             $trackOrder->serial_numbers = json_encode($request->serial_numbers);
+            $trackOrder->type = "Buying";
             $trackOrder->total_price = $request->total_price;
             $trackOrder->user_id = $user_id;
             $trackOrder->save();
@@ -103,6 +104,7 @@ class BuyToolsController extends Controller
             $orderedProduct = new OrderedProducts();
             $orderedProduct->user_id = $user_id;
             $orderedProduct->track_orders_id = $trackOrder->id;
+            $orderedProduct->status = 'Selling';
             $orderedProduct->shipment_date = '00/00/0000'; // Set the default shipment date
             $orderedProduct->delivery_date = '00/00/0000'; // Set the default delivery date
             $orderedProduct->save();
