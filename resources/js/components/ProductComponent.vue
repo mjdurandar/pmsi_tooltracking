@@ -36,7 +36,6 @@
                             <option value="Screwdriver">Screwdriver</option>
                             <option value="Wrench">Wrench</option>
                             <option value="Grinder">Grinder</option>
-                            <option value="Jigsaw">Jigsaw</option>
                             <option value="Saw">Saw</option>
                         </select>
                     </div>
@@ -182,7 +181,6 @@
                             <option value="Screwdriver">Screwdriver</option>
                             <option value="Wrench">Wrench</option>
                             <option value="Grinder">Grinder</option>
-                            <option value="Jigsaw">Jigsaw</option>
                             <option value="Saw">Saw</option>
                             <!-- <option value="Other">Other</option> -->
                         </select>

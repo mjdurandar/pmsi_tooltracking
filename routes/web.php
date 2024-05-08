@@ -45,6 +45,12 @@ Route::group(['middleware' => 'auth'], function(){
     Route::get('/add-balance/show',[App\Http\Controllers\AddBalanceController::class, 'show']);
     Route::post('/add-balance/store',[App\Http\Controllers\AddBalanceController::class, 'store']);
 
+    Route::get('/receipts',[App\Http\Controllers\ReceiptsController::class, 'index']);
+    Route::get('/receipts/show',[App\Http\Controllers\ReceiptsController::class, 'show']);
+
+    Route::get('/history',[App\Http\Controllers\HistoryController::class, 'index']);
+    Route::get('/history/show',[App\Http\Controllers\HistoryController::class, 'show']);
+
     Route::middleware(['CheckRole:admin'])->group(function() {
         // DASHBOARD
         Route::get('/dashboard',[App\Http\Controllers\DashboardController::class, 'index']);
@@ -201,6 +207,8 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('/return-product',[App\Http\Controllers\ReturnProductController::class, 'index']);
         Route::get('/return-product/show',[App\Http\Controllers\ReturnProductController::class, 'show']);
         Route::post('/return-product/store',[App\Http\Controllers\ReturnProductController::class, 'store']);
+        Route::get('/returning-product',[App\Http\Controllers\ReturnProductController::class, 'returningProductIndex']);
+        Route::get('/returning-product/returningProductShow',[App\Http\Controllers\ReturnProductController::class, 'returningProductShow']);
 
         //DAMAGED RETURN
         Route::get('/damaged-return',[App\Http\Controllers\DamagedReturnController::class, 'index']);

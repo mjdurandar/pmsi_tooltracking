@@ -53,7 +53,7 @@
                         <div class="text-danger" v-if="errors.shipment_date">{{ errors.shipment_date[0] }}</div>
                     </div> 
                     <div class="col-6">
-                        <label for="">Delivery Date</label>
+                        <label for="">Arrival Date</label>
                         <input type="date" class="form-control" v-model="dataValues.delivery_date" :disabled="dataValues.status === 'Completed'" :min="today">
                         <div class="text-danger" v-if="errors.delivery_date">{{ errors.delivery_date[0] }}</div>
                     </div> 

@@ -9,6 +9,7 @@ use App\Models\DeliverHistory;
 use Carbon\Carbon;
 use App\Models\Borrowed;
 use App\Models\BorrowedProduct;
+use App\Models\History;
 use App\Models\Order;
 use App\Models\OrderedProducts;
 use App\Models\PurchasedItems;
@@ -35,7 +36,8 @@ class BorrowToolsController extends Controller
         $data = AdminReleasedProducts::leftjoin('tools_and_equipment', 'tools_and_equipment.id', 'admin_released_products.tools_and_equipment_id')    
                                     ->leftjoin('products', 'products.id', 'tools_and_equipment.product_id')
                                     ->select('admin_released_products.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as product_image',
-                                    'products.powerSources as powerSources', 'products.voltage as voltage', 'products.weight as weight', 'products.dimensions as dimensions', 'products.material as material')
+                                    'products.powerSources as powerSources', 'products.voltage as voltage', 'products.weight as weight', 'products.dimensions as dimensions', 
+                                    'products.material as material', 'tools_and_equipment.product_id as product_id')
                                     ->where('status', 'For Borrowing')
                                     ->where('admin_released_products.serial_numbers', '!=', '[]')
                                     ->get();
@@ -81,7 +83,6 @@ class BorrowToolsController extends Controller
 
     public function borrowTools(Request $request) {
         $user_id = Auth::id();
-
         // Find the user record
         $user = User::findOrFail($user_id);
         $remaining_balance = $user->balance - $request->price;
@@ -116,7 +117,7 @@ class BorrowToolsController extends Controller
             // Create a new track order
             $trackOrder = new TrackOrder();
             $trackOrder->status = 'Pending';
-            $trackOrder->product_id = $request->dataValues['tools_and_equipment_id'];
+            $trackOrder->product_id = $request->dataValues['product_id'];
             $trackOrder->serial_numbers = json_encode($request->serial_numbers);
             $trackOrder->type = "Borrowing";
             $trackOrder->total_price = $request->dataValues['price'];
@@ -134,8 +135,15 @@ class BorrowToolsController extends Controller
             //CREATA A BORROWED PRODUCT DATA
             $borrowed = new BorrowedProduct();
             $borrowed->ordered_product_id = $orderedProduct->id;
-            $borrowed->return_date = Carbon::now()->addDays($request->return_days)->format('m/d/Y');
+            $borrowed->return_date = $request->dataValues['return_date'];
+            $borrowed->penalty = $request->dataValues['penalty'];
             $borrowed->save();
+
+            $history = new History();
+            $history->user_id = Auth::id();
+            $history->product_id = $request->id;
+            $history->action = 'You Borrow this Product and need to return at ' . $request->dataValues['return_date'];
+            $history->save();
 
             return response()->json(['message' => 'Data Successfully Saved']);
         } else {

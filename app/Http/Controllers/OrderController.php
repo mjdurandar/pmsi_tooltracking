@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Borrowed;
+use App\Models\BorrowedProduct;
 use App\Models\CanceledOrder;
 use App\Models\CompletedOrderAdmin;
 use App\Models\CompletedOrderUser;
@@ -13,7 +14,9 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Order;
 use App\Models\OrderedProducts;
 use App\Models\PurchasedItems;
+use App\Models\Receipts;
 use App\Models\TrackOrder;
+use App\Models\User;
 use App\Models\UserDelivery;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -101,8 +104,10 @@ class OrderController extends Controller
     }
 
     public function updateStatus(Request $request) {
-        
+
+        $orderNumber = 'ORD-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
         $orderedProducts = OrderedProducts::find($request->id);
+
         // Parse and format the shipment date
         $shipmentDate = Carbon::parse($request->shipment_date)->format('m/d/Y');
         $orderedProducts->shipment_date = $shipmentDate;
@@ -110,6 +115,7 @@ class OrderController extends Controller
         // Parse and format the delivery date
         $deliveryDate = Carbon::parse($request->delivery_date)->format('m/d/Y');
         $orderedProducts->delivery_date = $deliveryDate;
+        $orderedProducts->order_number = $orderNumber;
         $orderedProducts->save();
 
         $trackOrders = TrackOrder::find($orderedProducts->track_orders_id);
@@ -123,6 +129,25 @@ class OrderController extends Controller
             $completedOrder = new CompletedOrderUser();
             $completedOrder->track_order_id = $trackOrders->id;
             $completedOrder->save();
+
+            $userBalance = User::findOrFail(Auth::id());
+            $userBalance->balance += $trackOrders->total_price;
+            $userBalance->save();
+
+            $receipts = new Receipts();
+            $receipts->track_order_id = $request->track_orders_id;
+            $receipts->user_id = $request->user_id;
+            $receipts->ordered_product_id = $request->id;
+            $receipts->total_price = $request->total_price;
+            $receipts->receipt_number = 'REC-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
+            $receipts->save();
+
+            if($request->type === 'Borrowing')
+            {
+                $borrowed = BorrowedProduct::where('ordered_product_id', $orderedProducts->id)->first();
+                $borrowed->is_delivered = true;
+                $borrowed->save();
+            }
         }
 
         return response()->json(['message' => 'Status updated successfully']);

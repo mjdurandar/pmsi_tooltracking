@@ -23,6 +23,8 @@
     },
     "dependencies": {
         "chart.js": "^4.4.0",
+        "jspdf": "^2.5.1",
+        "jspdf-autotable": "^3.8.2",
         "qrcode-generator": "^1.4.4",
         "sweetalert2": "^11.7.31",
         "v-tables-3": "^0.4.7"

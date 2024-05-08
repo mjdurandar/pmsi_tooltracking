@@ -534,8 +534,8 @@ return [
         [ 
             'text' => 'Receipts', 
             'icon' => 'fa-solid fa-receipt',
-            'can' => ['admin'], 
-            'url'  => '/admin-receipts',
+            'can' => ['admin','user'], 
+            'url'  => '/receipts',
         ],
         [
             'text' => 'Add Balance',

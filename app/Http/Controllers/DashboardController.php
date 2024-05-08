@@ -60,20 +60,20 @@ class DashboardController extends Controller
         ]);
     }    
     
-    public function statusCount()
-    {
-        // Count the occurrences of status 'Borrowed'
-        $borrowedCount = ToolsAndEquipment::where('status', 'For Borrowing')->count();
+    // public function statusCount()
+    // {
+    //     // Count the occurrences of status 'Borrowed'
+    //     $borrowedCount = ToolsAndEquipment::where('status', 'For Borrowing')->count();
 
-        // Count the occurrences of status 'Selling'
-        $sellingCount = ToolsAndEquipment::where('status', 'For Sale')->count();
+    //     // Count the occurrences of status 'Selling'
+    //     $sellingCount = ToolsAndEquipment::where('status', 'For Sale')->count();
 
 
-        return response()->json([
-            'borrowedCount' => $borrowedCount,
-            'sellingCount' => $sellingCount
-        ]);
-    }
+    //     return response()->json([
+    //         'borrowedCount' => $borrowedCount,
+    //         'sellingCount' => $sellingCount
+    //     ]);
+    // }
 
     public function masterdataCount(){
         // Count the occurrences of each category of data

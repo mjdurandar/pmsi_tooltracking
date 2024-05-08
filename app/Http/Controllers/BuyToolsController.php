@@ -12,6 +12,7 @@ use App\Models\Unit;
 use App\Models\Supplier;
 use App\Models\User;
 use App\Models\DeliverHistory;
+use App\Models\History;
 use App\Models\Order;
 use App\Models\OrderedProducts;
 use App\Models\PurchasedItems;
@@ -41,7 +42,8 @@ class BuyToolsController extends Controller
         $data = AdminReleasedProducts::leftjoin('tools_and_equipment', 'tools_and_equipment.id', 'admin_released_products.tools_and_equipment_id')    
                                     ->leftjoin('products', 'products.id', 'tools_and_equipment.product_id')
                                     ->select('admin_released_products.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as product_image',
-                                    'products.powerSources as powerSources', 'products.voltage as voltage', 'products.weight as weight', 'products.dimensions as dimensions', 'products.material as material')
+                                    'products.powerSources as powerSources', 'products.voltage as voltage', 'products.weight as weight', 'products.dimensions as dimensions',
+                                    'products.material as material', 'tools_and_equipment.product_id as product_id')
                                     ->where('status', 'For Sale')
                                     ->where('admin_released_products.serial_numbers', '!=', '[]')
                                     ->get();
@@ -60,10 +62,9 @@ class BuyToolsController extends Controller
         // Find the user record
         $user = User::findOrFail($user_id);
         // Calculate the remaining balance after deducting the requested balance
-        $remaining_balance = $user->balance - $request->price;
-        
+        $remaining_balance = $user->balance - $request->total_price;
         // Check if the remaining balance is sufficient
-        if ($remaining_balance >= 0) {
+        if ($remaining_balance > 0) {
             // Update the user's balance
             $user->balance = $remaining_balance;
             $user->save();
@@ -93,7 +94,7 @@ class BuyToolsController extends Controller
             // Create a new track order
             $trackOrder = new TrackOrder();
             $trackOrder->status = 'Pending';
-            $trackOrder->product_id = $request->dataValues['tools_and_equipment_id'];
+            $trackOrder->product_id = $request->dataValues['product_id'];
             $trackOrder->serial_numbers = json_encode($request->serial_numbers);
             $trackOrder->type = "Buying";
             $trackOrder->total_price = $request->total_price;
@@ -108,6 +109,12 @@ class BuyToolsController extends Controller
             $orderedProduct->shipment_date = '00/00/0000'; // Set the default shipment date
             $orderedProduct->delivery_date = '00/00/0000'; // Set the default delivery date
             $orderedProduct->save();
+
+            $history = new History();
+            $history->user_id = Auth::id();
+            $history->product_id = $request->dataValues['product_id'];
+            $history->action = 'You bought this Product at the price of ₱' . $request->total_price . ' including VAT';
+            $history->save();
     
             return response()->json(['message' => 'Product Ordered Successfully']);
         } else {
@@ -115,8 +122,6 @@ class BuyToolsController extends Controller
             return response()->json(['error' => 'Insufficient funds'], 400);
         }
     }
-    
-    
     
     public function filterData(Request $request)
     {

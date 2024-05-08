@@ -4,12 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\CanceledOrder;
 use App\Models\CompletedOrderAdmin;
+use App\Models\History;
 use App\Models\OrderedProducts;
+use App\Models\Receipts;
 use App\Models\TrackOrder;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use PhpParser\Node\Expr\New_;
+
 use function Laravel\Prompts\select;
 
 class OrderedProductsController extends Controller
@@ -136,6 +141,18 @@ class OrderedProductsController extends Controller
             $completedOrder = new CompletedOrderAdmin();
             $completedOrder->track_order_id = $trackOrders->id;
             $completedOrder->save();
+
+            $receipts = new Receipts();
+            $receipts->track_order_id = $request->track_orders_id;
+            $receipts->user_id = $request->user_id;
+            $receipts->ordered_product_id = $request->id;
+            $receipts->total_price = $request->total_price;
+            $receipts->receipt_number = 'REC-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
+            $receipts->save();
+
+            $userBalance = User::find(Auth::id());
+            $userBalance->balance += $request->total_price;
+            $userBalance->save();
         }
 
         return response()->json(['message' => 'Status updated successfully']);

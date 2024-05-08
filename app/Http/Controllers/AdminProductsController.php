@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\AdminReturnedProducts;
+use App\Models\History;
 use App\Models\Product;
 use App\Models\SerialNumber;
 use App\Models\ToolsAndEquipment;
 use App\Models\TrackOrder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class AdminProductsController extends Controller
@@ -104,11 +106,17 @@ class AdminProductsController extends Controller
             }
         }
 
+        $history = new History();
+        $history->user_id = Auth::id();
+        $history->product_id = $request->dataValues['product_id'];
+        $history->action = 'You Returned a Product';
+        $history->save();
+
         return response()->json(['status' => 'success', 'message' => 'Product requested for return.']);
     }
 
     public function approvedProduct(Request $request)
-    {
+    {   
         $trackOrder = TrackOrder::find($request->id);
         $trackOrder->is_approved = true;
         $trackOrder->save();
@@ -124,6 +132,12 @@ class AdminProductsController extends Controller
         $toolsAndEquipment->supplier_name = $supplierName->name;
         $toolsAndEquipment->stocks = count($request->serial_numbers);
         $toolsAndEquipment->save();
+
+        $history = new History();
+        $history->user_id = Auth::id();
+        $history->product_id = $request->product_id;
+        $history->action = 'You appoved a Product';
+        $history->save();
 
         return response()->json(['status' => 'success', 'message' => 'Product approved.']);
     }

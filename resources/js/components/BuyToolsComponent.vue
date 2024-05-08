@@ -319,7 +319,6 @@ export default{
                 });
         },
         buyProduct(){
-
             const data = {
                 serial_numbers: this.checkedSerialNumbers,
                 total_price: this.totalPrice,
@@ -330,7 +329,7 @@ export default{
                 .then(response => {
                     Swal.fire({
                         title: "Success!",
-                        text: "Product has been successfully purchased.",
+                        text: response.data.message,
                         icon: 'success',
                         timer: 3000
                     });
@@ -339,14 +338,13 @@ export default{
                 })
                 .catch(error => {
                     Swal.fire({
-                        title: "Error!",
-                        text: "Failed to purchase product.",
-                        icon: 'error',
+                        title: "Warning!",
+                        text: error.response.data.error ? error.response.data.error : "Failed to purchase product.",
+                        icon: 'warning',
                         timer: 3000
                     });
                     console.error(error);
                 });
-
         }
     },
     mounted() {

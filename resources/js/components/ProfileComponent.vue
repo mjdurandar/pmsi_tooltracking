@@ -27,6 +27,15 @@
                         <label for="">Location</label>
                         <input type="text" class="form-control" v-model="data.location" :disabled="!isEditing">
                     </div>
+                    <div class="col-lg-3">
+                        <label for="">Balance</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">₱</span>
+                            </div>
+                            <input type="text" class="form-control" v-model="data.balance" disabled>
+                        </div>
+                    </div>
                 </div>
                 <div class="row mt-4">
                     <div class="col-lg-12">

@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Borrowed;
+use App\Models\BorrowedProduct;
+use App\Models\History;
 use App\Models\PurchasedItems;
 use App\Models\ReturnProduct;
 use App\Models\ToolsAndEquipment;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class ReturnProductController extends Controller
 {
@@ -18,59 +21,62 @@ class ReturnProductController extends Controller
     }
 
     public function show()
-    {   
-        $user = auth()->user()->id;
+    {      
+        $userAdmin = User::where('name', 'PMSI')->first();
 
-        $userAdmin = User::where('name', 'admin')
-                        ->first();
-        
-        $product = Borrowed::leftjoin('tools_and_equipment', 'tools_and_equipment.id','borroweds.tools_and_equipment_id')
-                        ->leftjoin('products', 'products.id', 'tools_and_equipment.product_id')
-                        ->leftjoin('return_days', 'return_days.id', 'borroweds.return_days_id')
-                        ->where('borroweds.user_id', $user)
-                        ->where('borroweds.status', 'Completed')
-                        ->select('borroweds.*', 'tools_and_equipment.product_code as product_code', 'products.brand as brand_name', 'products.tool as tool_name', 'return_days.penalty as penalty')
-                        ->get();
+        $data = BorrowedProduct::leftJoin('ordered_products', 'borrowed_products.ordered_product_id', 'ordered_products.id')
+                                ->leftJoin('track_orders', 'track_orders.id', 'ordered_products.track_orders_id')
+                                ->leftjoin('products', 'products.id', 'track_orders.product_id')
+                                ->select('borrowed_products.*','products.brand as brand_name', 'products.tool as tool_name', 'products.image as image'
+                                ,'products.powerSources as powerSources', 'products.voltage as voltage', 'products.weight as weight', 
+                                'products.dimensions as dimensions', 'products.material as material', 'track_orders.status as status', 'track_orders.total_price as total_price'
+                                ,'track_orders.serial_numbers as serial_numbers')
+                                ->where('borrowed_products.is_returned', false)
+                                ->where('borrowed_products.is_delivered', true)
+                                ->get();
 
-        return response()->json([ 'product' => $product, 'userAdmin' => $userAdmin ]);
+        return response()->json([ 'data' => $data, 'userAdmin' => $userAdmin]);
+    }
+
+    public function returningProductIndex()
+    {
+        return view('users.returning-product');
+    }
+
+    public function returningProductShow()
+    {       
+        $userAdmin = User::where('name', 'PMSI')->first();
+
+        $data = BorrowedProduct::leftJoin('ordered_products', 'borrowed_products.ordered_product_id', 'ordered_products.id')
+                                ->leftJoin('track_orders', 'track_orders.id', 'ordered_products.track_orders_id')
+                                ->leftjoin('products', 'products.id', 'track_orders.product_id')
+                                ->select('borrowed_products.*','products.brand as brand_name', 'products.tool as tool_name', 'products.image as image'
+                                ,'products.powerSources as powerSources', 'products.voltage as voltage', 'products.weight as weight', 
+                                'products.dimensions as dimensions', 'products.material as material', 'track_orders.status as status', 'products.image as image' ,'track_orders.total_price as total_price'
+                                ,'track_orders.serial_numbers as serial_numbers')
+                                ->where('borrowed_products.is_returned', true)
+                                ->get();
+
+        return response()->json([ 'data' => $data , 'userAdmin' => $userAdmin]);   
     }
 
     public function store(Request $request)
     {   
-        $request->validate([
-            'delivery_date' => 'required',
-        ], [
-            'delivery_date.required' => "The Delivery Date field is required",
-        ]);
+        $deliveryDate = $request->delivery_date;
+        $formattedDate = date('m/d/Y', strtotime($deliveryDate));
+        
+        $borrowedProducts = BorrowedProduct::findOrFail($request->id);
+        $borrowedProducts->is_returned = true;
+        $borrowedProducts->arrival_date = $formattedDate;
+        $borrowedProducts->save(); 
 
-        $user = auth()->user()->id;
+        $history = new History();
+        $history->user_id = Auth::id();
+        $history->product_id = $request->id;
+        $history->action = 'You Requested to Return this Product after Borrowing!';
+        $history->save();
 
-        $toolsAndEquipmentId = ToolsAndEquipment::findorfail($request->tools_and_equipment_id);
-        $toolsAndEquipmentId->status = 'Returning';
-        $toolsAndEquipmentId->save();
 
-        $borrowed = Borrowed::where('tools_and_equipment_id', $request->tools_and_equipment_id)->first();
-        $borrowed->detail = 'Returning';
-        $borrowed->save();
-
-        if(Carbon::now() > new Carbon($borrowed->return_date))
-        {
-            $userBalance = User::where('id', $user)->first();
-            $userBalance->balance -= $request->penalty;
-            $userBalance->save();
-        }
-
-        $purchased = PurchasedItems::where('tools_and_equipment_id', $request->tools_and_equipment_id)->first();
-        $purchased->notes = 'Returned';
-        $purchased->save();
-
-        $returnProduct = new ReturnProduct();
-        $returnProduct->tools_and_equipment_id = $request->tools_and_equipment_id;
-        $returnProduct->user_id = auth()->user()->id;
-        $returnProduct->detail = 'Returning';
-        $returnProduct->return_date = $request->delivery_date;
-        $returnProduct->save();
-
-        return response()->json([ 'message' => 'Product has been returned successfully!' ]);
+        return response()->json([ 'message' => 'You Initiated a Product Return!' ]);
     }
 }

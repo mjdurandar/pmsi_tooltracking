@@ -82,10 +82,24 @@ class SupplierController extends Controller
     }
 
     public function purchaseProduct(Request $request)
-    {
+    {   
         $selectedProducts = $request->all();
         $orderNumber = 'ORD-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
         $trackingNumber = 'TRK-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
+        $totalVAT = 0;
+
+        // Loop through each element in the selectedProducts array
+        foreach ($selectedProducts as $product) {
+            // Check if vatTotal key exists in the current product
+            if (isset($product['vatTotal'])) {
+                // Add vatTotal to totalVAT
+                $totalVAT += $product['vatTotal'];
+            }
+        }
+
+        $user = User::find(Auth::id());
+        $user->balance -= $totalVAT;
+        $user->save();
 
         foreach ($selectedProducts as $selectedProduct) {
             $selectedSerialNumbers = $selectedProduct['selectedSerialNumbers'];
@@ -101,7 +115,7 @@ class SupplierController extends Controller
             $trackOrder->product_id = $productId;
             $trackOrder->serial_numbers = $serializedSerialNumbers;
             $trackOrder->tracking_number = $trackingNumber;
-            $trackOrder->total_price = $selectedProduct['dataValues']['price'];
+            $trackOrder->total_price = $totalVAT;
             $trackOrder->user_id = Auth::id();
             $trackOrder->save();
     
@@ -109,13 +123,13 @@ class SupplierController extends Controller
             $product->stocks -= count($selectedSerialNumbers);
             $product->save();
     
-            $user = User::find(Auth::id());
-            $user->balance -= $selectedProduct['dataValues']['price'];
-            $user->save();
+            // $user = User::find(Auth::id());
+            // $user->balance -= $selectedProduct['dataValues']['price'];
+            // $user->save();
     
             $orderedProduct = new OrderedProducts();
             $orderedProduct->user_id = Auth::id();
-            $orderedProduct->track_orders_id = $trackOrder->id;
+            $orderedProduct->track_orders_id = $trackOrder->id; 
             $orderedProduct->shipment_date = '00/00/0000';
             $orderedProduct->delivery_date = '00/00/0000';
             $orderedProduct->order_number = $orderNumber;

@@ -461,6 +461,7 @@ export default{
                     this.selectedProducts.push({
                         dataValues: this.dataValues,
                         selectedSerialNumbers: selectedSerialNumbers,
+                        vatTotal: this.vatTotal
                     });
                     Swal.fire({
                         title: 'Added to Cart!',
@@ -601,16 +602,17 @@ export default{
         },
         getProduct(){
             this.requestedItems = 0;
-            this.vatTotal = 0;
+            // this.vatTotal = 0;
             this.agreementChecked = false;
             this.requestData.selectedSerialNumbers = this.selectedSerialNumbers;
             
-            const requestData = {
-                dataValues: this.dataValues,
-                selectedSerialNumbers: this.selectedSerialNumbers
-            }
+            // const requestData = {
+            //     dataValues: this.dataValues,
+            //     selectedSerialNumbers: this.selectedSerialNumbers,
+            //     total: this.vatTotal
+            // }
 
-            console.log(requestData);
+            // console.log(requestData);
             axios.post('/supplier/purchaseProduct', this.selectedProducts)
                 .then(response => {
                     Swal.fire({

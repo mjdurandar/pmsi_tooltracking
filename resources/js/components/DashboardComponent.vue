@@ -5,19 +5,21 @@
         <!-- <div class="d-flex justify-content-center">
             <img src="images\under_maintenance.png" alt="Under Maintenance" style="text-align: center;"> 
         </div> -->
-        <div class="row">
-            <div class="col-lg-6">
+        <div class="row">       
+            <div class="col-lg-12">
                 <div class="card" style="background-color: #f18f4e; color: #fff;">
                     <div class="card-body dash-title">
-                        Product Stocks
+                        Sales
                     </div>
                 </div>
                 <div class="card">
                     <div class="card-body">
-                        <canvas id="stocksBarChart"></canvas>
+                        <canvas id=""></canvas>
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="row">
             <div class="col-lg-6">
                 <div class="card" style="background-color: #f18f4e; color: #fff;">
                     <div class="card-body dash-title">
@@ -30,8 +32,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="row">
             <div class="col-lg-6">
                 <div class="card" style="background-color: #f18f4e; color: #fff;">
                     <div class="card-body dash-title">
@@ -44,30 +44,6 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-6">
-                <div class="card" style="background-color: #f18f4e; color: #fff;">
-                    <div class="card-body dash-title">
-                        Selling and Borrowing
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-body">
-                        <canvas id="doughnutChart"></canvas>
-                    </div>
-                </div>
-            </div>
-            <!-- <div class="col-lg-6">
-                <div class="card" style="background-color: #f18f4e; color: #fff;">
-                    <div class="card-body dash-title" >
-                        Tools
-                   </div>
-                </div>
-                <div class="card">
-                    <div class="card-body">
-                        <canvas id="pieChartTools"></canvas>
-                   </div>
-                </div>
-            </div> -->
         </div>
     </div>
 </template>
@@ -249,178 +225,7 @@ export default{
                     }
             });
         }
-        // balanceLineChart() {
-        //     axios.get('/dashboard/balanceData')
-        //     .then(response => {
-        //         const data = response.data;
-        //         const balance = data.balance;
-        //         const timestamp = data.timestamp;
-
-        //         // Create a line chart using Chart.js
-        //         new Chart(document.getElementById('balanceLineChart'), {
-        //             type: 'line',
-        //             data: {
-        //                 labels: [timestamp], // Use the timestamp as the x-axis label
-        //                 datasets: [{
-        //                     label: 'Balance',
-        //                     data: [balance],
-        //                     borderColor: 'rgba(75, 192, 192, 1)',
-        //                     borderWidth: 2,
-        //                     fill: false
-        //                 }]
-        //             },
-        //             options: {
-        //                 responsive: true,
-        //                 maintainAspectRatio: false,
-        //                 scales: {
-        //                     x: {
-        //                         type: 'time',
-        //                         time: {
-        //                             parser: 'YYYY-MM-DD HH:mm:ss', // Format of the timestamp
-        //                             tooltipFormat: 'll HH:mm:ss' // Format of the tooltip
-        //                         },
-        //                         title: {
-        //                             display: true,
-        //                             text: 'Time'
-        //                         }
-        //                     },
-        //                     y: {
-        //                         display: true,
-        //                         title: {
-        //                             display: true,
-        //                             text: 'Balance'
-        //                         },
-        //                         ticks: {
-        //                             beginAtZero: true
-        //                         }
-        //                     }
-        //                 }
-        //             }
-        //         });
-        //     })
-        //     .catch(error => {
-        //         console.error('Error fetching balance data:', error);
-        //     });
-        // }
-
-
-
-
-        // borrowedChart(){
-        //     axios.get('/dashboardCount/counts')
-        //     .then(response => {
-        //         const ctx = document.getElementById('borrowedChart');
-        //         const totalPerDay = response.data.borrowedCount;
-        //         const labels = totalPerDay.map(item => item.borrowed_at);
-        //         const data = totalPerDay.map(item => item.total);
-        //         new Chart(ctx, {
-        //             type: 'line',
-        //             data: {
-        //                 labels: labels,
-        //                 datasets: [{
-        //                     label: 'Borrowed',
-        //                     data: data,
-        //                     borderWidth: 1,
-        //                     backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        //                     borderColor: 'rgba(75, 192, 192, 1)',
-        //                 }]
-        //             },
-        //             options: {
-        //                 scales: {
-        //                     y: {
-        //                         beginAtZero: true
-        //                     }
-        //                 }
-        //             }
-        //         });
-        //     })
-        //     .catch(error => {
-        //         console.error('Error fetching sales data', error);
-        //     });
-        // },
-        // dashboard(){
-        //     console.log(this.data);
-        //     axios.get('/dashboardCount/counts')
-        //     .then(response => {
-        //     const ctx = document.getElementById('myChart');
-        //     new Chart(ctx, {
-        //     type: 'bar',
-        //     data: {
-        //         labels: ['Project Site', 'Units', 'Category', 'Supplier'],
-        //         datasets: [{
-        //         label: 'Master Data',
-        //         data: [response.data.projectCount, response.data.unitCount, response.data.categoryCount, response.data.supplierCount],
-        //         borderWidth: 1
-        //         }]
-        //     },
-        //             options: {
-        //                 scales: {
-        //                 y: {
-        //                     beginAtZero: true
-        //                 }
-        //                 }
-        //             }
-        //         });
-        //     })
-        //     .catch(error => {
-        //         console.error('Error fetching project data', error);
-        //     });
-        // },
-        // piechart(){
-        //     axios.get('/dashboardCount/counts')
-        //     .then(response => {
-        //     const ctx = document.getElementById('pieChart');
-        //     new Chart(ctx, {
-        //     type: 'pie',
-        //     data: {
-        //     labels: ['Borrowed', 'Buying'],
-        //         datasets: [{
-        //         label: 'Count',
-        //         data: [response.data.borrowedCount, response.data.buyingCount],
-        //         borderWidth: 1
-        //         }]
-        //     },
-        //             options: {
-        //                 scales: {
-        //                 y: {
-        //                     beginAtZero: true 
-        //                 }
-        //                 }
-        //             }
-        //         });
-        //     })
-        //     .catch(error => {
-        //         console.error('Error fetching project data', error);
-        //     });
-        // },
-        // piecharttools(){
-        //     axios.get('/dashboardCount/counts')
-        //     .then(response => {
-        //     const ctx = document.getElementById('pieChartTools');
-        //     new Chart(ctx, {
-        //     type: 'pie',
-        //     data: {
-        //     labels: ['Scaffolding', 'Power Tools'],
-        //         datasets: [{
-        //         label: 'Count',
-        //         data: [response.data.scaffoldingCounts, response.data.powertoolsCounts],
-        //         borderWidth: 1
-        //         }]
-        //     },
-        //             options: {
-        //                 scales: {
-        //                 y: {
-        //                     beginAtZero: true
-        //                 }
-        //                 }
-        //             }
-        //         });
-        //     })
-        //     .catch(error => {
-        //         console.error('Error fetching project data', error);
-        //     });
-        // },
-            
+      
         },
         mounted() {
             this.stocksBarChart();
@@ -428,11 +233,6 @@ export default{
             this.getBalance();
             this.getSupplierCounts();
             this.getMasterDataCounts();
-            // this.chartSales();
-            // this.borrowedChart();
-            // this.dashboard();
-            // this.piechart();
-            // this.piecharttools();
         },
 }
 

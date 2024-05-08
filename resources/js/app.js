@@ -59,6 +59,9 @@ import CompletedOrderUserComponent from './components/CompletedOrderUserComponen
 import CanceledOrderUserComponent from './components/CanceledOrderUserComponent.vue';
 import CompleteOrderAdminProductComponent from './components/CompleteOrderAdminProductComponent.vue';
 import CanceledOrderAdminProductComponent from './components/CanceledOrderAdminProductComponent.vue';
+import ReturningProductComponent from './components/ReturningProductComponent.vue';
+import ReceiptsComponent from './components/ReceiptsComponent.vue';
+import HistoryComponent from './components/HistoryComponent.vue';
 
 app.config.globalProperties.$swal = Swal;
 app.use(ServerTable, {}, 'bootstrap4')
@@ -107,6 +110,9 @@ app.component('completed-order-user-component', CompletedOrderUserComponent);
 app.component('canceled-order-user-component', CanceledOrderUserComponent);
 app.component('complete-order-admin-product-component', CompleteOrderAdminProductComponent);
 app.component('canceled-order-admin-product-component', CanceledOrderAdminProductComponent);
+app.component('returning-product-component', ReturningProductComponent);
+app.component('receipts-component', ReceiptsComponent);
+app.component('history-component', HistoryComponent);
 
 /**
  * The following block of code may be used to automatically register your

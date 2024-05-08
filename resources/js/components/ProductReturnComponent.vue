@@ -4,16 +4,19 @@
         <div class="card">
             <div class="card-body">
                 <FormComponent 
-                    :data="product"
+                    :data="data"
                     :columns="columns"
                     :options="options"
-                    :addButton="false"
                     :option1Switch="false"
                     :option2Switch="false"
                     :option3Switch="true"
                     option3Icon="fa-solid fa-people-carry-box"
                     option3Name="Return" 
                     @optionalClicked="returnProductNow"
+                    :addButton="true"
+                    @addClicked="returnedProduct"
+                    btnName="Returned Product"
+                    addButtonColor="btn btn-warning"
                 >
                 </FormComponent>
             </div>
@@ -36,10 +39,6 @@
                         <label for="">Tool</label>
                         <input type="text" class="form-control" v-model="dataValues.tool_name" disabled>
                     </div> 
-                    <div class="col-12">
-                        <label for="">Product Code</label>
-                        <input type="text" class="form-control" v-model="dataValues.product_code" disabled>
-                    </div>  
                     <div class="col-12">
                         <label for="">Return Date</label>
                         <input type="text" class="form-control" v-model="dataValues.return_date" disabled>
@@ -72,18 +71,12 @@
                             <input type="text" class="form-control" v-model="dataValues.penalty" disabled>
                         </div>
                     </div>
-                    <div class="col-12 mt-3" v-if="dataValues.detail === 'Damaged'" style="outline: 2px solid red;">
-                        <label for="">Note: </label>
-                        <div>
-                            After inspecting the product, it appears to be damaged. This may have occurred during delivery or for some other reason. The administrator will contact you soon. Please keep your lines open.
-                        </div>
-                    </div>
                 </div>
             </template>
             <template #modalFooter>
             <div class="text-right">
-                <button class="btn btn-success" v-on:click="returnThisProduct" v-bind:disabled="dataValues.detail === 'Returning' || dataValues.detail === 'Damaged' || dataValues.detail === 'Completed'">
-                    {{ dataValues.detail === 'Returning' || dataValues.detail === 'Damaged' || dataValues.detail === 'Completed' ? 'You are already returning this product' : 'Return' }}
+                <button class="btn btn-success" v-on:click="returnThisProduct">
+                    Return Product
                 </button>
             </div>
         </template>
@@ -100,7 +93,7 @@
                 <p>You have the following products due for return. Please return them to avoid penalties.</p>
                 <ul>
                     <li v-for="product in productsDueForReturn" :key="product.id">
-                        {{ product.brand_name }} - {{ product.tool_name }} - {{ product.product_code }}
+                        {{ product.brand_name }} - {{ product.tool_name }} - {{ product.serial_numbers }}
                     </li>
                 </ul>
             </div>
@@ -122,15 +115,16 @@ export default{
 
     data(){
         return{
-                product : [],
+                data : [],
                 userAdmin : [],
-                columns : ['brand_name', 'tool_name', 'product_code', 'detail' ,'action'],
+                columns : ['brand_name', 'serial_numbers' ,'tool_name', 'return_date','action'],
                 errors: [],
                 options : {
                     headings : {
                         brand_name : 'Brand',
                         tool_name : 'Tool',
-                        product_code : 'Product Code',
+                        serial_numbers : 'Serial Number(s)',
+                        return_date : 'Return Date',
                         detail : 'Status',
                         action : 'Action',
                     },
@@ -158,8 +152,8 @@ export default{
             threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3);
 
             // Filter the products that are due for return within the next 3 days
-            return this.product.filter(product => {
-                const productReturnDate = new Date(product.return_date);
+            return this.data.filter(data => {
+                const productReturnDate = new Date(data.return_date);
                 return productReturnDate <= threeDaysFromNow;
             });
         },
@@ -184,9 +178,12 @@ export default{
             $('#' + this.modalId).modal('show');
             this.clearInputs();
         },
+        returnedProduct(){
+            window.location.href = '/returning-product';
+        },
         getData() {
             axios.get('/return-product/show').then(response => {
-                this.product = response.data.product;
+                this.data = response.data.data;
                 this.userAdmin = response.data.userAdmin;
             })
         },
@@ -197,6 +194,7 @@ export default{
             this.errors = [];
         },
         returnProductNow(props){
+            console.log(props.data);
             this.dataValues = props.data;
             $('#' + this.modalId).modal('show');
         },
