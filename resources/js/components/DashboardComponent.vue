@@ -8,12 +8,12 @@
             <div class="col-lg-12">
                 <div class="card" style="background-color: #f18f4e; color: #fff">
                     <div class="card-body dash-title">
-                        Sales
+                        Sales Chart
                     </div>
                 </div>
                 <div class="card">
                     <div class="card-body">
-                        <canvas id="saleChart"></canvas>
+                        <canvas id="saleChart" style="height: 400px !important;"></canvas>
                     </div>
                 </div>
             </div>
@@ -166,6 +166,7 @@ export default{
                     }]
                 },
                 options: {
+                    maintainAspectRatio: false, 
                     scales: {
                         y: {
                             beginAtZero: true

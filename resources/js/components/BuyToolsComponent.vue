@@ -335,6 +335,7 @@ export default{
                     });
                     $('#' + this.modalIdFinal).modal('hide');
                     this.getData();
+                    window.location.reload();
                 })
                 .catch(error => {
                     Swal.fire({

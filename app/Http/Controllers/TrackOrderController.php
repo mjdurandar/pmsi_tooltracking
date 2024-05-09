@@ -36,7 +36,7 @@ class TrackOrderController extends Controller
     {   
         //UPDATE THE TRACK ORDER DATA TO CANCELED
         $trackOrder = TrackOrder::find($request->id);
-
+       
         if($trackOrder->status == 'Pending'){
             $trackOrder->status = 'Canceled';
             $trackOrder->is_canceled = true;
@@ -60,9 +60,9 @@ class TrackOrderController extends Controller
                 }
             }
 
-            $releasedProduct = ReleasedProduct::findOrFail($trackOrder->product_id);
-            $releasedProduct->is_sold = false;
-            $releasedProduct->save();
+            // $releasedProduct = ReleasedProduct::findOrFail($trackOrder->product_id);
+            // $releasedProduct->is_sold = false;
+            // $releasedProduct->save();
 
             // UPDATE THE STOCKS OF THE PRODUCT
             $product = Product::find($trackOrder->product_id);
@@ -70,7 +70,7 @@ class TrackOrderController extends Controller
             $product->save();
     
             // UPDATE THE BALANCE OF THE USER
-            $userBalance = User::find($trackOrder->user_id);
+            $userBalance = User::find(Auth::id());
             $userBalance->balance += $trackOrder->total_price;
             $userBalance->save();
             return response()->json(['status' => 'success', 'message' => 'Order has been Canceled']);

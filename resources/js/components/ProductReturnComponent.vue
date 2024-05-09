@@ -221,14 +221,12 @@ export default{
                         $('#' + this.modalId).modal('hide');
                         this.getData();
                     }).catch(errors => {
-                        if(errors.response.data.message.length > 0) {
-                            Swal.fire({
-                                title: "Failed",
-                                text: errors.response.data.message,
-                                icon: 'error',
-                                timer: 3000
-                            });
-                        }
+                        Swal.fire({
+                        title: "Warning",
+                        text: errors.response.data.message || 'You have Insufficient Balance to Pay the Penalty! Please add Balance or the Admin will contact you for more details.',
+                        icon: 'warning',
+                        timer: 3000
+                    });
                     });
                 }
             });

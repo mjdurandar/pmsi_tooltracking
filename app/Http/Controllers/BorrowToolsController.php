@@ -87,8 +87,8 @@ class BorrowToolsController extends Controller
         // Find the user record
         $user = User::findOrFail($user_id);
         $remaining_balance = $user->balance - $request->price;
-
-        if ($remaining_balance >= 0) {
+        
+        if ($remaining_balance > 0) {
 
             $user->balance = $remaining_balance;
             $user->save();
@@ -142,13 +142,13 @@ class BorrowToolsController extends Controller
 
             $history = new History();
             $history->user_id = Auth::id();
-            $history->product_id = $request->id;
+            $history->product_id = $request->dataValues['product_id'];
             $history->action = 'You Borrow this Product and need to return at ' . $request->dataValues['return_date'];
             $history->save();
 
             $sales = new Sales();
             $sales->users_id = 1;
-            $sales->total_price = $request->total_price;
+            $sales->total_price = $request->dataValues['price'];
             $sales->save();
 
             return response()->json(['message' => 'Data Successfully Saved']);

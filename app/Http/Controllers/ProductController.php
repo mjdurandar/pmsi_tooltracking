@@ -35,7 +35,7 @@ class ProductController extends Controller
     public function store(Request $request)
     {   
         $serialNumbers = json_decode($request->serial_numbers);
-
+        // dd($request->serial_numbers);
         if(count($serialNumbers) !== count(array_unique($serialNumbers)))
         {
             return response()->json(['error' => 'Duplicate Codes are not allowed.'], 422);
@@ -77,19 +77,21 @@ class ProductController extends Controller
             if ($request->reStocked) {
                 $data->stocks += intval($request->reStocked);
             }
-    
-            $data->save();
-            
-            // Decode the serial numbers from the request
-            $serialNumbers = json_decode($request->serial_numbers);
 
-            // Iterate through the decoded serial numbers
             foreach ($serialNumbers as $serialNumber) {
+                // Check if the serial number already exists in the database
+                $existingSerial = SerialNumber::where('serial_number', $serialNumber)->exists();
+            
+                // If the serial number already exists, return an error
+                if ($existingSerial) {
+                    return response()->json(['error' => 'Serial number already exists!.'], 422);
+                }
+            
                 // Find the existing serial number associated with the product
                 $existingSerial = SerialNumber::where('product_id', $data->id)
                                             ->where('serial_number', $serialNumber)
                                             ->first();
-
+            
                 // If the existing serial number is found, update it
                 if ($existingSerial) {
                     // Update the existing serial number
@@ -99,12 +101,13 @@ class ProductController extends Controller
                     ]);
                 } else {
                     // If not found, create a new serial number entry
+                    $data->save();
                     $serial = new SerialNumber();
                     $serial->product_id = $data->id;
                     $serial->serial_number = $serialNumber;
                     $serial->save();
                 }
-            }
+            }            
 
             $history = new History();
             $history->user_id = $user->id;

@@ -124,7 +124,7 @@ class DeliveryController extends Controller
         //UPDATE THE TRACK ORDER DATA TO CANCELED
         $trackOrder = TrackOrder::find($request->id);
 
-        if($trackOrder->status == 'Pending'){
+        if($trackOrder->status == 'Pending'){   
 
             $trackOrder->status = 'Canceled';
             $trackOrder->is_canceled = true;
@@ -137,16 +137,17 @@ class DeliveryController extends Controller
             $canceledOrder->user_id = Auth::id();
             $canceledOrder->save();
 
-            $adminReleaseProduct = AdminReleasedProducts::where('id', $request->product_id)->first();
+            $adminReleaseProduct = AdminReleasedProducts::leftJoin('tools_and_equipment', 'tools_and_equipment.id', 'admin_released_products.tools_and_equipment_id')
+                                                        ->where('tools_and_equipment.product_id', $request->product_id)->first();
+                                           
             // Decode the JSON string of serial numbers stored in the database column
             $existingSerialNumbers = json_decode($adminReleaseProduct->serial_numbers, true);
-
             // Append the new serial numbers to the existing ones
             $newSerialNumbers = json_decode($request->serial_numbers);
             $updatedSerialNumbers = array_merge($existingSerialNumbers, $newSerialNumbers);
-
+            
             // Update the serial_numbers column in the database with the updated array
-            $adminReleaseProduct->serial_numbers = json_encode($updatedSerialNumbers);
+            $adminReleaseProduct->serial_numbers = $updatedSerialNumbers;
             $adminReleaseProduct->save();
     
             // UPDATE THE BALANCE OF THE USER

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Receipts;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class ReceiptsController extends Controller
@@ -13,7 +14,9 @@ class ReceiptsController extends Controller
     }
 
     public function show()
-    {
+    {   
+        $adminLocation = User::findOrFail(1)->first();
+
         $data = Receipts::leftJoin('users', 'receipts.user_id', 'users.id')
                         ->leftJoin('ordered_products', 'ordered_products.id', 'receipts.ordered_product_id')
                         ->leftJoin('track_orders', 'track_orders.id', 'receipts.track_order_id')
@@ -38,7 +41,7 @@ class ReceiptsController extends Controller
             return $item;
         });
 
-        return response()->json(['data' => $data]);
+        return response()->json(['data' => $data, 'adminLocation' => $adminLocation]);
     }
 
 }

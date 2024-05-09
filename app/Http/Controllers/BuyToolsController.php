@@ -72,12 +72,12 @@ class BuyToolsController extends Controller
     
             // Find all AdminReleasedProducts for the given tools_and_equipment_id
             $adminReleasedProducts = AdminReleasedProducts::where('tools_and_equipment_id', $request->dataValues['tools_and_equipment_id'])->get();
-    
+
             // Iterate through each AdminReleasedProduct
             foreach ($adminReleasedProducts as $adminReleasedProduct) {
                 // Decode the JSON string of serial numbers stored in the database column
-                $releasedSerialNumbers = json_decode($adminReleasedProduct->serial_numbers);
-    
+                $releasedSerialNumbers = json_decode($adminReleasedProduct->serial_numbers, true); // Convert to array
+
                 // Iterate through the selected serial numbers
                 foreach ($request->serial_numbers as $selectedSerialNumber) {
                     // Check if the selected serial number exists in the released serial numbers
@@ -86,12 +86,12 @@ class BuyToolsController extends Controller
                         unset($releasedSerialNumbers[$key]);
                     }
                 }
-    
+
                 // Update the serial_numbers column in the database with the updated array
                 $adminReleasedProduct->serial_numbers = json_encode($releasedSerialNumbers);
                 $adminReleasedProduct->save();
             }
-    
+                
             // Create a new track order
             $trackOrder = new TrackOrder();
             $trackOrder->status = 'Pending';

@@ -19977,8 +19977,22 @@ __webpack_require__.r(__webpack_exports__);
         }
         _this4.getData();
         $('#' + _this4.modalId).modal('hide');
-      })["catch"](function (errors) {
-        _this4.errors = errors.response.data.errors;
+      })["catch"](function (error) {
+        var errorMessage = "An unexpected error occurred. Please try again later."; // Default error message
+
+        if (error.response && error.response.status === 422) {
+          errorMessage = error.response.data.error; // Assuming error.response.data.error contains the error message
+        }
+
+        // Display error using SweetAlert
+        sweetalert2__WEBPACK_IMPORTED_MODULE_3___default().fire({
+          title: "warning",
+          text: errorMessage,
+          icon: 'warning'
+        });
+
+        // Store the error message in component's data
+        _this4.errors = errorMessage;
       });
     }
   },
@@ -20080,6 +20094,7 @@ __webpack_require__.r(__webpack_exports__);
       this.dataValues = props.data;
       this.modalTitle = 'Return Product';
       $('#' + this.modalIdReturn).modal('show');
+      this.checkedSerialNumbers = [];
     },
     updateCheckedValues: function updateCheckedValues(serialNumber) {
       if (this.checkedSerialNumbers.includes(serialNumber)) {
@@ -20100,7 +20115,6 @@ __webpack_require__.r(__webpack_exports__);
     },
     submitApprove: function submitApprove(props) {
       var _this2 = this;
-      console.log(props);
       sweetalert2__WEBPACK_IMPORTED_MODULE_3___default().fire({
         title: 'Are you sure?',
         text: 'You will not be able to return this Product once approved. Also once approved you will see the Product in Tools and Equipment Page.',
@@ -20533,9 +20547,9 @@ __webpack_require__.r(__webpack_exports__);
         _this3.getData();
       })["catch"](function (error) {
         sweetalert2__WEBPACK_IMPORTED_MODULE_3___default().fire({
-          title: "Error!",
-          text: "Failed to borrow product.",
-          icon: 'error',
+          title: "Warning!",
+          text: error.response.data.error,
+          icon: 'warning',
           timer: 3000
         });
         console.error(error);
@@ -20836,6 +20850,7 @@ __webpack_require__.r(__webpack_exports__);
         });
         $('#' + _this3.modalIdFinal).modal('hide');
         _this3.getData();
+        window.location.reload();
       })["catch"](function (error) {
         sweetalert2__WEBPACK_IMPORTED_MODULE_3___default().fire({
           title: "Warning!",
@@ -22326,6 +22341,7 @@ __webpack_require__.r(__webpack_exports__);
           }]
         },
         options: {
+          maintainAspectRatio: false,
           scales: {
             y: {
               beginAtZero: true
@@ -22706,11 +22722,10 @@ __webpack_require__.r(__webpack_exports__);
   data: function data() {
     return {
       data: [],
-      columns: ['id', 'action_name', 'action'],
+      columns: ['action_name', 'action'],
       errors: [],
       options: {
         headings: {
-          id: 'ID',
           action_name: 'Description',
           action: 'Action'
         },
@@ -22780,7 +22795,7 @@ __webpack_require__.r(__webpack_exports__);
   data: function data() {
     return {
       data: [],
-      columns: ['brand_name', 'tool_name', 'status', 'type', 'created_at', 'action'],
+      columns: ['brand_name', 'tool_name', 'status', 'type', 'ordered_at', 'shipment_date', 'delivery_date', 'action'],
       errors: [],
       options: {
         headings: {
@@ -22788,7 +22803,9 @@ __webpack_require__.r(__webpack_exports__);
           tool_name: 'Tool',
           status: 'Status',
           type: 'Type',
-          created_at: 'Ordered At',
+          ordered_at: 'Ordered At',
+          shipment_date: 'Shipment Date',
+          delivery_date: 'Arrival Date',
           action: 'Action'
         },
         filterable: false,
@@ -22927,7 +22944,7 @@ __webpack_require__.r(__webpack_exports__);
   data: function data() {
     return {
       data: [],
-      columns: ['brand_name', 'tool_name', 'status', 'ordered_at', 'action'],
+      columns: ['brand_name', 'tool_name', 'status', 'ordered_at', 'shipment_date', 'delivery_date', 'action'],
       errors: [],
       options: {
         headings: {
@@ -22935,6 +22952,8 @@ __webpack_require__.r(__webpack_exports__);
           tool_name: 'Tool',
           status: 'Status',
           ordered_at: 'Ordered At',
+          shipment_date: 'Shipment Date',
+          delivery_date: 'Arrival Date',
           action: 'Action'
         },
         filterable: false,
@@ -23361,6 +23380,7 @@ function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input ==
       this.errors = [];
     },
     addClicked: function addClicked() {
+      console.log(this.imageData);
       this.viewMode = false;
       this.clearInputs();
       $('#' + this.modalId).modal('show');
@@ -23644,6 +23664,7 @@ function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input ==
       $('#' + _this7.modalId).modal('hide');
       $('#' + _this7.modalIdCode).modal('hide');
       $('#' + _this7.modalIdRestock).modal('hide');
+      window.location.reload();
     })["catch"](function (error) {
       if (error.response) {
         sweetalert2__WEBPACK_IMPORTED_MODULE_3___default().fire({
@@ -23923,14 +23944,12 @@ __webpack_require__.r(__webpack_exports__);
             $('#' + _this2.modalId).modal('hide');
             _this2.getData();
           })["catch"](function (errors) {
-            if (errors.response.data.message.length > 0) {
-              sweetalert2__WEBPACK_IMPORTED_MODULE_3___default().fire({
-                title: "Failed",
-                text: errors.response.data.message,
-                icon: 'error',
-                timer: 3000
-              });
-            }
+            sweetalert2__WEBPACK_IMPORTED_MODULE_3___default().fire({
+              title: "Warning",
+              text: errors.response.data.message || 'You have Insufficient Balance to Pay the Penalty! Please add Balance or the Admin will contact you for more details.',
+              icon: 'warning',
+              timer: 3000
+            });
           });
         }
       });
@@ -24300,6 +24319,7 @@ __webpack_require__.r(__webpack_exports__);
   data: function data() {
     return {
       data: [],
+      adminLocation: [],
       columns: ['receipt_number', 'order_date', 'action'],
       errors: [],
       options: {
@@ -24334,25 +24354,14 @@ __webpack_require__.r(__webpack_exports__);
       var _this = this;
       axios__WEBPACK_IMPORTED_MODULE_4__["default"].get('/receipts/show').then(function (response) {
         _this.data = response.data.data;
+        _this.adminLocation = response.data.adminLocation;
       });
     },
-    printReceipt: function printReceipt() {
+    printReceipt: function printReceipt(props) {
       // Open a new window for printing
       var printWindow = window.open('', '_blank');
       // Pass data to print template
-      printWindow.document.write("\n        <html>\n        <head>\n            <title>Print Receipt</title>\n            <style>\n            body {\n                font-family: Arial, sans-serif;\n                text-align: center;\n            }\n            .receipt {\n                display: inline-block;\n                text-align: left;\n                padding: 20px;\n                border: 1px solid #ccc;\n                border-radius: 5px;\n            }\n            .padding {\n                padding-bottom: 20px;\n            }\n            .margin {\n                margin: 70px;\n            }\n            </style>\n        </head>\n        <body class=\"margin\">\n            <div class=\"receipt\">\n            <h1 style=\"text-align:center;\">PMSI RECEIPT</h1>\n            <div class=\"padding\">\n                <strong>COMPANY NAME:</strong> PROJECT MANAGEMENT STRATEGIES INTERNATIONAL Inc.\n            </div>\n            <div class=\"padding\">\n                <strong>ADDRESS:</strong> ".concat(this.data.map(function (item) {
-        return item.location;
-      }).join(''), "\n            </div>\n            <div class=\"padding\">\n                <strong>PHONE:</strong> ").concat(this.data.map(function (item) {
-        return item.contact_address;
-      }).join(''), "\n            </div>\n            <div class=\"padding\">\n                <strong>WEBSITE:</strong> https://pmsitooltracking.com/\n            </div>\n            <hr> \n            <div class=\"padding\">\n                <strong>DATE:</strong> ").concat(this.data.map(function (item) {
-        return item.order_date;
-      }).join(''), "\n            </div>\n            <div class=\"padding\">\n                <strong>RECEIPT #:</strong> ").concat(this.data.map(function (item) {
-        return item.receipt_number;
-      }).join(''), "\n            </div>\n            <hr> \n            <div class=\"padding\">\n                <strong>ITEMS:</strong>\n                <ul>\n                    ").concat(this.data.map(function (item) {
-        return "\n                        <li>\n                            ".concat(item.brand_name, " - ").concat(item.tool_name, " - ").concat(item.serial_numbers.join(', '), "\n                        </li>\n                    ");
-      }).join(''), "\n                </ul>\n            </div>\n            <div class=\"padding\">\n                <strong>TOTAL:</strong> ").concat(this.data.map(function (item) {
-        return item.total_price;
-      }).join(''), "\n            </div>\n            <hr> \n            <div class=\"padding\">\n                <strong>Thank you for your purchase!</strong>\n            </div>\n            </div>\n        </body>\n        </html>\n    "));
+      printWindow.document.write("\n                <html>\n                <head>\n                    <title>Print Receipt</title>\n                    <style>\n                    body {\n                        font-family: Arial, sans-serif;\n                        text-align: center;\n                    }\n                    .receipt {\n                        display: inline-block;\n                        text-align: left;\n                        padding: 20px;\n                        border: 1px solid #ccc;\n                        border-radius: 5px;\n                    }\n                    .padding {\n                        padding-bottom: 20px;\n                    }\n                    .margin {\n                        margin: 70px;\n                    }\n                    </style>\n                </head>\n                <body class=\"margin\">\n                    <div class=\"receipt\">\n                    <h1 style=\"text-align:center;\">PMSI RECEIPT</h1>\n                    <div class=\"padding\">\n                        <strong>COMPANY NAME:</strong> PROFESSIONAL MANAGEMENT STRATEGISTS INTERNATIONAL Inc.\n                    </div>\n                    <div class=\"padding\">\n                        <strong>ADDRESS:</strong> ".concat(this.adminLocation.location ? this.adminLocation.location : '', "\n                    </div>\n                    <div class=\"padding\">\n                        <strong>PHONE:</strong> ").concat(props.data && props.data.contact_address ? props.data.contact_address : '', "\n                    </div>\n                    <div class=\"padding\"> \n                        <strong>WEBSITE:</strong> https://pmsitooltracking.com/\n                    </div>\n                    <hr> \n                    <div class=\"padding\">\n                        <strong>DATE:</strong> ").concat(props.data && props.data.order_date ? props.data.order_date : '', "\n                    </div>\n                    <div class=\"padding\">\n                        <strong>RECEIPT #:</strong> ").concat(props.data && props.data.receipt_number ? props.data.receipt_number : '', "\n                    </div>\n                    <hr> \n                    <div class=\"padding\">\n                        <strong>ITEMS:</strong>\n                        <ul>\n                            <li>\n                                ").concat(props.data.brand_name, " - ").concat(props.data.tool_name, " - ").concat(props.data.serial_numbers.join(', '), "\n                            </li>\n                        </ul>\n                    </div>\n                    <div class=\"padding\">\n                        <strong>TOTAL:</strong> \u20B1").concat(props.data && props.data.total_price ? props.data.total_price : '', "\n                    </div>\n                    <hr> \n                    <div class=\"padding\" style=\"text-align:center;\">\n                        <strong>Thank you for your purchase!</strong>\n                    </div>\n                    </div>\n                </body>\n                </html>\n            "));
       printWindow.document.close();
       // Print the content
       printWindow.print();
@@ -25418,6 +25427,30 @@ function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input ==
 
       return true; // Validation passed
     },
+    cancelProduct: function cancelProduct() {
+      var _this4 = this;
+      sweetalert2__WEBPACK_IMPORTED_MODULE_3___default().fire({
+        title: 'Are you sure you want to cancel?',
+        text: 'All the products you added to the cart will be removed!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, cancel it!'
+      }).then(function (result) {
+        if (result.isConfirmed) {
+          // Proceed with canceling the product
+          $('#' + _this4.modalIdTermsandCondition).modal('hide');
+          _this4.selectedProducts = [];
+          sweetalert2__WEBPACK_IMPORTED_MODULE_3___default().fire({
+            title: "Products Canceled!",
+            icon: 'success',
+            timer: 3000
+          });
+          // You can call a method to handle the cancellation here
+        }
+      });
+    },
     purchaseProduct: function purchaseProduct(product) {
       this.dataValues = product;
       this.requestedItems = '';
@@ -25438,7 +25471,7 @@ function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input ==
       $('#' + this.modalIdReview).modal('show');
     },
     yesProduct: function yesProduct() {
-      var _this4 = this;
+      var _this5 = this;
       this.selectedIndexes.length = 0;
       if (this.validateForm()) {
         if (this.requestedItems > this.dataValues.stocks) {
@@ -25458,18 +25491,18 @@ function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input ==
           return;
         }
         axios__WEBPACK_IMPORTED_MODULE_4__["default"].post('/supplier/getId', this.dataValues).then(function (response) {
-          _this4.agreementChecked = false;
-          _this4.serialNumbers = response.data.serialNumbers;
+          _this5.agreementChecked = false;
+          _this5.serialNumbers = response.data.serialNumbers;
           var requestData = {
-            id: _this4.dataValues.id,
-            requestedItems: _this4.requestedItems,
-            total: _this4.vatTotal
+            id: _this5.dataValues.id,
+            requestedItems: _this5.requestedItems,
+            total: _this5.vatTotal
           };
-          _this4.requestData = requestData;
-          $('#' + _this4.modalIdPurchaseProduct).modal('hide');
-          $('#' + _this4.modalIdSelect).modal('show');
+          _this5.requestData = requestData;
+          $('#' + _this5.modalIdPurchaseProduct).modal('hide');
+          $('#' + _this5.modalIdSelect).modal('show');
         })["catch"](function (errors) {
-          _this4.errors = errors.response.data.errors;
+          _this5.errors = errors.response.data.errors;
         });
       }
     },
@@ -25478,7 +25511,7 @@ function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input ==
       this.vatTotal = this.total + this.total * (this.vat / 100);
     },
     getProduct: function getProduct() {
-      var _this5 = this;
+      var _this6 = this;
       this.requestedItems = 0;
       // this.vatTotal = 0;
       this.agreementChecked = false;
@@ -25497,8 +25530,9 @@ function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input ==
           icon: 'success',
           timer: 3000
         });
-        $('#' + _this5.modalIdPurchaseProduct).modal('hide');
-        $('#' + _this5.modalIdTermsandCondition).modal('hide');
+        $('#' + _this6.modalIdPurchaseProduct).modal('hide');
+        $('#' + _this6.modalIdTermsandCondition).modal('hide');
+        window.location.reload();
       })["catch"](function (errors) {
         // Check if the response contains an error indicating insufficient funds
         if (errors.response.data.error === 'Insufficient funds') {
@@ -25524,7 +25558,7 @@ function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input ==
             timer: 3000
           });
         }
-        _this5.errors = errors.response.data.errors;
+        _this6.errors = errors.response.data.errors;
       });
     }
   },
@@ -29448,7 +29482,7 @@ __webpack_require__.r(__webpack_exports__);
 var _hoisted_1 = {
   "class": "p-3"
 };
-var _hoisted_2 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createStaticVNode)("<div class=\"row\"><div class=\"col-lg-12\"><div class=\"card\" style=\"background-color:#f18f4e;color:#fff;\"><div class=\"card-body dash-title\"> Sales </div></div><div class=\"card\"><div class=\"card-body\"><canvas id=\"saleChart\"></canvas></div></div></div></div><div class=\"row\"><div class=\"col-lg-6\"><div class=\"card\" style=\"background-color:#f18f4e;color:#fff;\"><div class=\"card-body dash-title\"> Master Data </div></div><div class=\"card\"><div class=\"card-body\"><canvas id=\"masterDataBarChart\"></canvas></div></div></div><div class=\"col-lg-6\"><div class=\"card\" style=\"background-color:#f18f4e;color:#fff;\"><div class=\"card-body dash-title\"> Supplier </div></div><div class=\"card\"><div class=\"card-body\"><canvas id=\"supplierPolarAreaChart\"></canvas></div></div></div></div>", 2);
+var _hoisted_2 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createStaticVNode)("<div class=\"row\"><div class=\"col-lg-12\"><div class=\"card\" style=\"background-color:#f18f4e;color:#fff;\"><div class=\"card-body dash-title\"> Sales Chart </div></div><div class=\"card\"><div class=\"card-body\"><canvas id=\"saleChart\" style=\"height:400px !important;\"></canvas></div></div></div></div><div class=\"row\"><div class=\"col-lg-6\"><div class=\"card\" style=\"background-color:#f18f4e;color:#fff;\"><div class=\"card-body dash-title\"> Master Data </div></div><div class=\"card\"><div class=\"card-body\"><canvas id=\"masterDataBarChart\"></canvas></div></div></div><div class=\"col-lg-6\"><div class=\"card\" style=\"background-color:#f18f4e;color:#fff;\"><div class=\"card-body dash-title\"> Supplier </div></div><div class=\"card\"><div class=\"card-body\"><canvas id=\"supplierPolarAreaChart\"></canvas></div></div></div></div>", 2);
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   var _component_BreadCrumbComponent = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("BreadCrumbComponent");
   return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_BreadCrumbComponent, {
@@ -31624,12 +31658,13 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
         disabled: $data.viewMode,
         min: "0"
       }, null, 8 /* PROPS */, _hoisted_143), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $data.dataValues.stocks]]), $data.errors.stocks ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_144, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($data.errors.stocks[0]), 1 /* TEXT */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_145, [_hoisted_146, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_147, [_hoisted_148, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
-        type: "text",
+        type: "number",
         "class": "form-control",
         "onUpdate:modelValue": _cache[19] || (_cache[19] = function ($event) {
           return $data.dataValues.price = $event;
         }),
-        disabled: $data.viewMode
+        disabled: $data.viewMode,
+        min: "0"
       }, null, 8 /* PROPS */, _hoisted_149), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $data.dataValues.price]])]), $data.errors.price ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_150, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($data.errors.price[0]), 1 /* TEXT */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])])];
     }),
     modalFooter: (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
@@ -33806,9 +33841,14 @@ var _hoisted_115 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElemen
   }
 }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("strong", null, "Please check the box if you agree to the terms and conditions above.")], -1 /* HOISTED */);
 var _hoisted_116 = {
-  "class": "text-right"
+  "class": "d-flex justify-content-between"
 };
 var _hoisted_117 = ["disabled"];
+var _hoisted_118 = {
+  "class": "mb-5"
+};
+var _hoisted_119 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("b", null, "Checkout", -1 /* HOISTED */);
+var _hoisted_120 = [_hoisted_119];
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   var _this = this;
   var _component_BreadCrumbComponent = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("BreadCrumbComponent");
@@ -34123,24 +34163,29 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelCheckbox, $data.agreementChecked]])]), _hoisted_115])])];
     }),
     modalFooter: (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
-      return [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_116, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
-        "class": "btn btn-success",
+      return [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_116, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+        "class": "btn btn-danger mr-2",
         onClick: _cache[28] || (_cache[28] = function () {
+          return $options.cancelProduct && $options.cancelProduct.apply($options, arguments);
+        })
+      }, "Cancel")]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+        "class": "btn btn-success",
+        onClick: _cache[29] || (_cache[29] = function () {
           return $options.getProduct && $options.getProduct.apply($options, arguments);
         }),
         disabled: !$data.agreementChecked
-      }, "Purchase", 8 /* PROPS */, _hoisted_117)])];
+      }, "Purchase", 8 /* PROPS */, _hoisted_117)])])];
     }),
     _: 1 /* STABLE */
-  }, 8 /* PROPS */, ["id", "title", "size", "position"]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
-    "class": "btn btn-warning",
+  }, 8 /* PROPS */, ["id", "title", "size", "position"]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_118, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+    "class": "p-3 btn btn-warning",
     style: {
       "float": "inline-end"
     },
-    onClick: _cache[29] || (_cache[29] = function () {
+    onClick: _cache[30] || (_cache[30] = function () {
       return $options.checkout && $options.checkout.apply($options, arguments);
     })
-  }, "Checkout")]);
+  }, _hoisted_120)])]);
 }
 
 /***/ }),

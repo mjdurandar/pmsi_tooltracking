@@ -84,11 +84,13 @@ class OrderedProductsController extends Controller
     {
         $data = TrackOrder::leftjoin('products', 'track_orders.product_id', 'products.id')
                             ->leftjoin('users', 'track_orders.user_id', 'users.id')
+                            ->leftjoin('users as supplier', 'supplier.id', 'products.user_id')
                             ->select('track_orders.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.voltage as voltage', 'products.image as image',
                                     'products.dimensions as dimensions', 'products.weight as weight', 'products.powerSources as powerSources',
                                     'track_orders.created_at as completed_at', 'users.name as user_name', 'users.location as location')
                             ->where('track_orders.is_completed', true)
-                           ->get(); 
+                            ->where('supplier.id', Auth::id())
+                            ->get(); 
                            
         $data->transform(function ($item) {
             $item->completed_at = $item->completed_at ? \Carbon\Carbon::parse($item->completed_at)->setTimezone('Asia/Manila')->format('m/d/Y h:i:s A') : null;
@@ -103,10 +105,12 @@ class OrderedProductsController extends Controller
         $data = CanceledOrder::leftjoin('track_orders', 'canceled_orders.track_order_id', 'track_orders.id')
                             ->leftjoin('products', 'track_orders.product_id', 'products.id')
                             ->leftjoin('users', 'track_orders.user_id', 'users.id')
+                            ->leftjoin('users as supplier', 'supplier.id', 'products.user_id')
                             ->select('canceled_orders.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.voltage as voltage', 'products.image as image',
                                     'products.dimensions as dimensions', 'products.weight as weight', 'products.powerSources as powerSources',
                                     'canceled_orders.created_at as canceled_at', 'users.name as user_name', 'users.location as location',
                                     'track_orders.serial_numbers as serial_numbers', 'track_orders.total_price as total_price')
+                            ->where('supplier.id', Auth::id())
                             ->get();
 
         $data->transform(function ($item) {

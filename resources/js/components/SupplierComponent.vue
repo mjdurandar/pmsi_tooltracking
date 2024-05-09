@@ -339,13 +339,20 @@
                 </div>
             </template>
             <template #modalFooter>
-                <div class="text-right">
-                    <button class="btn btn-success" v-on:click="getProduct" :disabled="!agreementChecked">Purchase</button>
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <button class="btn btn-danger mr-2" v-on:click="cancelProduct">Cancel</button>
+                    </div>
+                    <div>
+                        <button class="btn btn-success" v-on:click="getProduct" :disabled="!agreementChecked">Purchase</button>
+                    </div>
                 </div>
             </template>
         </ModalComponent>
-        
-        <button class="btn btn-warning" style="float: inline-end;" v-on:click="checkout">Checkout</button>
+        <div class="mb-5 ">
+            <button class="p-3 btn btn-warning" style="float: inline-end;" v-on:click="checkout"><b>Checkout</b></button>
+        </div>
+       
     </div>
 </template>
 
@@ -541,6 +548,29 @@ export default{
 
             return true; // Validation passed
         },
+        cancelProduct() {
+            Swal.fire({
+                title: 'Are you sure you want to cancel?',
+                text: 'All the products you added to the cart will be removed!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, cancel it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Proceed with canceling the product
+                    $('#' + this.modalIdTermsandCondition).modal('hide');
+                    this.selectedProducts = [];
+                    Swal.fire({
+                    title: "Products Canceled!",
+                    icon: 'success',
+                    timer: 3000
+                });
+                    // You can call a method to handle the cancellation here
+                }
+            });
+        },
         purchaseProduct(product){
             this.dataValues = product;
             this.requestedItems = '';
@@ -622,6 +652,7 @@ export default{
                     });
                     $('#' + this.modalIdPurchaseProduct).modal('hide');
                     $('#' + this.modalIdTermsandCondition).modal('hide');
+                    window.location.reload();
                 })
                 .catch(errors => {
                     // Check if the response contains an error indicating insufficient funds

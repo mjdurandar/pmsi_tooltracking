@@ -25,11 +25,6 @@ class ReturnedProductController extends Controller
                                 'users.name as user_name', 'users.email as user_email', 'users.contact_address as user_phone')
                                 ->get();
 
-        // $data = ToolsAndEquipment::leftjoin('products', 'products.id','tools_and_equipment.product_id')
-        //                         ->where('status', 'Returning')
-        //                         ->select('tools_and_equipment.*', 'products.brand as brand_name', 'products.tool as tool_name')
-        //                         ->get();
-
         return response()->json([ 'data' => $data]);
     }
 

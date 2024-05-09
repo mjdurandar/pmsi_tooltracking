@@ -220,6 +220,7 @@ export default{
             this.dataValues = props.data;
             this.modalTitle= 'Return Product';
             $('#' + this.modalIdReturn).modal('show');
+            this.checkedSerialNumbers = [];
         },
         updateCheckedValues(serialNumber) {
             if (this.checkedSerialNumbers.includes(serialNumber)) {
@@ -237,7 +238,6 @@ export default{
             window.location.href = '/admin-returned-product';
         },
         submitApprove(props){
-            console.log(props);
             Swal.fire({
                 title: 'Are you sure?',
                 text: 'You will not be able to return this Product once approved. Also once approved you will see the Product in Tools and Equipment Page.',

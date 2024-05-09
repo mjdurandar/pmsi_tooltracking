@@ -278,7 +278,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text">₱</span>
                             </div>
-                            <input type="text" class="form-control" v-model="dataValues.price" :disabled="viewMode">
+                            <input type="number" class="form-control" v-model="dataValues.price" :disabled="viewMode" min="0">
                         </div>
                         <div class="text-danger" v-if="errors.price">{{ errors.price[0] }}</div>
                     </div>  
@@ -551,6 +551,7 @@ export default{
             this.errors = [];
         },
         addClicked(){
+            console.log(this.imageData);
             this.viewMode = false;
             this.clearInputs();
             $('#' + this.modalId).modal('show');
@@ -855,6 +856,7 @@ export default{
                     $('#' + this.modalId).modal('hide');
                     $('#' + this.modalIdCode).modal('hide');
                     $('#' + this.modalIdRestock).modal('hide');
+                    window.location.reload();
                 }).catch(error => {
                     if (error.response) {
                         Swal.fire({

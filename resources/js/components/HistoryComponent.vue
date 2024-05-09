@@ -58,11 +58,10 @@ export default{
     data(){
         return{
                 data : [],
-                columns : ['id','action_name','action'],
+                columns : ['action_name','action'],
                 errors: [],
                 options : {
                     headings : {
-                        id : 'ID',
                         action_name : 'Description',
                         action : 'Action',
                     },

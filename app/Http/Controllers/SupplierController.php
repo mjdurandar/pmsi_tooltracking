@@ -84,6 +84,7 @@ class SupplierController extends Controller
 
     public function purchaseProduct(Request $request)
     {   
+      
         $selectedProducts = $request->all();
         $orderNumber = 'ORD-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
         $trackingNumber = 'TRK-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
@@ -107,7 +108,7 @@ class SupplierController extends Controller
             $serializedSerialNumbers = json_encode($selectedSerialNumbers);
             $productId = $selectedProduct['dataValues']['id'];
     
-            $releasedProduct = ReleasedProduct::findOrFail($productId);
+            $releasedProduct = ReleasedProduct::where('product_id', $productId)->first();
             $releasedProduct->is_sold = true;
             $releasedProduct->save();
     

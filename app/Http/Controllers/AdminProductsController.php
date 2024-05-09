@@ -64,6 +64,7 @@ class AdminProductsController extends Controller
                         ->where('track_orders.is_completed', true)
                         ->where('track_orders.is_approved', false)
                         ->where('track_orders.serial_numbers', '!=', '[]')
+                        ->where('track_orders.user_id', Auth::id())
                         ->get();
     
         // Decode the JSON string into an array
@@ -121,24 +122,43 @@ class AdminProductsController extends Controller
         $trackOrder->is_approved = true;
         $trackOrder->save();
         
-        $supplierName = Product::leftjoin('users', 'users.id', 'products.user_id')
-                                ->find($trackOrder->product_id);
-
-        $toolsAndEquipment = new ToolsAndEquipment();
-        $toolsAndEquipment->product_id = $trackOrder->product_id;
-        $toolsAndEquipment->serial_numbers = json_encode($request->serial_numbers);
-        $toolsAndEquipment->category_id = 1;
-        $toolsAndEquipment->price = 0;
-        $toolsAndEquipment->supplier_name = $supplierName->name;
-        $toolsAndEquipment->stocks = count($request->serial_numbers);
-        $toolsAndEquipment->save();
-
+        // Check if a product with the same ID already exists in ToolsAndEquipment
+        $existingProduct = ToolsAndEquipment::where('product_id', $trackOrder->product_id)->first();
+    
+        if ($existingProduct) {
+            // Convert the existing serial numbers string to an array
+            $existingSerialNumbers = json_decode($existingProduct->serial_numbers, true);
+    
+            // Merge new serial numbers with existing ones, ensuring no duplicates
+            $mergedSerialNumbers = array_unique(array_merge($existingSerialNumbers, $request->serial_numbers));
+            // Update the serial numbers field
+            $existingProduct->serial_numbers = json_encode($mergedSerialNumbers);
+            $existingProduct->stocks += count($request->serial_numbers);
+            $existingProduct->save();
+        } else {
+            // Create a new entry
+            $supplierName = Product::leftjoin('users', 'users.id', 'products.user_id')
+                                    ->find($trackOrder->product_id);
+    
+            $toolsAndEquipment = new ToolsAndEquipment();
+            $toolsAndEquipment->product_id = $trackOrder->product_id;
+            $toolsAndEquipment->serial_numbers = json_encode($request->serial_numbers);
+            $toolsAndEquipment->category_id = 1;
+            $toolsAndEquipment->price = 0;
+            $toolsAndEquipment->supplier_name = $supplierName->name;
+            $toolsAndEquipment->stocks = count($request->serial_numbers);
+            $toolsAndEquipment->save();
+        }
+    
         $history = new History();
         $history->user_id = Auth::id();
         $history->product_id = $request->product_id;
-        $history->action = 'You appoved a Product';
+        $history->action = 'You approved a Product';
         $history->save();
-
+    
         return response()->json(['status' => 'success', 'message' => 'Product approved.']);
     }
+    
+    
+    
 }

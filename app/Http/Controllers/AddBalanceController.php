@@ -27,19 +27,23 @@ class AddBalanceController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'balance' => 'required',
+            'balance' => 'required|numeric|min:0|max:1000000',
             'card_number' => 'required',
         ], [
             'balance.required' => 'The Balance field is required',
             'card_number.required' => 'The Card Number field is required',
         ]);
+
     
         // Retrieve user's balance
         $user = User::find(auth()->user()->id);
         $balance = $user->balance;
         $balance += $request->balance;
         $user->balance = $balance;
-
+        // Check if the balance value exceeds the maximum threshold
+        if ($balance + $request->balance > 1000000) {
+            return response()->json(['error' => 'Sorry but you can`t deposit that large amount!'], 422);
+        }
         $user->save();
     
         // Save transaction information

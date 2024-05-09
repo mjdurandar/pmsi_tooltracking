@@ -218,7 +218,8 @@ export default{
             });
         },
         storeData() {
-                axios.post('/add-balance/store', this.dataValues).then(response => {
+            axios.post('/add-balance/store', this.dataValues)
+                .then(response => {
                     if(response.status === 200) {
                         Swal.fire({
                             title: "Success",
@@ -230,10 +231,24 @@ export default{
                     this.getData();
                     $('#' + this.modalId).modal('hide');
                 })
-                .catch(errors => {
-                        this.errors = errors.response.data.errors;
-                })
-            },
+                .catch(error => {
+                    let errorMessage = "An unexpected error occurred. Please try again later."; // Default error message
+
+                    if (error.response && error.response.status === 422) {
+                        errorMessage = error.response.data.error; // Assuming error.response.data.error contains the error message
+                    }
+
+                    // Display error using SweetAlert
+                    Swal.fire({
+                        title: "warning",
+                        text: errorMessage,
+                        icon: 'warning'
+                    });
+
+                    // Store the error message in component's data
+                    this.errors = errorMessage;
+                });
+        },
         },
         mounted() {
             this.getData();

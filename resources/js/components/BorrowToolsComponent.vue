@@ -374,9 +374,9 @@ export default{
                 })
                 .catch(error => {
                     Swal.fire({
-                        title: "Error!",
-                        text: "Failed to borrow product.",
-                        icon: 'error',
+                        title: "Warning!",
+                        text: error.response.data.error,
+                        icon: 'warning',
                         timer: 3000
                     });
                     console.error(error);

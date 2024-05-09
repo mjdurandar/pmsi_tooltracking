@@ -137,7 +137,7 @@ export default{
     data(){
         return{
                 data : [],
-                columns : ['brand_name', 'tool_name', 'status' ,'type', 'created_at' ,'action'],
+                columns : ['brand_name', 'tool_name', 'status' ,'type', 'ordered_at', 'shipment_date', 'delivery_date' ,'action'],
                 errors: [],
                 options : {
                     headings : {
@@ -145,7 +145,9 @@ export default{
                         tool_name : 'Tool',
                         status : 'Status',
                         type : 'Type',
-                        created_at : 'Ordered At',
+                        ordered_at : 'Ordered At',
+                        shipment_date : 'Shipment Date',
+                        delivery_date : 'Arrival Date',
                         action : 'Action',
                     },
                     filterable: false,

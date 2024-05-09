@@ -62,6 +62,14 @@ class ReturnProductController extends Controller
 
     public function store(Request $request)
     {   
+        $user = User::findOrFail(Auth::id());
+        $user->balance -= $request->penalty;
+        $user->save();
+
+        if($user->balance < 0) {
+            return response()->json(['message' => 'You have Insufficient Balance to Pay the Penalty! Please add Balance or the Admin will contact you for more details.'], 400);
+        }
+
         $deliveryDate = $request->delivery_date;
         $formattedDate = date('m/d/Y', strtotime($deliveryDate));
         
