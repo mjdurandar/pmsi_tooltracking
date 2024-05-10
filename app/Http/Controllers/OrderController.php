@@ -153,4 +153,50 @@ class OrderController extends Controller
         return response()->json(['message' => 'Status updated successfully']);
 
     }
+
+    // public function filterData(Request $request){
+        
+    //     $selectedBrand = $request->selectedBrand;
+    //     $selectedTool = $request->selectedTool;
+    //     $selectedStatus = $request->selectedStatus;
+    //     $selectedType = $request->selectedType;
+
+    //     $query = OrderedProducts::query();
+    
+    //     $query->leftJoin('track_orders', 'track_orders.id', 'ordered_products.track_orders_id')
+    //     ->leftJoin('products', 'products.id', 'track_orders.product_id')
+    //     ->leftJoin('users', 'users.id', 'ordered_products.user_id')
+    //     ->select('ordered_products.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as image',
+    //     'track_orders.type as type', 'track_orders.status as status', 'ordered_products.created_at as ordered_at', 'track_orders.total_price as total_price',
+    //     'track_orders.serial_numbers as serial_numbers', 'ordered_products.created_at as ordered_at'
+    //     ,'users.location as location', 'users.contact_address as contact_address', 'users.email as email', 'users.name as user_name'
+    //     , DB::raw('LENGTH(track_orders.serial_numbers) - LENGTH(REPLACE(track_orders.serial_numbers, ",", "")) + 1 as serial_numbers_count'))
+    //     ->where('ordered_products.user_id', Auth::id())
+    //     ->where('track_orders.status', 'Completed');
+    //     // ->where('track_orders.is_completed', true);
+
+
+    //     if (!empty($selectedBrand)) {
+    //         $query->where('products.brand', $selectedBrand);
+    //     }
+
+    //     // if (!empty($selectedTool)) {
+    //     //     $query->where('products.tool_name', $selectedTool);
+    //     // }
+
+    //     // if (!empty($selectedStatus)) {
+    //     //     $query->where('track_orders.status', $selectedStatus);
+    //     // }
+
+    //     // if (!empty($selectedType)) {
+    //     //     $query->where('track_orders.type', $selectedType);
+    //     // }
+        
+    
+    //     $data = $query->get();
+
+    //     return response()->json(['data' => $data]);
+    
+    // }    
+
 }

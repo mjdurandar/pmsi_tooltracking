@@ -59,7 +59,7 @@
                         <div class="d-flex justify-content-between">
                             <div style="width: 50%;">
                                 <h2 class="card-title" style="font-weight: bold;">{{ product.brand + ' ' + product.tool }}</h2>
-                                <p class="card-title">{{ product.supplier_name }}</p>
+                                <p class="card-title">{{ product.supplier_name }} <br> Stocks: {{ product.stocks }} </p>
                             </div>
                             <div style="width: 50%;">
                                 <img v-if="product.image" :src="'/images/' + product.image" alt="Product Image" class="img-fluid" style="height: 250px;">

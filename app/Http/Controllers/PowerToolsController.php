@@ -40,6 +40,7 @@ class PowerToolsController extends Controller
 
     public function filterData(Request $request){
 
+        // dd($request->all());
         $supplier_name = $request->supplier_name;
         $category_number = $request->category_number;
         $brand = $request->brand;
@@ -51,13 +52,14 @@ class PowerToolsController extends Controller
         $query->leftJoin('products', 'products.id', '=', 'tools_and_equipment.product_id')
             ->leftJoin('users', 'users.id', '=', 'products.user_id')
             ->leftjoin('categories', 'tools_and_equipment.category_id', '=', 'categories.id')
-            ->select('tools_and_equipment.*', 'categories.name as category_name', 'products.brand as product_brand', 'products.tool as product_tool', 
-            'products.image as product_image', 'products.powerSources as product_powerSources', 'products.voltage as product_voltage',
-            'products.weight as product_weight', 'products.dimensions as product_dimensions', 'products.material as product_material', 'users.name as supplier_name');
+            ->select('tools_and_equipment.*', 'categories.name as category_name', 'products.brand as brand_name', 'products.tool as tool_name', 
+            'products.image as image', 'products.powerSources as product_powerSources', 'products.voltage as product_voltage',
+            'products.weight as product_weight', 'products.dimensions as product_dimensions', 'products.material as product_material', 'users.name as supplier_name',
+            DB::raw('JSON_LENGTH(tools_and_equipment.serial_numbers) as stocks'));
             
-        if (!empty($category_number)) {
-            $query->where('tools_and_equipment.category_id', $category_number);
-        }
+        // if (!empty($category_number)) {
+        //     $query->where('tools_and_equipment.category_id', $category_number);
+        // }
 
         if (!empty($supplier_name)) {
             $query->where('products.user_id', $supplier_name);
@@ -75,11 +77,22 @@ class PowerToolsController extends Controller
             $query->where('products.powerSources', 'like', '%' . $specs . '%');
         }
 
-        $query->where('tools_and_equipment.is_delivered', true);
+        if (!empty($category_number)) {
+            $query->where('tools_and_equipment.category_id', 'like', '%' . $category_number . '%');
+        }
+        
+
+        // $query->where('tools_and_equipment.is_delivered', true);
     
-        $products = $query->get();
-    
-        return response()->json(['products' => $products]);
+        $data = $query->get();
+
+        $suppliers = User::where('role', 2)->get();
+
+        // foreach ($data as $order) {
+        //     $order->serial_numbers = json_decode($order->serial_numbers);
+        // }
+
+        return response()->json(['data' => $data, 'suppliers' => $suppliers]);
     
     }    
 

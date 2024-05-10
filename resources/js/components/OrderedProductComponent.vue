@@ -138,10 +138,11 @@ export default{
     data(){
         return{
                 data : [],
-                columns : ['brand_name', 'tool_name' ,'status', 'ordered_at', 'shipment_date', 'delivery_date' ,'action'],
+                columns : ['order_number','brand_name', 'tool_name' ,'status', 'ordered_at', 'shipment_date', 'delivery_date' ,'action'],
                 errors: [],
                 options : {
                     headings : {
+                        order_number : 'Order Number',
                         brand_name : 'Brand',
                         tool_name : 'Tool',
                         status : 'Status',

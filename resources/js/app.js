@@ -62,6 +62,7 @@ import CanceledOrderAdminProductComponent from './components/CanceledOrderAdminP
 import ReturningProductComponent from './components/ReturningProductComponent.vue';
 import ReceiptsComponent from './components/ReceiptsComponent.vue';
 import HistoryComponent from './components/HistoryComponent.vue';
+import ReturningProductsComponent from './components/ReturningProductsComponent.vue';
 
 app.config.globalProperties.$swal = Swal;
 app.use(ServerTable, {}, 'bootstrap4')
@@ -113,6 +114,7 @@ app.component('canceled-order-admin-product-component', CanceledOrderAdminProduc
 app.component('returning-product-component', ReturningProductComponent);
 app.component('receipts-component', ReceiptsComponent);
 app.component('history-component', HistoryComponent);
+app.component('returning-products-component', ReturningProductsComponent);
 
 /**
  * The following block of code may be used to automatically register your

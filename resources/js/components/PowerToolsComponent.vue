@@ -58,7 +58,7 @@
                         <div class="d-flex justify-content-between">
                             <div style="width: 50%;">
                                 <h2 class="card-title" style="font-weight: bold;">{{ product.brand_name }} {{ product.tool_name }}</h2>
-                                <h6 class="card-text">{{ product.category_name }}</h6>
+                                <!-- <h6 class="card-text">{{ product.category_name }}</h6> -->
                                 <h6 class="card-text">{{ product.supplier_name }}</h6>
                                 <h6 class="card-text">Stocks: {{ product.stocks }}</h6>
                             </div>
@@ -220,14 +220,14 @@ export default{
         ModalComponent,
         BreadCrumbComponent,
     },
-    computed: {
-        filteredCategories() {
-            // Filter out the 'Unreleased' category if product's category is already 'Unreleased'
-            return this.categories.filter(category => {
-                return !(this.dataValues.category_name === 'Unreleased' && category.name === 'Unreleased');
-            });
-        }
-    },
+    // computed: {
+    //     filteredCategories() {
+    //         // Filter out the 'Unreleased' category if product's category is already 'Unreleased'
+    //         return this.categories.filter(category => {
+    //             return !(this.dataValues.category_name === 'Unreleased' && category.name === 'Unreleased');
+    //         });
+    //     }
+    // },
     methods: {
         getData() {
             axios.get('/powertools/show').then(response => {
@@ -279,7 +279,7 @@ export default{
 
             axios.post('/powertools/filterData', searchData)
             .then(response => {
-                this.data = response.data.products;
+                this.data = response.data.data;
                 if (this.data.length === 0) {
                     Swal.fire({
                         title: "No Products available!",

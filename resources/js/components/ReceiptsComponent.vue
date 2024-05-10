@@ -1,6 +1,15 @@
 <template>
     <div class="p-3">
         <BreadCrumbComponent tab_title="Receipts"></BreadCrumbComponent>
+        <div class="row mb-3">
+            <div class="col-lg-2">
+                <input type="text" class="form-control" placeholder="Search Receipt Number" v-model="receipt_number">
+            </div>
+            <div>
+                <button class="btn btn-primary" @click="filterData">Search</button>
+                <button class="btn btn-success ml-1" @click="refresh"><i class="fas fa-sync-alt"></i></button>
+            </div>
+        </div>
         <div class="card">
             <div class="card-body">
                 <FormComponent 
@@ -34,7 +43,9 @@ export default{
     data(){
         return{
                 data : [],
+                datas : [],
                 adminLocation: [],
+                receipt_number: '',
                 columns : ['receipt_number', 'order_date' ,'action'],
                 errors: [],
                 options : {
@@ -71,7 +82,14 @@ export default{
                 this.adminLocation = response.data.adminLocation;
             })
         },
+        refresh() {
+            window.location.reload();
+        },
         printReceipt(props) {
+            // Calculate VAT amount
+            const vat = props.data.total_price * 0.12;
+
+            const noVat = props.data.total_price - vat;
             // Open a new window for printing
             const printWindow = window.open('', '_blank');
             // Pass data to print template
@@ -131,7 +149,13 @@ export default{
                         </ul>
                     </div>
                     <div class="padding">
-                        <strong>TOTAL:</strong> ₱${props.data && props.data.total_price ? props.data.total_price : ''}
+                        <strong>SUBTOTAL:</strong> ₱${noVat.toFixed(2)}
+                    </div>
+                    <div class="padding">
+                        <strong>WITH VAT:</strong> ₱${vat.toFixed(2)}
+                    </div>
+                    <div class="padding">
+                        <strong>GRAND TOTAL:</strong> ₱${props.data && props.data.total_price ? props.data.total_price : ''}
                     </div>
                     <hr> 
                     <div class="padding" style="text-align:center;">
@@ -144,6 +168,29 @@ export default{
             printWindow.document.close();
             // Print the content
             printWindow.print();
+        },
+        filterData()
+        {
+            axios.post('/receipts/filterData', { receiptNumber: this.receipt_number })
+                .then(response => {
+                    this.data = response.data.data;
+                    if (this.data.length === 0) {
+                        Swal.fire({
+                            title: "No Products available!",
+                            icon: 'warning',
+                            timer: 3000
+                        });
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        title: "Error!",
+                        text: "Failed to fetch data.",
+                        icon: 'error',
+                        timer: 3000
+                    });
+                    console.error(error);
+                });
         },
         clearInputs() {
             this.dataValues = {

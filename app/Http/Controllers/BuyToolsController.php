@@ -22,6 +22,7 @@ use App\Models\ToolsAndEquipment;
 use App\Models\TrackOrder;
 use App\Models\UserDelivery;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class BuyToolsController extends Controller
 {
@@ -44,7 +45,7 @@ class BuyToolsController extends Controller
                                     ->leftjoin('products', 'products.id', 'tools_and_equipment.product_id')
                                     ->select('admin_released_products.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as product_image',
                                     'products.powerSources as powerSources', 'products.voltage as voltage', 'products.weight as weight', 'products.dimensions as dimensions',
-                                    'products.material as material', 'tools_and_equipment.product_id as product_id')
+                                    'products.material as material', 'tools_and_equipment.product_id as product_id', DB::raw('JSON_LENGTH(admin_released_products.serial_numbers) as stocks'))
                                     ->where('status', 'For Sale')
                                     ->where('admin_released_products.serial_numbers', '!=', '[]')
                                     ->get();
@@ -131,17 +132,19 @@ class BuyToolsController extends Controller
     
     public function filterData(Request $request)
     {
-        $status = $request->status;
         $brand = $request->brand;
         $tool = $request->tool;
         $specs = $request->specs;
 
-        $query = ToolsAndEquipment::query();
+        $query = AdminReleasedProducts::query();
 
-        $query->leftJoin('products', 'products.id', '=', 'tools_and_equipment.product_id')
-        ->select('tools_and_equipment.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as product_image',
-                 'products.powerSources as powerSources', 'products.voltage as voltage', 'products.weight as weight', 'products.dimensions as dimensions', 'products.material as material')
-                 ->where('category_id', 2);
+        $query->leftjoin('tools_and_equipment', 'tools_and_equipment.id', 'admin_released_products.tools_and_equipment_id')    
+        ->leftjoin('products', 'products.id', 'tools_and_equipment.product_id')
+        ->select('admin_released_products.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as product_image',
+        'products.powerSources as powerSources', 'products.voltage as voltage', 'products.weight as weight', 'products.dimensions as dimensions',
+        'products.material as material', 'tools_and_equipment.product_id as product_id', DB::raw('JSON_LENGTH(admin_released_products.serial_numbers) as stocks'))
+        ->where('status', 'For Sale')
+        ->where('admin_released_products.serial_numbers', '!=', '[]');
     
         if (!empty($brand)) {
             $query->where('products.brand', 'like', '%' . $brand . '%');
@@ -154,12 +157,15 @@ class BuyToolsController extends Controller
         if (!empty($specs)) {
             $query->where('products.powerSources', 'like', '%' . $specs . '%');
         }
-
-        if (!empty($status)) {
-            $query->where('tools_and_equipment.status', 'like', '%' . $status . '%');
-        }
+        
 
         $data = $query->get();
+
+        foreach ($data as $order) {
+            $order->serial_numbers = json_decode($order->serial_numbers);
+        }
+
+        // dd($data);
         
         return response()->json(['data' => $data]);
     }

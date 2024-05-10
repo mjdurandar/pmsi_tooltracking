@@ -537,6 +537,12 @@ return [
             'can' => ['admin','user'], 
             'url'  => '/receipts',
         ],
+        [ 
+            'text' => 'Returning Products', 
+            'icon' => 'fa-solid fa-people-carry-box', 
+            'can' => ['admin',], 
+            'url'  => '/returning-products',
+        ],
         [
             'text' => 'Add Balance',
             'icon' => 'fa-solid fa-money-bill',

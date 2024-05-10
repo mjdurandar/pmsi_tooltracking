@@ -1,6 +1,6 @@
 <template>
     <div class="p-3">
-        <BreadCrumbComponent tab_title="Returned Products"></BreadCrumbComponent>
+        <BreadCrumbComponent tab_title="Returning Products"></BreadCrumbComponent>
         <div class="card">
             <div class="card-body">
                 <FormComponent 
@@ -41,16 +41,19 @@
                         </p>
                         <b>Arrival Date:</b> {{ this.dataValues.arrival_date }}
                         <p>
-                            You are returning this product please contact the admin for more information.
+                            User Details:
                             <ul>
                                 <li>
-                                    Name: <b>{{ userAdmin.name }}</b> 
+                                    Name: <b>{{ this.dataValues.user_name }}</b> 
                                 </li>
                                 <li>
-                                    Contact Number: <b>{{ userAdmin.contact_address }}</b>
+                                    Email: <b>{{ this.dataValues.user_email }}</b> 
                                 </li>
                                 <li>
-                                    Location: <b>{{ userAdmin.location }}</b>
+                                    Contact Number: <b>{{ this.dataValues.contact_address }}</b>
+                                </li>
+                                <li>
+                                    Location: <b>{{ this.dataValues.location }}</b>
                                 </li>
                             </ul>
                         </p>
@@ -77,13 +80,14 @@ export default{
     data(){
         return{
                 data : [],
-                columns : ['brand_name', 'tool_name', 'arrival_date' ,'action'],
+                columns : ['brand_name', 'tool_name', 'serial_numbers' ,'arrival_date' ,'action'],
                 errors: [],
                 userAdmin : [],
                 options : {
                     headings : {
                         brand_name : 'Brand',
                         tool_name : 'Tool',
+                        serial_numbers : 'Serial Numbers',
                         arrival_date : 'Arrival Date',
                         action : 'Action',
                     },
@@ -110,7 +114,7 @@ export default{
             this.clearInputs();
         },
         getData() {
-            axios.get('/returning-product/returningProductShow').then(response => {
+            axios.get('/returning-products/show').then(response => {
                 this.data = response.data.data;
                 this.userAdmin = response.data.userAdmin;
             })

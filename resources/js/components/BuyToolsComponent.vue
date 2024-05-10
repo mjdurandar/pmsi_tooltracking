@@ -3,13 +3,6 @@
         <BreadCrumbComponent tab_title="Buy Tools"></BreadCrumbComponent>
         <div class="row mb-3">
             <div class="col-lg-2">
-                <select v-model="selectedStatus" class="form-control">
-                    <option value="" disabled selected>Select Status</option> 
-                    <option value="Sale">For Sale</option>
-                    <option value="Sold">Sold</option>
-                </select>
-            </div>
-            <div class="col-lg-2">
                 <select v-model="selectedBrand" class="form-control">
                     <option value="" disabled selected>Select Brand</option>
                     <option value="Bosch">Bosch</option>
@@ -56,13 +49,13 @@
         <div class="row">
             <div class="col-md-4" v-for="(tool, index) in data" :key="index">
                 <!-- Card component for each tool -->
-                <div class="card" :class="noStock">
+                <div class="card">
                     <div class="card-body">
                         <!-- Display tool information -->
                         <div class="d-flex justify-content-between">
                             <div style="width: 50%;">
-                                <h5 class="card-title">{{ tool.brand_name }} {{ tool.tool_name }}</h5>
-                                <p class="card-text">Price: {{ tool.price }}</p>
+                                <h5 class="card-title"><b>{{ tool.brand_name }} {{ tool.tool_name }}</b></h5>
+                                <p class="card-text">Price: {{ tool.price }} <br> Stocks: {{ tool.stocks }}</p>
                             </div>
                             <div style="width: 50%;">
                                 <img v-if="tool.product_image" :src="'/images/' + tool.product_image" alt="Tool Image" class="img-fluid" style="height: 250px;">

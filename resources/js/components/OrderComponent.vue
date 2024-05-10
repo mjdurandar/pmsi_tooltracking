@@ -1,6 +1,60 @@
 <template>
     <div class="p-3">
         <BreadCrumbComponent tab_title="Orders"></BreadCrumbComponent>
+<!-- 
+        <div class="row mb-3">
+            <div class="col-lg-2">
+                <select v-model="selectedBrand" class="form-control">
+                    <option value="" disabled selected>Brand</option>
+                    <option value="Bosch">Bosch</option>
+                    <option value="Dewalt">Dewalt</option>
+                    <option value="Makita">Makita</option>
+                    <option value="Milwaukee">Milwaukee</option>
+                    <option value="Black+Decker">Black+Decker</option>
+                    <option value="Craftsman">Craftsman</option>
+                    <option value="Hitachi">Hitachi</option>
+                    <option value="Ingersoll">Ingersoll</option>
+                    <option value="Porter-Cable">Porter-Cable</option>
+                    <option value="Snap-on">Snap-on</option>
+                    <option value="Ridgid">Ridgid</option>
+                    <option value="Metabo">Metabo</option> 
+                    <option value="Ryobi">Ryobi</option> 
+                </select>
+            </div>
+            <div class="col-lg-2">
+                <select v-model="selectedTool" class="form-control">
+                    <option value="" disabled selected>Tools</option> 
+                    <option value="Drill">Drill</option>
+                    <option value="Screwdriver">Screwdriver</option>
+                    <option value="Wrench">Wrench</option>
+                    <option value="Grinder">Grinder</option>
+                    <option value="Jigsaw">Jigsaw</option>
+                    <option value="Saw">Saw</option>
+                </select>
+            </div>
+            <div class="col-lg-2">
+                <select v-model="selectedStatus" class="form-control">
+                    <option value="" disabled selected>Status</option> 
+                    <option value="Preparing">Preparing</option>
+                    <option value="Out for Delivery">Out for Delivery</option>
+                    <option value="Delay">Delay</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Pending">Pending</option>
+                </select>
+            </div>
+            <div class="col-lg-2">
+                <select v-model="selectedType" class="form-control">
+                    <option value="" disabled selected>Type</option> 
+                    <option value="Borrowing">Borrowing</option>
+                    <option value="Selling">Selling</option>
+                </select>
+            </div>
+            <div>
+                <button class="btn btn-primary" @click="filterData">Search</button>
+                <button class="btn btn-success ml-1" @click="refresh"><i class="fas fa-sync-alt"></i></button>
+            </div>
+        </div> -->
+
         <div class="card">
             <div class="card-body">
                 <FormComponent 
@@ -139,6 +193,10 @@ export default{
                 data : [],
                 columns : ['brand_name', 'tool_name', 'status' ,'type', 'ordered_at', 'shipment_date', 'delivery_date' ,'action'],
                 errors: [],
+                selectedBrand: '',
+                selectedTool: '',
+                selectedStatus: '',
+                selectedType: '',
                 options : {
                     headings : {
                         brand_name : 'Brand',
@@ -229,6 +287,37 @@ export default{
                 name: '',
             }
             this.errors = [];
+        },
+        filterData()
+        {
+            const searchData = { 
+                selectedBrand : this.selectedBrand,
+                selectedTool : this.selectedTool,
+                selectedStatus : this.selectedStatus,
+                selectedType : this.selectedType,
+            }
+
+            axios.post('/order/filterData', searchData)
+            .then(response => {
+                this.data = response.data.data;
+                if (this.data.length === 0) {
+                    Swal.fire({
+                        title: "No Products available!",
+                        icon: 'warning',
+                        timer: 3000
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    title: "Error!",
+                    text: "Failed to fetch data.",
+                    icon: 'error',
+                    timer: 3000
+                });
+                console.error(error);
+            });
+
         },
         optionalClicked(props) {
             this.dataValues = props.data;

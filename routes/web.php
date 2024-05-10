@@ -47,6 +47,7 @@ Route::group(['middleware' => 'auth'], function(){
 
     Route::get('/receipts',[App\Http\Controllers\ReceiptsController::class, 'index']);
     Route::get('/receipts/show',[App\Http\Controllers\ReceiptsController::class, 'show']);
+    Route::post('/receipts/filterData',[App\Http\Controllers\ReceiptsController::class, 'filterData']);
 
     Route::get('/history',[App\Http\Controllers\HistoryController::class, 'index']);
     Route::get('/history/show',[App\Http\Controllers\HistoryController::class, 'show']);
@@ -131,6 +132,12 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('/order/show',[App\Http\Controllers\OrderController::class, 'show']);
         Route::post('/order/store',[App\Http\Controllers\OrderController::class, 'store']);
         Route::post('/order/updateStatus',[App\Http\Controllers\OrderController::class, 'updateStatus']);
+        Route::post('/order/filterData',[App\Http\Controllers\OrderController::class, 'filterData']);
+
+        //RETURNING PRODUCTS
+        Route::get('/returning-products',[App\Http\Controllers\ReturningProductsController::class, 'index']);
+        Route::get('/returning-products/show',[App\Http\Controllers\ReturningProductsController::class, 'show']);
+
         //order complete
         Route::get('/complete-order-admin-product',[App\Http\Controllers\OrderController::class, 'completeOrderAdminIndex']);
         Route::get('/complete-order-admin-product/completeOrderAdminShow',[App\Http\Controllers\OrderController::class, 'completeOrderAdminShow']);
@@ -214,7 +221,6 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('/damaged-return',[App\Http\Controllers\DamagedReturnController::class, 'index']);
         Route::get('/damaged-return/show',[App\Http\Controllers\DamagedReturnController::class, 'show']);
         Route::post('/damaged-return/store',[App\Http\Controllers\DamagedReturnController::class, 'store']);
-
 
     });
 

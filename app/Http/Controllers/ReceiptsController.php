@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Receipts;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 class ReceiptsController extends Controller
 {
@@ -16,7 +17,7 @@ class ReceiptsController extends Controller
     public function show()
     {   
         $adminLocation = User::findOrFail(1)->first();
-
+        
         $data = Receipts::leftJoin('users', 'receipts.user_id', 'users.id')
                         ->leftJoin('ordered_products', 'ordered_products.id', 'receipts.ordered_product_id')
                         ->leftJoin('track_orders', 'track_orders.id', 'receipts.track_order_id')
@@ -43,5 +44,33 @@ class ReceiptsController extends Controller
 
         return response()->json(['data' => $data, 'adminLocation' => $adminLocation]);
     }
+
+    public function filterData(Request $request){
+
+        $receiptNumber = $request->receiptNumber;
+        
+        $data = Receipts::
+                        leftJoin('users', 'receipts.user_id', 'users.id')
+                        ->leftJoin('ordered_products', 'ordered_products.id', 'receipts.ordered_product_id')
+                        ->leftJoin('track_orders', 'track_orders.id', 'receipts.track_order_id')
+                        ->leftJoin('products', 'products.id', 'track_orders.product_id')
+                        ->select(
+                            'receipts.*',
+                            'users.name as user_name',
+                            'users.contact_address as contact_address',
+                            'users.location as location',
+                            'receipts.created_at as order_date',
+                            'products.brand as brand_name',
+                            'products.tool as tool_name',
+                            'track_orders.serial_numbers as serial_numbers',
+                        )
+                        ->where('receipts.receipt_number', 'like', '%' . $receiptNumber . '%')
+                        ->where('receipts.user_id', Auth::id())
+                        ->get(); 
+        
+        return response()->json(['data' => $data]);
+    
+    }
+    
 
 }
