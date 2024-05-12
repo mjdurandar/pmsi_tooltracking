@@ -1,6 +1,49 @@
 <template>
     <div class="p-3">
         <BreadCrumbComponent tab_title="Products"></BreadCrumbComponent>
+        
+        <div class="row mb-3">
+            <div class="col-lg-2">
+                <select v-model="selectedBrand" class="form-control">
+                    <option value="" disabled selected>Select Brand</option>
+                    <option value="Bosch">Bosch</option>
+                    <option value="Dewalt">Dewalt</option>
+                    <option value="Makita">Makita</option>
+                    <option value="Milwaukee">Milwaukee</option>
+                    <option value="Black+Decker">Black+Decker</option>
+                    <option value="Craftsman">Craftsman</option>
+                    <option value="Hitachi">Hitachi</option>
+                    <option value="Ingersoll">Ingersoll</option>
+                    <option value="Porter-Cable">Porter-Cable</option>
+                    <option value="Snap-on">Snap-on</option>
+                    <option value="Ridgid">Ridgid</option>
+                    <option value="Metabo">Metabo</option> 
+                    <option value="Ryobi">Ryobi</option> 
+                </select>
+            </div>
+            <div class="col-lg-2">
+                <select v-model="selectedTool" class="form-control">
+                    <option value="" disabled selected>Select Tools</option> 
+                    <option value="Drill">Drill</option>
+                    <option value="Screwdriver">Screwdriver</option>
+                    <option value="Wrench">Wrench</option>
+                    <option value="Grinder">Grinder</option>
+                    <option value="Jigsaw">Jigsaw</option>
+                    <option value="Saw">Saw</option>
+                </select>
+            </div>
+            <div class="col-lg-2">
+                <select class="form-control" v-model="supplier_name">
+                    <option value="" disabled selected>Supplier</option>
+                    <option v-for="suppliers in supplier" :value="suppliers.id">{{ suppliers.name }}</option>
+                </select>
+            </div>
+            <div>
+                <button class="btn btn-primary" @click="filterData">Search</button>
+                <button class="btn btn-success ml-1" @click="refresh"><i class="fas fa-sync-alt"></i></button>
+            </div>
+        </div>
+
         <div class="card">
             <div class="card-body">
                 <FormComponent 
@@ -159,6 +202,10 @@ export default{
                 checkedSerialNumbers: [], 
                 columns : ['brand_name', 'tool_name', 'supplier_name', 'stocks' ,'action'],
                 errors: [],
+                selectedBrand : '',
+                selectedTool : '',
+                supplier_name : '',
+                selectedSpecs : '',
                 isChecked1: false,
                 isChecked2: false,
                 isChecked3: false,
@@ -203,7 +250,12 @@ export default{
         getData() {
             axios.get('/admin-products/show').then(response => {
                 this.data = response.data.data;
+                this.suppliers = response.data.suppliers;
             })
+        },
+        refresh()
+        {
+            window.location.reload();
         },
         clearInputs() {
             this.dataValues = {

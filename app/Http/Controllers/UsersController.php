@@ -35,12 +35,14 @@ class UsersController extends Controller
         $request->validate([
             'name' => 'required',
             'email' => 'required',
+            'company_name' => 'required',
             'contact_address' => 'required',
             'location' => 'required',
             'password' => 'required',
         ], [
             'name.required' => "The Name field is required",
             'email.required' => "The Email field is required",
+            'company_name.required' => "The Company Name field is required",
             'location.required' => "The Location field is required",
             'contact_address.required' => "The Contact Address field is required",
             'password.required' => "The Password field is required",
@@ -49,6 +51,7 @@ class UsersController extends Controller
         $data = isset($request->id) ? User::where('id', $request->id)->first() : new User();
         $data->name = $request->name;
         $data->email = $request->email;
+        $data->company_name = $request->company_name;
         $data->contact_address = $request->contact_address;
         $data->password = $request->password;
         $data->location = $request->location;

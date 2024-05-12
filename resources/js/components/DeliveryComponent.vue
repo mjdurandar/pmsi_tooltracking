@@ -1,7 +1,7 @@
 <template>
     <div class="p-3">
         <BreadCrumbComponent tab_title="Delivery"></BreadCrumbComponent>
-        <!-- <div class="row mb-3">
+        <div class="row mb-3">
             <div class="col-lg-2">
                 <select v-model="selectedBrand" class="form-control">
                     <option value="" disabled selected>Select Brand</option>
@@ -31,11 +31,22 @@
                     <option value="Saw">Saw</option>
                 </select>
             </div>
+            <!-- <div class="col-lg-2">
+                <select v-model="selectedType" class="form-control">
+                    <option value="" disabled selected>Select Type</option> 
+                    <option value="Drill">Drill</option>
+                    <option value="Screwdriver">Screwdriver</option>
+                    <option value="Wrench">Wrench</option>
+                    <option value="Grinder">Grinder</option>
+                    <option value="Jigsaw">Jigsaw</option>
+                    <option value="Saw">Saw</option>
+                </select>
+            </div> -->
             <div>
                 <button class="btn btn-primary" @click="filterData">Search</button>
                 <button class="btn btn-success ml-1" @click="refresh"><i class="fas fa-sync-alt"></i></button>
             </div>
-        </div> -->
+        </div>
         <div class="card">
             <div class="card-body">
                 <FormComponent 
@@ -194,6 +205,7 @@ export default{
                 qrCodeUrl: '',
                 selectedBrand : '',
                 selectedTool : '',
+                selectedType : '',
                 globalId : '',
                 columns : ['brand_name', 'tool_name' ,'type', 'ordered_at' ,'action'],
                 options : {

@@ -33,7 +33,7 @@ class SupplierController extends Controller
 
         $products = Product::leftjoin('users', 'users.id', '=', 'products.user_id')
                             ->where('is_for_sale', true)
-                            ->select('products.*', 'users.name as supplier_name')
+                            ->select('products.*', 'users.name as supplier_name','users.company_description as company_description')
                             ->get();
 
         return response()->json(['suppliers' => $suppliers, 'products' => $products, 'userLocation' => $userLocation, 'userBalance' => $userBalance]);
@@ -88,6 +88,7 @@ class SupplierController extends Controller
         $selectedProducts = $request->all();
         $orderNumber = 'ORD-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
         $trackingNumber = 'TRK-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
+        $historyNumber = 'HIS-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
         $totalVAT = 0;
 
         // Loop through each element in the selectedProducts array
@@ -105,7 +106,7 @@ class SupplierController extends Controller
 
         foreach ($selectedProducts as $selectedProduct) {
             $selectedSerialNumbers = $selectedProduct['selectedSerialNumbers'];
-            $serializedSerialNumbers = json_encode($selectedSerialNumbers);
+            $serializedSerialNumbers = json_encode($selectedSerialNumbers, true);
             $productId = $selectedProduct['dataValues']['id'];
     
             $releasedProduct = ReleasedProduct::where('product_id', $productId)->first();
@@ -146,7 +147,8 @@ class SupplierController extends Controller
             $history = new History();
             $history->user_id = Auth::id();
             $history->product_id = $productId;
-            $history->action = 'You Purchased a Product';
+            $history->history_number = $historyNumber;
+            $history->action = 'You Purchased a Product' . ' ' . $product->brand . ' ' . $product->tool . ' ' . 'the total is' . ' ' . '₱' . $totalVAT .' including VAT';
             $history->save();
         }
         

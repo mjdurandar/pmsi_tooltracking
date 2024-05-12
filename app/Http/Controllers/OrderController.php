@@ -40,20 +40,21 @@ class OrderController extends Controller
     public function completeOrderAdminShow()
     {
         $data = CompletedOrderUser::leftjoin('track_orders', 'track_orders.id', 'completed_order_users.track_order_id')
+                                ->leftjoin('ordered_products', 'ordered_products.id', 'completed_order_users.ordered_product_id')
                                 ->leftJoin('products', 'products.id', 'track_orders.product_id')
                                 ->leftJoin('users', 'users.id', 'track_orders.user_id')
                                 ->select('completed_order_users.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as image'
                                         ,'products.powerSources as powerSources', 'products.voltage as voltage', 'products.weight as weight', 
                                         'products.dimensions as dimensions', 'products.material as material', 'track_orders.status as status', 'track_orders.total_price as total_price'
                                         ,'users.location as location', 'users.contact_address as contact_address', 'users.email as email', 'users.name as user_name', 'track_orders.serial_numbers as serial_numbers',
-                                        'completed_order_users.created_at as completed_at')
+                                        'completed_order_users.created_at as completed_at','track_orders.type as type','ordered_products.order_number as order_number')
                                 ->get();
 
                                 $data->transform(function ($item) {
                                     $item->completed_at = $item->completed_at ? \Carbon\Carbon::parse($item->completed_at)->setTimezone('Asia/Manila')->format('m/d/Y h:i:s A') : null;
                                     return $item;
                                 });
-        // dd($data);
+
         return response()->json(['data' => $data]);
     }
 
@@ -128,6 +129,7 @@ class OrderController extends Controller
 
             $completedOrder = new CompletedOrderUser();
             $completedOrder->track_order_id = $trackOrders->id;
+            $completedOrder->ordered_product_id = $orderedProducts->id;
             $completedOrder->save();
 
             $userBalance = User::findOrFail(Auth::id());
@@ -154,49 +156,118 @@ class OrderController extends Controller
 
     }
 
-    // public function filterData(Request $request){
+    public function filterData(Request $request){
         
-    //     $selectedBrand = $request->selectedBrand;
-    //     $selectedTool = $request->selectedTool;
-    //     $selectedStatus = $request->selectedStatus;
-    //     $selectedType = $request->selectedType;
+        $orderNumber = $request->orderNumber;
+        $selectedStatus = $request->selectedStatus;
+        $selectedType = $request->selectedType;
 
-    //     $query = OrderedProducts::query();
+        $query = OrderedProducts::query();
     
-    //     $query->leftJoin('track_orders', 'track_orders.id', 'ordered_products.track_orders_id')
-    //     ->leftJoin('products', 'products.id', 'track_orders.product_id')
-    //     ->leftJoin('users', 'users.id', 'ordered_products.user_id')
-    //     ->select('ordered_products.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as image',
-    //     'track_orders.type as type', 'track_orders.status as status', 'ordered_products.created_at as ordered_at', 'track_orders.total_price as total_price',
-    //     'track_orders.serial_numbers as serial_numbers', 'ordered_products.created_at as ordered_at'
-    //     ,'users.location as location', 'users.contact_address as contact_address', 'users.email as email', 'users.name as user_name'
-    //     , DB::raw('LENGTH(track_orders.serial_numbers) - LENGTH(REPLACE(track_orders.serial_numbers, ",", "")) + 1 as serial_numbers_count'))
-    //     ->where('ordered_products.user_id', Auth::id())
-    //     ->where('track_orders.status', 'Completed');
-    //     // ->where('track_orders.is_completed', true);
+        $query->leftJoin('track_orders', 'track_orders.id', 'ordered_products.track_orders_id')
+        ->leftJoin('products', 'products.id', 'track_orders.product_id')
+        ->leftJoin('users', 'users.id', 'ordered_products.user_id')
+        ->select('ordered_products.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as image'
+                ,'products.powerSources as powerSources', 'products.voltage as voltage', 'products.weight as weight', 
+                'products.dimensions as dimensions', 'products.material as material', 'track_orders.status as status', 'track_orders.total_price as total_price'
+                ,'users.location as location', 'users.contact_address as contact_address', 'users.email as email', 'users.name as user_name', 
+                'track_orders.type as type', 'track_orders.serial_numbers as serial_numbers', 'ordered_products.created_at as ordered_at'
+                , DB::raw('LENGTH(track_orders.serial_numbers) - LENGTH(REPLACE(track_orders.serial_numbers, ",", "")) + 1 as serial_numbers_count'))
+        ->where('ordered_products.user_id', '!=', Auth::id())
+        ->where('track_orders.is_canceled', false)
+        ->where('track_orders.is_completed', false)
+        ->get();
 
+        if (!empty($orderNumber)) {
+            $query->where('ordered_products.order_number', 'like', '%' . $orderNumber . '%');
+        }        
 
-    //     if (!empty($selectedBrand)) {
-    //         $query->where('products.brand', $selectedBrand);
-    //     }
+        if (!empty($selectedStatus)) {
+            $query->where('track_orders.status', $selectedStatus);
+        }
 
-    //     // if (!empty($selectedTool)) {
-    //     //     $query->where('products.tool_name', $selectedTool);
-    //     // }
-
-    //     // if (!empty($selectedStatus)) {
-    //     //     $query->where('track_orders.status', $selectedStatus);
-    //     // }
-
-    //     // if (!empty($selectedType)) {
-    //     //     $query->where('track_orders.type', $selectedType);
-    //     // }
-        
+        if (!empty($selectedType)) {
+            $query->where('ordered_products.status', $selectedType);
+        }
     
-    //     $data = $query->get();
+        $data = $query->get();
 
-    //     return response()->json(['data' => $data]);
+        $data->transform(function ($item) {
+            $item->ordered_at = $item->ordered_at ? \Carbon\Carbon::parse($item->ordered_at)->setTimezone('Asia/Manila')->format('m/d/Y h:i:s A') : null;
+            return $item;
+        });
+
+        return response()->json(['data' => $data]);
     
-    // }    
+    }    
+
+    public function completedFilterData(Request $request)
+    {
+        $orderNumber = $request->orderNumber;
+        $selectedType = $request->selectedType;
+
+        $query = CompletedOrderUser::leftjoin('track_orders', 'track_orders.id', 'completed_order_users.track_order_id')
+        ->leftjoin('ordered_products', 'ordered_products.id', 'completed_order_users.ordered_product_id')
+        ->leftJoin('products', 'products.id', 'track_orders.product_id')
+        ->leftJoin('users', 'users.id', 'track_orders.user_id')
+        ->select('completed_order_users.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as image'
+                ,'products.powerSources as powerSources', 'products.voltage as voltage', 'products.weight as weight', 
+                'products.dimensions as dimensions', 'products.material as material', 'track_orders.status as status', 'track_orders.total_price as total_price'
+                ,'users.location as location', 'users.contact_address as contact_address', 'users.email as email', 'users.name as user_name', 'track_orders.serial_numbers as serial_numbers',
+                'completed_order_users.created_at as completed_at','track_orders.type as type','ordered_products.order_number as order_number');
+
+        if (!empty($orderNumber)) {
+            $query->where('ordered_products.order_number', 'like', '%' . $orderNumber . '%');
+        }        
+
+        if (!empty($selectedType)) {
+            $query->where('track_orders.type', $selectedType);
+        }
+    
+        $data = $query->get();
+
+        $data->transform(function ($item) {
+            $item->completed_at = $item->completed_at ? \Carbon\Carbon::parse($item->completed_at)->setTimezone('Asia/Manila')->format('m/d/Y h:i:s A') : null;
+            return $item;
+        });
+
+        return response()->json(['data' => $data]);
+    }
+
+    public function canceledFilterData(Request $request)
+    {
+        $brand = $request->brand;
+        $tool = $request->tool;
+    
+        $query = OrderedProducts::leftJoin('track_orders', 'track_orders.id', 'ordered_products.track_orders_id')
+                            ->leftJoin('products', 'products.id', 'track_orders.product_id')
+                            ->leftJoin('users', 'users.id', 'ordered_products.user_id')
+                            ->select('ordered_products.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as image'
+                                    ,'products.powerSources as powerSources', 'products.voltage as voltage', 'products.weight as weight', 
+                                    'products.dimensions as dimensions', 'products.material as material', 'track_orders.status as status', 'track_orders.total_price as total_price'
+                                    ,'users.location as location', 'users.contact_address as contact_address', 'users.email as email', 'users.name as user_name', 
+                                    'track_orders.type as type', 'track_orders.serial_numbers as serial_numbers', 'ordered_products.created_at as ordered_at'
+                                    , DB::raw('LENGTH(track_orders.serial_numbers) - LENGTH(REPLACE(track_orders.serial_numbers, ",", "")) + 1 as serial_numbers_count'))
+                            ->where('ordered_products.user_id', '!=', Auth::id())
+                            ->where('track_orders.is_canceled', false)
+                            ->where('track_orders.is_completed', false);
+    
+        if (!empty($brand)) {
+            $query->where('products.brand', $brand);
+        }
+    
+        if (!empty($tool)) {
+            $query->where('products.tool', 'like', '%' . $tool . '%');
+        }
+    
+        $data = $query->get();
+
+        $data->transform(function ($item) {
+            $item->ordered_at = $item->ordered_at ? \Carbon\Carbon::parse($item->ordered_at)->setTimezone('Asia/Manila')->format('m/d/Y h:i:s A') : null;
+            return $item;
+        });
+
+        return response()->json(['data' => $data]);
+    }
 
 }

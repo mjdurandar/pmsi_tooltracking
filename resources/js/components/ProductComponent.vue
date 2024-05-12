@@ -839,40 +839,48 @@ export default{
             if (this.imageData) {
                 formData.append('image', this.imageData);
             }
-                axios.post('/products/store', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                }).then(response => {
-                    if (response.status === 200) {
+            axios.post('/products/store', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            }).then(response => {
+                if (response.status === 200) {
+                    Swal.fire({
+                        title: 'Success',
+                        text: response.data.message,
+                        icon: 'success',
+                        timer: 3000
+                    });
+                }
+                this.getData();
+                $('#' + this.modalId).modal('hide');
+                $('#' + this.modalIdCode).modal('hide');
+                $('#' + this.modalIdRestock).modal('hide');
+            }).catch(error => {
+                if (error.response) {
+                    if (error.response.status === 422 && error.response.data.error === 'Duplicate codes are not allowed.') {
                         Swal.fire({
-                            title: 'Success',
-                            text: response.data.message,
-                            icon: 'success',
-                            timer: 3000
+                            title: 'Warning',
+                            html: `You entered duplicate serial numbers:<br><pre>${JSON.stringify(error.response.data.duplicates, null, 2)}</pre>`,
+                            icon: 'warning',
                         });
-                    }
-                    this.getData();
-                    $('#' + this.modalId).modal('hide');
-                    $('#' + this.modalIdCode).modal('hide');
-                    $('#' + this.modalIdRestock).modal('hide');
-                    window.location.reload();
-                }).catch(error => {
-                    if (error.response) {
-                        Swal.fire({
-                                title: 'Warning',
-                                text: 'You entered a Duplicate Serial Number, or you missed a field. Please check your input.',
-                                icon: 'warning',
-                            });
                     } else {
-                        // Handle network errors
+                        // Handle other errors
                         Swal.fire({
                             title: 'Error',
-                            text: 'Failed to connect to the server. Please check your internet connection.',
+                            text: 'An error occurred while processing your request.',
                             icon: 'error',
                         });
                     }
-                });
+                } else {
+                    // Handle network errors
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Failed to connect to the server. Please check your internet connection.',
+                        icon: 'error',
+                    });
+                }
+            });
             },
         },
         mounted() {

@@ -44,7 +44,6 @@
             </div>
         </div>
 
-
         <!-- PRODUCT CARD -->
         <div class="row">
             <div class="col-md-4" v-for="(tool, index) in data" :key="index">

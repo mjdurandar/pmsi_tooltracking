@@ -1,6 +1,22 @@
 <template>
     <div class="p-3">
         <BreadCrumbComponent tab_title="Completed Orders"></BreadCrumbComponent>
+        <div class="row mb-3">
+            <div class="col-lg-2">
+                <input type="text" class="form-control" v-model="orderNumber" placeholder="Order Number">
+            </div>
+            <div class="col-lg-2">
+                <select v-model="selectedType" class="form-control">
+                    <option value="" disabled selected>Type</option> 
+                    <option value="Borrowing">Borrowing</option>
+                    <option value="Buying">Buying</option>
+                </select>
+            </div>
+            <div>
+                <button class="btn btn-primary" @click="filterData">Search</button>
+                <button class="btn btn-success ml-1" @click="refresh"><i class="fas fa-sync-alt"></i></button>
+            </div>
+        </div>
         <div class="card">
             <div class="card-body">
                 <FormComponent 
@@ -68,12 +84,16 @@ export default{
     data(){
         return{
                 data : [],
-                columns : ['brand_name', 'tool_name', 'completed_at' ,'action'],
+                orderNumber: '',
+                selectedType: '',
+                columns : ['order_number','brand_name', 'tool_name', 'type' ,'completed_at' ,'action'],
                 errors: [],
                 options : {
                     headings : {
+                        order_number : 'Order Number',
                         brand_name : 'Brand',
                         tool_name : 'Tool',
+                        type : 'Type',
                         completed_at : 'Completed At',
                         action : 'Action',
                     },
@@ -103,6 +123,38 @@ export default{
         viewClicked(props){
             this.dataValues = props.data;
             $('#' + this.modalId).modal('show');
+        },
+        refresh(){
+            window.location.reload();
+        },
+        filterData()
+        {
+            const searchData = { 
+                orderNumber : this.orderNumber,
+                selectedType : this.selectedType,
+            }
+
+            axios.post('/completed-order-admin-product/completedFilterData', searchData)
+            .then(response => {
+                this.data = response.data.data;
+                if (this.data.length === 0) {
+                    Swal.fire({
+                        title: "No Products available!",
+                        icon: 'warning',
+                        timer: 3000
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    title: "Error!",
+                    text: "Failed to fetch data.",
+                    icon: 'error',
+                    timer: 3000
+                });
+                console.error(error);
+            });
+
         },
     },
         mounted() {

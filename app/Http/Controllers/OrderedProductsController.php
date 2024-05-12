@@ -91,6 +91,10 @@ class OrderedProductsController extends Controller
                             ->where('track_orders.is_completed', true)
                             ->where('supplier.id', Auth::id())
                             ->get(); 
+
+                            foreach ($data as $order) {
+                                $order->serial_numbers = json_decode($order->serial_numbers);
+                            }
                            
         $data->transform(function ($item) {
             $item->completed_at = $item->completed_at ? \Carbon\Carbon::parse($item->completed_at)->setTimezone('Asia/Manila')->format('m/d/Y h:i:s A') : null;
@@ -161,4 +165,109 @@ class OrderedProductsController extends Controller
 
         return response()->json(['message' => 'Status updated successfully']);
     }
+    
+    public function completedFilterData(Request $request)
+    {
+        $brand = $request->brand;
+        $tool = $request->tool;
+        $serialNumber = $request->serialNumber;
+    
+        $query = TrackOrder::leftjoin('products', 'track_orders.product_id', 'products.id')
+        ->leftjoin('users', 'track_orders.user_id', 'users.id')
+        ->leftjoin('users as supplier', 'supplier.id', 'products.user_id')
+        ->select('track_orders.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.voltage as voltage', 'products.image as image',
+                'products.dimensions as dimensions', 'products.weight as weight', 'products.powerSources as powerSources',
+                'track_orders.created_at as completed_at', 'users.name as user_name', 'users.location as location')
+        ->where('track_orders.is_completed', true)
+        ->where('supplier.id', Auth::id());
+
+        if (!empty($brand)) {
+            $query->where('products.brand', $brand);
+        }
+    
+        if (!empty($tool)) {
+            $query->where('products.tool', 'like', '%' . $tool . '%');
+        }
+
+        if (!empty($serialNumber)) {
+            $query->where('track_orders.serial_number', 'like', '%' . $serialNumber . '%');
+        }
+    
+        $data = $query->get();
+
+        foreach ($data as $order) {
+            $order->serial_numbers = json_decode($order->serial_numbers);
+        }
+       
+        $data->transform(function ($item) {
+        $item->completed_at = $item->completed_at ? \Carbon\Carbon::parse($item->completed_at)->setTimezone('Asia/Manila')->format('m/d/Y h:i:s A') : null;
+        return $item;
+        });
+
+        return response()->json(['data' => $data]);
+    }
+
+    public function filterData(Request $request)
+    {      
+        $authUser = auth()->user();
+        $userName = User::findOrFail($authUser->id);
+        $supplierName = $userName->name;
+
+        $brand = $request->brand;
+        $tool = $request->tool;
+        $orderNumber = $request->orderNumber;
+    
+        $query = OrderedProducts::leftJoin('track_orders', 'ordered_products.track_orders_id', 'track_orders.id')
+        ->leftJoin('products', 'track_orders.product_id', 'products.id')
+        ->leftjoin('users', 'track_orders.user_id', 'users.id')
+        ->leftjoin('users as admin', 'products.user_id', 'admin.id')
+        ->select(
+            'ordered_products.*', 
+            'products.brand as brand_name', 
+            'products.tool as tool_name',
+            'track_orders.status as status', 
+            'track_orders.created_at as ordered_at', 
+            'users.name as user_name',
+            'users.location as location', 
+            'products.image as image', 
+            'products.dimensions as dimensions', 
+            'products.weight as weight', 
+            'products.powerSources as powerSources',
+            'track_orders.total_price as total_price',
+            'users.location as location',
+            'admin.name as supplier_name',
+            'users.contact_address as contact_address',
+            'users.email as email',
+            'track_orders.serial_numbers as serial_numbers',
+            DB::raw('LENGTH(track_orders.serial_numbers) - LENGTH(REPLACE(track_orders.serial_numbers, ",", "")) + 1 as serial_numbers_count')
+        )
+        ->whereNotIn('track_orders.status', ['Canceled', 'Completed'])
+        ->where('admin.name', $supplierName);
+        
+        if (!empty($brand)) {
+            $query->where('products.brand', $brand);
+        }
+    
+        if (!empty($tool)) {
+            $query->where('products.tool', 'like', '%' . $tool . '%');
+        }
+
+        if (!empty($orderNumber)) {
+            $query->where('ordered_products.order_number', 'like', '%' . $orderNumber . '%');
+        }
+    
+        $data = $query->get();
+
+        foreach ($data as $order) {
+            $order->serial_numbers = json_decode($order->serial_numbers);
+        }
+
+        $data->transform(function ($item) {
+            $item->ordered_at = $item->ordered_at ? \Carbon\Carbon::parse($item->ordered_at)->setTimezone('Asia/Manila')->format('m/d/Y h:i:s A') : null;
+            return $item;
+        });
+
+        return response()->json(['data' => $data]);
+    }
+    
 }

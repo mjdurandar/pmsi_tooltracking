@@ -391,7 +391,7 @@ return [
             'submenu' => [
                 [
                     'text' => 'Tools and Equipment',
-                    'icon'    => '', 
+                    'icon'    => 'fa-solid fa-screwdriver-wrench',  
                     'can' => ['admin'],
                     'url'  => '/powertools',
                 ],
@@ -401,19 +401,19 @@ return [
                 //     'can' => ['admin'],
                 //     'url'  => '/scaffolding',
                 // ],
-                [
-                    'text' => 'Return Days',
-                    'icon'    => '',
-                    'url'  => '/returndays',
-                ],
-                [
-                    'text' => 'Category',
-                    'icon'    => '',
-                    'url'  => '/category',
-                ],
+                // [
+                //     'text' => 'Return Days',
+                //     'icon'    => '',
+                //     'url'  => '/returndays',
+                // ],
+                // [
+                //     'text' => 'Category',
+                //     'icon'    => '',
+                //     'url'  => '/category',
+                // ],
                 [
                     'text' => 'Customer Data',
-                    'icon'    => '',  
+                    'icon'    => 'fa-solid fa-user',   
                     'can' => ['admin'], 
                     'url'  => '/users',
                 ],

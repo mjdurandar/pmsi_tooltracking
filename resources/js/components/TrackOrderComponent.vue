@@ -1,6 +1,55 @@
 <template>
     <div class="p-3">
         <BreadCrumbComponent tab_title="Track Orders"></BreadCrumbComponent>
+        <div class="row mb-3">
+            <div class="col-lg-2">
+                <input type="text" class="form-control" v-model="trackingNumber" placeholder="Tracking Number">
+            </div>
+            <div class="col-lg-2">
+                <select v-model="selectedBrand" class="form-control">
+                    <option value="" disabled selected>Brand</option>
+                    <option value="Bosch">Bosch</option>
+                    <option value="Dewalt">Dewalt</option>
+                    <option value="Makita">Makita</option>
+                    <option value="Milwaukee">Milwaukee</option>
+                    <option value="Black+Decker">Black+Decker</option>
+                    <option value="Craftsman">Craftsman</option>
+                    <option value="Hitachi">Hitachi</option>
+                    <option value="Ingersoll">Ingersoll</option>
+                    <option value="Porter-Cable">Porter-Cable</option>
+                    <option value="Snap-on">Snap-on</option>
+                    <option value="Ridgid">Ridgid</option>
+                    <option value="Metabo">Metabo</option> 
+                    <option value="Ryobi">Ryobi</option> 
+                </select>
+            </div>
+            <div class="col-lg-2">
+                <select v-model="selectedTool" class="form-control">
+                    <option value="" disabled selected>Tools</option> 
+                    <option value="Drill">Drill</option>
+                    <option value="Screwdriver">Screwdriver</option>
+                    <option value="Wrench">Wrench</option>
+                    <option value="Grinder">Grinder</option>
+                    <option value="Jigsaw">Jigsaw</option>
+                    <option value="Saw">Saw</option>
+                </select>
+            </div>
+            <div class="col-lg-2">
+                <select v-model="selectedStatus" class="form-control">
+                    <option value="" disabled selected>Status</option> 
+                    <option value="Preparing">Preparing</option>
+                    <option value="Out for Delivery">Out for Delivery</option>
+                    <option value="Delay">Delay</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Pending">Pending</option>
+                </select>
+            </div>
+            <div>
+                <button class="btn btn-primary" @click="filterData">Search</button>
+                <button class="btn btn-success ml-1" @click="refresh"><i class="fas fa-sync-alt"></i></button>
+            </div>
+        </div>
+
         <div class="card">
             <div class="card-body">
                 <FormComponent 
@@ -75,7 +124,10 @@
                             With a total of: <b>₱{{ this.dataValues.total_price }}</b>
                         </p>
                         <p>
-                            Serial Numbers are: <b>{{ this.dataValues.serial_numbers }}</b>
+                            Serial Numbers:
+                            <ul>
+                                <li v-for="serialNumber in this.dataValues.serial_numbers" :key="serialNumber"><b>{{ serialNumber }}</b></li>
+                            </ul>
                         </p>
                         <p>
                             You ordered it At : <b>{{this.dataValues.created_at}}</b>
@@ -143,6 +195,7 @@ import BreadCrumbComponent from "./partials/BreadCrumbComponent.vue";
 import Swal from 'sweetalert2'
 import axios from 'axios';
 import QRCode from 'qrcode-generator';
+import refresh from "v-tables-3/compiled/methods/refresh";
 
 export default{
 
@@ -151,11 +204,17 @@ export default{
                 data : [],
                 qrCodeUrl: '',
                 globalId : '',
-                columns : ['tracking_number', 'status' ,'created_at' ,'action'],
+                trackingNumber : '',
+                selectedBrand : '',
+                selectedTool : '',
+                selectedStatus : '',
+                columns : ['tracking_number', 'brand_name', 'tool_name' ,'status' ,'created_at' ,'action'],
                 errors: [],
                 options : {
                     headings : {
                         tracking_number : 'Tracking Number',
+                        brand_name : 'Brand',
+                        tool_name : 'Tool',
                         status : 'Status',
                         created_at : 'Placed Order At',
                         action : 'Action',
@@ -204,6 +263,41 @@ export default{
             }
 
             return true; // Validation passed
+        },
+        filterData() {
+            const searchData = {
+                brand: this.selectedBrand,
+                tool: this.selectedTool,
+                status: this.selectedStatus,
+                trackingNumber: this.trackingNumber
+            };
+
+            axios.post('/track-order/filterData', searchData)
+                .then(response => {
+                    this.data = response.data.data;
+                    this.data.forEach(item => {
+                        item.created_at = new Date(item.created_at).toLocaleString(); // Format to the user's locale
+                    })
+                    if (this.data.length === 0) {
+                        Swal.fire({
+                            title: "No Orders available!",
+                            icon: 'warning',
+                            timer: 3000
+                        });
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        title: "Error!",
+                        text: "Failed to fetch data.",
+                        icon: 'error',
+                        timer: 3000
+                    });
+                    console.error(error);
+                });
+        },
+        refresh() {
+            window.location.reload();
         },
         viewOrder(props) {
             this.dataValues = props.data;

@@ -22,13 +22,18 @@ class TrackOrderController extends Controller
     {   
         
         $data = TrackOrder::leftjoin('products', 'track_orders.product_id', '=', 'products.id')
-        ->select('track_orders.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as image',
-        'products.voltage as voltage', 'products.dimensions as dimensions', 'products.weight as weight', 'products.powerSources as powerSources')
-        ->where('track_orders.is_canceled', false)
-        ->where('track_orders.is_completed', false)
-        ->where('track_orders.user_id', '=', Auth::id())
-        ->get();
-    
+                        ->select('track_orders.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as image',
+                        'products.voltage as voltage', 'products.dimensions as dimensions', 'products.weight as weight', 'products.powerSources as powerSources')
+                        ->where('track_orders.is_canceled', false)
+                        ->where('track_orders.is_completed', false)
+                        ->where('track_orders.user_id', '=', Auth::id())
+                        ->get();
+
+        // Format serial numbers
+        foreach ($data as $item) {
+            $item->serial_numbers = json_decode($item->serial_numbers);
+        }
+
         return response()->json(['data' => $data]);
     }    
     
@@ -79,7 +84,44 @@ class TrackOrderController extends Controller
             return response()->json(['status' => 'warning', 'message' => 'Order cannot be canceled because it is already '.$trackOrder['status']]);
         }
     }
+
+    public function filterData(Request $request)
+    {
+        $brand = $request->brand;
+        $tool = $request->tool;
+        $status = $request->status;
+        $trackingNumber = $request->trackingNumber;
     
+        $query = TrackOrder::leftjoin('products', 'track_orders.product_id', '=', 'products.id')
+        ->select('track_orders.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as image',
+        'products.voltage as voltage', 'products.dimensions as dimensions', 'products.weight as weight', 'products.powerSources as powerSources')
+        ->where('track_orders.is_canceled', false)
+        ->where('track_orders.is_completed', false)
+        ->where('track_orders.user_id', '=', Auth::id());
     
+        if (!empty($brand)) {
+            $query->where('products.brand', $brand);
+        }
+    
+        if (!empty($tool)) {
+            $query->where('products.tool', 'like', '%' . $tool . '%');
+        }
+    
+        if (!empty($status)) {
+            $query->where('track_orders.status', 'like', '%' . $status . '%');
+        }
+    
+        if (!empty($trackingNumber)) {
+            $query->where('track_orders.tracking_number', 'like', '%' . $trackingNumber . '%');
+        }
+
+        $data = $query->get();
+
+        foreach ($data as $item) {
+            $item->serial_numbers = json_decode($item->serial_numbers);
+        }
+
+        return response()->json(['data' => $data]);
+    }
     
 }

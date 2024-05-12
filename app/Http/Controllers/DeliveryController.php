@@ -98,13 +98,15 @@ class DeliveryController extends Controller
     public function filterData(Request $request) {
         $brand = $request->brand;
         $tool = $request->tool;
+        
+        $id = Auth::id();
     
-        $query = DeliverHistory::query();
-
-        $query->leftjoin('tools_and_equipment', 'tools_and_equipment.id', 'deliver_histories.tools_and_equipment_id')
-                ->leftjoin('products', 'products.id', 'tools_and_equipment.product_id')
-                ->select('deliver_histories.*', 'products.brand as brand_name', 'products.tool as tool_name',
-                'tools_and_equipment.product_code as product_code', 'tools_and_equipment.price as price');
+        $query = TrackOrder::leftjoin('products', 'products.id', 'track_orders.product_id')
+                ->select('track_orders.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as image', 
+                'products.powerSources as powerSources', 'products.voltage as voltage', 'products.weight as weight', 'products.dimensions as dimensions', 'products.material as material', 'track_orders.created_at as ordered_at')
+                ->where('track_orders.user_id', $id)
+                ->where('track_orders.is_canceled', false)
+                ->where('track_orders.status', '!=', 'Completed');
 
         if (!empty($brand)) {
             $query->where('products.brand', 'like', '%' . $brand . '%');
@@ -115,6 +117,11 @@ class DeliveryController extends Controller
         }
 
         $data = $query->get();
+
+        $data->transform(function ($item) {
+            $item->ordered_at = $item->ordered_at ? \Carbon\Carbon::parse($item->ordered_at)->setTimezone('Asia/Manila')->format('m/d/Y h:i:s A') : null;
+            return $item;
+        });
         
         return response()->json(['data' => $data]);
     }
@@ -161,5 +168,70 @@ class DeliveryController extends Controller
         else{
             return response()->json(['status' => 'warning', 'message' => 'Order cannot be canceled because it is already '.$trackOrder['status']]);
         }
+    }
+
+    public function completedFilterData(Request $request)
+    {
+        $brand = $request->brand;
+        $tool = $request->tool;
+    
+        $query = CompletedOrderUser::leftjoin('track_orders', 'track_orders.id', 'completed_order_users.track_order_id')
+        ->leftjoin('products', 'products.id', 'track_orders.product_id')
+        ->leftJoin('users', 'users.id', 'track_orders.user_id')
+        ->select('completed_order_users.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as image', 
+        'products.powerSources as powerSources', 'products.voltage as voltage', 'products.weight as weight', 'products.dimensions as dimensions', 
+        'products.material as material', 'completed_order_users.created_at as canceled_at', 'track_orders.created_at as ordered_at', 'track_orders.total_price as total_price'
+        ,'track_orders.serial_numbers as serial_numbers', 'completed_order_users.created_at as completed_at', 'users.location as location',
+        'users.contact_address as contact_address', 'users.email as email', 'users.name as user_name');
+
+        if (!empty($brand)) {
+            $query->where('products.brand', $brand);
+        }
+    
+        if (!empty($tool)) {
+            $query->where('products.tool', 'like', '%' . $tool . '%');
+        }
+
+    
+        $data = $query->get();
+
+        $data->transform(function ($item) {
+            $item->completed_at = $item->completed_at ? \Carbon\Carbon::parse($item->completed_at)->setTimezone('Asia/Manila')->format('m/d/Y h:i:s A') : null;
+            return $item;
+        });
+
+
+        return response()->json(['data' => $data]);
+    }
+
+    public function canceledFilterData(Request $request)
+    {
+        $brand = $request->brand;
+        $tool = $request->tool;
+    
+        $query = CanceledOrder::leftjoin('track_orders', 'track_orders.id', 'canceled_orders.track_order_id')
+        ->leftjoin('products', 'products.id', 'track_orders.product_id')
+        ->select('canceled_orders.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as image', 
+        'products.powerSources as powerSources', 'products.voltage as voltage', 'products.weight as weight', 'products.dimensions as dimensions', 
+        'products.material as material', 'canceled_orders.created_at as canceled_at', 'track_orders.created_at as ordered_at', 'track_orders.total_price as total_price')
+        ->where('canceled_orders.user_id', Auth::id());
+
+        if (!empty($brand)) {
+            $query->where('products.brand', $brand);
+        }
+    
+        if (!empty($tool)) {
+            $query->where('products.tool', 'like', '%' . $tool . '%');
+        }
+
+        $data = $query->get();
+
+        $data->transform(function ($item) {
+            $item->ordered_at = $item->ordered_at ? \Carbon\Carbon::parse($item->ordered_at)->setTimezone('Asia/Manila')->format('m/d/Y h:i:s A') : null;
+            $item->canceled_at = $item->canceled_at ? \Carbon\Carbon::parse($item->canceled_at)->setTimezone('Asia/Manila')->format('m/d/Y h:i:s A') : null;
+            return $item;
+        });
+
+        return response()->json(['data' => $data]);
     }
 }

@@ -44,7 +44,12 @@
                         <label for="">Name</label>
                         <input type="text" class="form-control" v-model="dataValues.name">
                         <div class="text-danger" v-if="errors.name">{{ errors.name[0] }}</div>
-                    </div>  
+                    </div> 
+                    <div class="col-12 mb-2">
+                        <label for="">Company Name</label>
+                        <input type="text" class="form-control" v-model="dataValues.company_name">
+                        <div class="text-danger" v-if="errors.company_name">{{ errors.company_name[0] }}</div>
+                    </div>   
                     <div class="col-12 mb-2">
                         <label for="">Email</label>
                         <input type="text" class="form-control" v-model="dataValues.email">
@@ -105,12 +110,13 @@ export default{
                 regions : [],
                 provinces : [],
                 account_type : '',
-                columns : ['name', 'email', 'accounts' ,'contact_address', 'contact_person','location' ,'action'],
+                columns : ['name', 'email', 'company_name' ,'accounts' ,'contact_address', 'contact_person','location' ,'action'],
                 errors: [],
                 options : {
                     headings : {
                         name : 'Name',
                         email : 'Email',
+                        company_name : 'Company Name',
                         accounts : 'Account Type',
                         contact_address : 'Contact Address',
                         contact_person : 'Contact Person',

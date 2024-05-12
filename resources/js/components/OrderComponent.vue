@@ -1,36 +1,10 @@
 <template>
     <div class="p-3">
         <BreadCrumbComponent tab_title="Orders"></BreadCrumbComponent>
-<!-- 
+
         <div class="row mb-3">
             <div class="col-lg-2">
-                <select v-model="selectedBrand" class="form-control">
-                    <option value="" disabled selected>Brand</option>
-                    <option value="Bosch">Bosch</option>
-                    <option value="Dewalt">Dewalt</option>
-                    <option value="Makita">Makita</option>
-                    <option value="Milwaukee">Milwaukee</option>
-                    <option value="Black+Decker">Black+Decker</option>
-                    <option value="Craftsman">Craftsman</option>
-                    <option value="Hitachi">Hitachi</option>
-                    <option value="Ingersoll">Ingersoll</option>
-                    <option value="Porter-Cable">Porter-Cable</option>
-                    <option value="Snap-on">Snap-on</option>
-                    <option value="Ridgid">Ridgid</option>
-                    <option value="Metabo">Metabo</option> 
-                    <option value="Ryobi">Ryobi</option> 
-                </select>
-            </div>
-            <div class="col-lg-2">
-                <select v-model="selectedTool" class="form-control">
-                    <option value="" disabled selected>Tools</option> 
-                    <option value="Drill">Drill</option>
-                    <option value="Screwdriver">Screwdriver</option>
-                    <option value="Wrench">Wrench</option>
-                    <option value="Grinder">Grinder</option>
-                    <option value="Jigsaw">Jigsaw</option>
-                    <option value="Saw">Saw</option>
-                </select>
+                <input type="text" class="form-control" v-model="orderNumber" placeholder="Order Number">
             </div>
             <div class="col-lg-2">
                 <select v-model="selectedStatus" class="form-control">
@@ -46,14 +20,14 @@
                 <select v-model="selectedType" class="form-control">
                     <option value="" disabled selected>Type</option> 
                     <option value="Borrowing">Borrowing</option>
-                    <option value="Selling">Selling</option>
+                    <option value="Buying">Buying</option>
                 </select>
             </div>
             <div>
                 <button class="btn btn-primary" @click="filterData">Search</button>
                 <button class="btn btn-success ml-1" @click="refresh"><i class="fas fa-sync-alt"></i></button>
             </div>
-        </div> -->
+        </div>
 
         <div class="card">
             <div class="card-body">
@@ -146,6 +120,7 @@
                         <img :src="'/images/' + dataValues.image" alt="Current Image" class="img-fluid" style="height:300px;">
                     </div>
                     <div class="col-6">
+                        <h4>{{ this.dataValues.order_number }}</h4>
                         <p>
                             <b>{{ this.dataValues.brand_name }} {{ this.dataValues.tool_name }}</b> with the voltage of {{ this.dataValues.voltage }}, dimension of {{ this.dataValues.dimensions }}, weight of {{ this.dataValues.weight }} and powerSources of {{ this.dataValues.powerSources }}.
                         </p>
@@ -191,14 +166,16 @@ export default{
     data(){
         return{
                 data : [],
-                columns : ['brand_name', 'tool_name', 'status' ,'type', 'ordered_at', 'shipment_date', 'delivery_date' ,'action'],
+                columns : ['order_number','brand_name', 'tool_name', 'status' ,'type', 'ordered_at', 'shipment_date', 'delivery_date' ,'action'],
                 errors: [],
                 selectedBrand: '',
                 selectedTool: '',
+                orderNumber: '',
                 selectedStatus: '',
                 selectedType: '',
                 options : {
                     headings : {
+                        order_number : 'Order Number',
                         brand_name : 'Brand',
                         tool_name : 'Tool',
                         status : 'Status',
@@ -240,6 +217,9 @@ export default{
         addClicked(props){
             $('#' + this.modalId).modal('show');
             this.clearInputs();
+        },
+        refresh(){
+            window.location.reload();   
         },
         completedOrder(){
             window.location.href = '/complete-order-admin-product';
@@ -291,8 +271,7 @@ export default{
         filterData()
         {
             const searchData = { 
-                selectedBrand : this.selectedBrand,
-                selectedTool : this.selectedTool,
+                orderNumber : this.orderNumber,
                 selectedStatus : this.selectedStatus,
                 selectedType : this.selectedType,
             }

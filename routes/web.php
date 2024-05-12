@@ -51,6 +51,7 @@ Route::group(['middleware' => 'auth'], function(){
 
     Route::get('/history',[App\Http\Controllers\HistoryController::class, 'index']);
     Route::get('/history/show',[App\Http\Controllers\HistoryController::class, 'show']);
+    Route::post('/history/filterData',[App\Http\Controllers\HistoryController::class, 'filterData']);
 
     Route::middleware(['CheckRole:admin'])->group(function() {
         Route::get('/dashboard',[App\Http\Controllers\DashboardController::class, 'index']);
@@ -112,20 +113,24 @@ Route::group(['middleware' => 'auth'], function(){
         Route::post('/admin-products/returnProduct',[App\Http\Controllers\AdminProductsController::class, 'returnProduct']);
         Route::get('/admin-returned-product',[App\Http\Controllers\AdminProductsController::class, 'returnedProductIndex']);
         Route::get('/admin-returned-product/returnedProductShow',[App\Http\Controllers\AdminProductsController::class, 'returnedProductShow']);
+        Route::post('/admin-returned-product/filterData',[App\Http\Controllers\AdminProductsController::class, 'filterData']);
         Route::post('/admin-products/approvedProduct',[App\Http\Controllers\AdminProductsController::class, 'approvedProduct']);
 
         //TRACK ORDER
         Route::get('/track-order',[App\Http\Controllers\TrackOrderController::class, 'index']);
         Route::get('/track-order/show',[App\Http\Controllers\TrackOrderController::class, 'show']);
         Route::post('/track-order/cancelOrder',[App\Http\Controllers\TrackOrderController::class, 'cancelOrder']);
+        Route::post('/track-order/filterData',[App\Http\Controllers\TrackOrderController::class, 'filterData']);
 
         //COMPLETED ORDER
         Route::get('/completed-order-admin',[App\Http\Controllers\CompletedOrderAdminController::class, 'index']);
         Route::get('/completed-order-admin/show',[App\Http\Controllers\CompletedOrderAdminController::class, 'show']);
+        Route::post('/completed-order-admin/filterData',[App\Http\Controllers\CompletedOrderAdminController::class, 'filterData']);
 
         //CANCELED ORDER
         Route::get('/canceled-order',[App\Http\Controllers\CanceledOrderController::class, 'index']);
         Route::get('/canceled-order/show',[App\Http\Controllers\CanceledOrderController::class, 'show']);
+        Route::post('/canceled-order/filterData',[App\Http\Controllers\CanceledOrderController::class, 'filterData']);
 
         //ORDER
         Route::get('/order',[App\Http\Controllers\OrderController::class, 'index']);
@@ -137,13 +142,16 @@ Route::group(['middleware' => 'auth'], function(){
         //RETURNING PRODUCTS
         Route::get('/returning-products',[App\Http\Controllers\ReturningProductsController::class, 'index']);
         Route::get('/returning-products/show',[App\Http\Controllers\ReturningProductsController::class, 'show']);
+        Route::post('/returning-products/filterData',[App\Http\Controllers\ReturningProductsController::class, 'filterData']);
 
         //order complete
         Route::get('/complete-order-admin-product',[App\Http\Controllers\OrderController::class, 'completeOrderAdminIndex']);
         Route::get('/complete-order-admin-product/completeOrderAdminShow',[App\Http\Controllers\OrderController::class, 'completeOrderAdminShow']);
+        Route::post('/completed-order-admin-product/completedFilterData',[App\Http\Controllers\OrderController::class, 'completedFilterData']);
         //order cancel
         Route::get('/canceled-order-admin-product',[App\Http\Controllers\OrderController::class, 'canceledOrderAdminIndex']);
         Route::get('/canceled-order-admin-product/canceledOrderAdminShow',[App\Http\Controllers\OrderController::class, 'canceledOrderAdminShow']);
+        Route::post('/canceled-order-admin-product/canceledFilterData',[App\Http\Controllers\OrderController::class, 'canceledFilterData']);
 
 
         //PRODUCT HISTORY
@@ -202,18 +210,22 @@ Route::group(['middleware' => 'auth'], function(){
         //DELIVERY
         Route::get('/delivery',[App\Http\Controllers\DeliveryController::class, 'index']);
         Route::get('/delivery/show',[App\Http\Controllers\DeliveryController::class, 'show']);
+        Route::post('/delivery/filterData',[App\Http\Controllers\DeliveryController::class, 'filterData']);
         Route::post('/delivery/cancelOrder',[App\Http\Controllers\DeliveryController::class, 'cancelOrder']);
         //COMPLETED ORDER
         Route::get('/completed-order-user',[App\Http\Controllers\DeliveryController::class, 'completedOrderUserIndex']);
+        Route::post('/completed-order-user/completedFilterData',[App\Http\Controllers\DeliveryController::class, 'completedFilterData']);
         Route::get('/completed-order-user/completedOrderUserShow',[App\Http\Controllers\DeliveryController::class, 'completedOrderUserShow']);
         //canceled order
         Route::get('/canceled-order-user',[App\Http\Controllers\DeliveryController::class, 'canceledOrderUserIndex']);
+        Route::post('/canceled-order-user/canceledFilterData',[App\Http\Controllers\DeliveryController::class, 'canceledFilterData']);
         Route::get('/canceled-order-user/canceledOrderUserShow',[App\Http\Controllers\DeliveryController::class, 'canceledOrderUserShow']);
 
         //RETURN A PRODUCT
         Route::get('/return-product',[App\Http\Controllers\ReturnProductController::class, 'index']);
         Route::get('/return-product/show',[App\Http\Controllers\ReturnProductController::class, 'show']);
         Route::post('/return-product/store',[App\Http\Controllers\ReturnProductController::class, 'store']);
+        Route::post('/return-product/filterData',[App\Http\Controllers\ReturnProductController::class, 'filterData']);
         Route::get('/returning-product',[App\Http\Controllers\ReturnProductController::class, 'returningProductIndex']);
         Route::get('/returning-product/returningProductShow',[App\Http\Controllers\ReturnProductController::class, 'returningProductShow']);
 
@@ -249,16 +261,19 @@ Route::group(['middleware' => 'auth'], function(){
         //ORDERED PRODUCTS
         Route::get('ordered-products', [App\Http\Controllers\OrderedProductsController::class, 'index']);
         Route::get('ordered-products/show', [App\Http\Controllers\OrderedProductsController::class, 'show']);
+        Route::post('ordered-products/filterData', [App\Http\Controllers\OrderedProductsController::class, 'filterData']);
         Route::get('completed-ordered-products', [App\Http\Controllers\OrderedProductsController::class, 'completedIndex']);
         Route::get('completed-ordered-products/completedShow', [App\Http\Controllers\OrderedProductsController::class, 'completedShow']);
         Route::get('canceled-ordered-products', [App\Http\Controllers\OrderedProductsController::class, 'canceledIndex']);
         Route::get('canceled-ordered-products/canceledShow', [App\Http\Controllers\OrderedProductsController::class, 'canceledShow']);
         Route::post('ordered-products/updateStatus', [App\Http\Controllers\OrderedProductsController::class, 'updateStatus']);
+        Route::post('completed-ordered-products/completedFilterData', [App\Http\Controllers\OrderedProductsController::class, 'completedFilterData']);
 
         //RETURNED PRODUCTS
         Route::get('returned-products-supplier', [App\Http\Controllers\ReturnedProductsSupplierController::class, 'index']);
         Route::get('returned-products-supplier/show', [App\Http\Controllers\ReturnedProductsSupplierController::class, 'show']);
-        
+        Route::post('returned-products-supplier/filterData', [App\Http\Controllers\ReturnedProductsSupplierController::class, 'filterData']);
+
     });
 
 });

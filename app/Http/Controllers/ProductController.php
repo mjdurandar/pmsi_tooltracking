@@ -35,9 +35,11 @@ class ProductController extends Controller
     public function store(Request $request)
     {   
         $serialNumbers = json_decode($request->serial_numbers);
+        $historyNumber = 'HIS-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
+        
         // dd($request->serial_numbers);
         if(count($serialNumbers) !== count(array_unique($serialNumbers)))
-        {
+        {   
             return response()->json(['error' => 'Duplicate Codes are not allowed.'], 422);
         }
         else{
@@ -112,6 +114,7 @@ class ProductController extends Controller
             $history = new History();
             $history->user_id = $user->id;
             $history->product_id = $data->id;
+            $history->history_number = $historyNumber;
             $history->action = $action;
             $history->save();
             
@@ -137,6 +140,7 @@ class ProductController extends Controller
     
     public function isRemoved(Request $request)
     {   
+        $historyNumber = 'HIS-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
         $product = Product::find($request->id);
         $product->is_removed = true;
         $product->save();
@@ -144,6 +148,7 @@ class ProductController extends Controller
         $history = new History();
         $history->user_id = Auth::id();
         $history->product_id = $request->id;
+        $history->history_number = $historyNumber;
         $history->action = 'You Removed a Product';
         $history->save();
 
@@ -153,7 +158,9 @@ class ProductController extends Controller
     }
 
     public function releasedProduct(Request $request)
-    {
+    {   
+        $historyNumber = 'HIS-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
+
         $releasedProduct = new ReleasedProduct();
         $releasedProduct->product_id = $request->id;
         $releasedProduct->is_supplier = true;
@@ -166,6 +173,7 @@ class ProductController extends Controller
         $history = new History();
         $history->user_id = Auth::id();
         $history->product_id = $request->id;
+        $history->history_number = $historyNumber;
         $history->action = 'Released a Product';
         $history->save();
 
@@ -175,6 +183,7 @@ class ProductController extends Controller
     public function canceledProduct(Request $request)
     {     
         $trackOrder = TrackOrder::where('product_id', $request->id)->first();
+        $historyNumber = 'HIS-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
         if($trackOrder){
             return response()->json(['errors' => 'Product is already ordered.'], 422);
         }
@@ -192,6 +201,7 @@ class ProductController extends Controller
             $history = new History();
             $history->user_id = Auth::id();
             $history->product_id = $request->id;
+            $history->history_number = $historyNumber;
             $history->action = 'Canceled a Product';
             $history->save();
     
