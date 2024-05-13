@@ -34,6 +34,7 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {   
+        
         $serialNumbers = json_decode($request->serial_numbers);
         $historyNumber = 'HIS-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
         
@@ -185,7 +186,7 @@ class ProductController extends Controller
         $trackOrder = TrackOrder::where('product_id', $request->id)->first();
         $historyNumber = 'HIS-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
         if($trackOrder){
-            return response()->json(['errors' => 'Product is already ordered.'], 422);
+            return response()->json(['errors' => 'Product is already ordered. Please Complete the Order first.'], 422);
         }
         else{
             $cancelledProduct = new CanceledProduct();

@@ -1,5 +1,6 @@
 <template>
     <div class="d-flex flex-column min-vh-100 justify-content-center align-items-center">
+        <!-- Content -->
         <div class="text-center pt-5 flex-grow-1">
             <h1 class="pb-3">Welcome to PMSI</h1>
             <p class="text-center">PMSI is a comprehensive platform for selling and buying tools.</p>
@@ -9,30 +10,153 @@
                 <span>© {{ new Date().getFullYear() }} PMSI. All rights reserved.</span>
             </div>
         </div>
+
+        <!-- MODAL -->
+        <div v-if="showModalSupplier" class="modal" @click="showModalSupplier = false">
+            <div class="modal-content text-center" @click.stop>
+                <div class="row">
+                    <div class="col-12" v-if="notifications.length > 0">
+                        <h4>You got a total of {{ notifications.length }} Order(s)</h4>
+                        <p>Please go to Orders Tab...</p>
+                    </div>
+                    <div class="col-12" v-if="returnedProducts.length > 0">
+                        <h4><b>{{ returnedProducts.length }}</b> of your Products has been requested for Return</h4>
+                        <p>Please go to Returned Products Tab...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="showModalAdmin" class="modal" @click="showModalAdmin = false">
+            <div class="modal-content text-center" @click.stop>
+                <div class="row">
+                    <div class="col-12" v-if="notifications.length > 0">
+                        <div >
+                            <h4>You got a total of {{ notifications.length }} order(s)</h4>
+                            <p>Please go to Orders Tab...</p>
+                        </div>
+                    </div>
+                    <div class="col-12" v-if="completedOrder.length > 0">
+                        <div>
+                            <h4><b>{{ completedOrder.length }}</b> of your Order(s) has been Delivered</h4>
+                            <p>Please go to Products Tab...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="showModalUser" class="modal" @click="showModalUser = false">
+            <div class="modal-content text-center" @click.stop>
+                <h5 class="modal-title">NOTIFICATION</h5>
+                <div>
+                    USER NOTIFICATION
+                </div>
+            </div>
+        </div>
+                
     </div>
-</template>
+  </template>
+  
+  <script>
+    export default {
+        props: {
+            role: Number,
+            notifications: {
+                type: Array,
+                default: () => []
+            },
+            completedOrder: {
+                type: Array,
+                default: () => []
+            },
+            returnedProducts: {
+                type: Array,
+                default: () => []
+            },
+        },
+        data(){
+            return{
+                    data : [],
+                    notifs : '',
+                    showModalSupplier: false,
+                    showModalAdmin: false,
+                    showModalUser: false,
+            }
+        },
+        methods: {
+        },
+        mounted()
+        {   
+            if(this.role === 2 && this.notifications.length > 0 || this.returnedProducts.length > 0)
+            {   
+                this.showModalSupplier = true;
+            }
 
+            if(this.role === 1 && this.notifications.length > 0 || this.completedOrder.length > 0)
+            {
+                this.showModalAdmin = true;
+            }
+
+            if(this.role === 0)
+            {
+                this.showModalUser = true;
+            }
+            // if (this.notifications.length > 0) {
+            //     // Iterate over each notification in the notifications array
+            //     this.notifications.forEach(notification => {
+            //         // Log the description of each notification
+            //         console.log(notification.description);
+            //     });
+            // }
+            console.log(this.returnedProducts);
+        }
+
+    }
+  </script>
+  
 <style scoped>
-.footer {
-    width: 100%;
-    height: 60px;
-    line-height: 60px;
-    background-color: #f18f4e;
-}
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 
-.min-vh-100 {
-    min-height: 100vh;
-}
+    .modal-content {
+        background-color: white;
+        padding: 20px;
+        border-radius: 5px;
+        max-width: 500px;
+        width: 100%;
+    }
 
-.flex-grow-1 {
-    flex-grow: 1;
-}
+    .footer {
+        width: 100%;
+        height: 60px;
+        line-height: 60px;
+        background-color: #f18f4e;
+    }
 
-.logo-img {
-    width: 200px; /* Adjust the width as needed */
-}
+    .min-vh-100 {
+        min-height: 100vh;
+    }
 
-.reserved {
-   margin-top: 120px;
-}
+    .flex-grow-1 {
+        flex-grow: 1;
+    }
+
+    .logo-img {
+        width: 200px; /* Adjust the width as needed */
+    }
+
+    .reserved {
+        margin-top: 120px;
+    }
 </style>
+  

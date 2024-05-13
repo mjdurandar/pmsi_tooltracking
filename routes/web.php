@@ -23,13 +23,17 @@ Route::get('/unauthorized', function () {
 
 Route::group(['middleware' => 'auth'], function(){
 
-    Route::get('/', function () {
-        return view('home');
-    });
+    // Route::get('/', function () {
+    //     return view('home');
+    // });
     
-    Route::get('home', function () {
-        return view('home');
-    });
+    // Route::get('home', function () {
+    //     return view('home');
+    // });
+
+    Route::get('/',[App\Http\Controllers\HomeController::class, 'index']);
+    Route::get('/home',[App\Http\Controllers\HomeController::class, 'index']);
+    Route::get('/home/show',[App\Http\Controllers\HomeController::class, 'show']);
     
     Route::get('/qr/{id}',[App\Http\Controllers\QRController::class, 'index']);
     // Route::get('/powertools/show',[App\Http\Controllers\PowerToolsController::class, 'show']);
@@ -273,6 +277,10 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('returned-products-supplier', [App\Http\Controllers\ReturnedProductsSupplierController::class, 'index']);
         Route::get('returned-products-supplier/show', [App\Http\Controllers\ReturnedProductsSupplierController::class, 'show']);
         Route::post('returned-products-supplier/filterData', [App\Http\Controllers\ReturnedProductsSupplierController::class, 'filterData']);
+        Route::get('returned-products-supplier-completed', [App\Http\Controllers\ReturnedProductsSupplierController::class, 'indexComplete']);
+        Route::get('returned-products-supplier-completed/showComplete', [App\Http\Controllers\ReturnedProductsSupplierController::class, 'showComplete']);
+        Route::post('returned-products-supplier/submit', [App\Http\Controllers\ReturnedProductsSupplierController::class, 'submit']);
+        Route::post('returned-products-supplier-completed/completedFilterData', [App\Http\Controllers\ReturnedProductsSupplierController::class, 'completedFilterData']);
 
     });
 

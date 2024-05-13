@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CanceledOrder;
 use App\Models\CompletedOrderAdmin;
 use App\Models\History;
+use App\Models\Notification;
 use App\Models\OrderedProducts;
 use App\Models\Receipts;
 use App\Models\TrackOrder;
@@ -161,6 +162,10 @@ class OrderedProductsController extends Controller
             $userBalance = User::find(Auth::id());
             $userBalance->balance += $request->total_price;
             $userBalance->save();
+
+            $notification = Notification::where('track_order_id', $request->track_orders_id)->first();
+            $notification->is_done = true;
+            $notification->save();
         }
 
         return response()->json(['message' => 'Status updated successfully']);

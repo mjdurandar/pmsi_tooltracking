@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AdminHistory;
 use App\Models\History;
+use App\Models\Notification;
 use App\Models\Order;
 use App\Models\OrderedProducts;
 use App\Models\Product;
@@ -121,6 +122,12 @@ class SupplierController extends Controller
             $trackOrder->total_price = $totalVAT;
             $trackOrder->user_id = Auth::id();
             $trackOrder->save();
+
+            $notification = new Notification();
+            $notification->description = 'You have a new order';
+            $notification->track_order_id = $trackOrder->id;
+            $notification->type = 'Order';
+            $notification->save();
     
             $product = Product::find($productId);
             $product->stocks -= count($selectedSerialNumbers);

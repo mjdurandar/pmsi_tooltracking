@@ -63,6 +63,7 @@ import ReturningProductComponent from './components/ReturningProductComponent.vu
 import ReceiptsComponent from './components/ReceiptsComponent.vue';
 import HistoryComponent from './components/HistoryComponent.vue';
 import ReturningProductsComponent from './components/ReturningProductsComponent.vue';
+import ReturnedProductsSupplierCompletedComponent from './components/ReturnedProductsSupplierCompletedComponent.vue';
 
 app.config.globalProperties.$swal = Swal;
 app.use(ServerTable, {}, 'bootstrap4')
@@ -115,6 +116,7 @@ app.component('returning-product-component', ReturningProductComponent);
 app.component('receipts-component', ReceiptsComponent);
 app.component('history-component', HistoryComponent);
 app.component('returning-products-component', ReturningProductsComponent);
+app.component('returned-products-supplier-completed-component', ReturnedProductsSupplierCompletedComponent);
 
 /**
  * The following block of code may be used to automatically register your

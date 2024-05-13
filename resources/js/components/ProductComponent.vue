@@ -623,9 +623,9 @@ export default{
                 .catch(errors => {
                         if (errors.response.status === 422) {
                     Swal.fire({
-                        title: "Failed",
+                        title: "Warning",
                         text: errors.response.data.errors,
-                        icon: 'error',
+                        icon: 'warning',
                         timer: 3000
                     });
                     } else {
@@ -858,18 +858,18 @@ export default{
                 $('#' + this.modalIdRestock).modal('hide');
             }).catch(error => {
                 if (error.response) {
-                    if (error.response.status === 422 && error.response.data.error === 'Duplicate codes are not allowed.') {
+                    if (error.response.status === 422 || error.response.data.error === 'Duplicate codes are not allowed.') {
                         Swal.fire({
                             title: 'Warning',
-                            html: `You entered duplicate serial numbers:<br><pre>${JSON.stringify(error.response.data.duplicates, null, 2)}</pre>`,
+                            html: `You entered duplicate serial numbers. Please check your input.`,
                             icon: 'warning',
                         });
                     } else {
                         // Handle other errors
                         Swal.fire({
-                            title: 'Error',
-                            text: 'An error occurred while processing your request.',
-                            icon: 'error',
+                            title: 'Warning',
+                            text: response.data.message,
+                            icon: 'warning',
                         });
                     }
                 } else {

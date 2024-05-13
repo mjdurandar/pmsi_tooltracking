@@ -107,6 +107,7 @@ export default{
                 columns : ['brand_name', 'tool_name', 'serial_number' ,'reason' ,'requested_date_return' ,'action'],
                 selectedBrand: '',
                 selectedTool: '',
+                serialNumber: '',
                 errors: [],
                 options : {
                     headings : {

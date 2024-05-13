@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AdminReturnedProducts;
 use App\Models\History;
+use App\Models\Notification;
 use App\Models\Product;
 use App\Models\SerialNumber;
 use App\Models\Supplier;
@@ -83,7 +84,10 @@ class AdminProductsController extends Controller
     {   
         $trackOrder = TrackOrder::find($request->dataValues['id']);
         $trackOrder->is_returned = true;
-        $trackOrder->save();
+        // $trackOrder->save();
+        $notification = Notification::where('track_order_id', $request->dataValues['id'])->first();
+        $notification->is_returned = true;
+        $notification->save();
 
         // Decode the JSON string of serial numbers stored in the database column
         $serialNumbers = json_decode($trackOrder->serial_numbers);

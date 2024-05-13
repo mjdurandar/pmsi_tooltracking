@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CanceledOrder;
+use App\Models\Notification;
 use App\Models\Product;
 use App\Models\ReleasedProduct;
 use App\Models\SerialNumber;
@@ -46,6 +47,13 @@ class TrackOrderController extends Controller
             $trackOrder->status = 'Canceled';
             $trackOrder->is_canceled = true;
             $trackOrder->save();
+
+            $notifications = Notification::where('track_order_id', $trackOrder->id)
+                                            ->where('is_canceled', false)
+                                            ->first();
+
+            $notifications->is_canceled = true;
+            $notifications->save();
     
             //ADD THE DATA OF CANCLED ORDER TO CANCELED ORDER TABLE
             $canceledOrder = new CanceledOrder();

@@ -4,9 +4,9 @@
 @section('content')
 
     <div id="app">
-        <home-component></home-component>
+        <home-component :role="{{ $role }}" :notifications="{{ $notifications }}" :completed-order="{{ json_encode($completedOrder) }}"
+        :returned-products="{{ json_encode($returnedProducts)}}"></home-component>
     </div>
-
 
 @stop
 
