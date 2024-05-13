@@ -99,7 +99,7 @@ class PowerToolsController extends Controller
     public function releasedProduct(Request $request){
 
         $selectedProducts = $request->all();
-
+        // dd($selectedProducts);
         foreach ($selectedProducts as $selectedProduct) {
             // Check if the product_id already exists in AdminReleasedProducts
             $existingReleasedProduct = AdminReleasedProducts::where('tools_and_equipment_id', $selectedProduct['dataValues']['id'])
@@ -114,7 +114,7 @@ class PowerToolsController extends Controller
                 // Update the serial numbers and price of the existing record
                 $existingReleasedProduct->serial_numbers = json_encode($mergedSerialNumbers);
                 $existingReleasedProduct->status = $selectedProduct['dataValues']['status'];
-                $existingReleasedProduct->price = $request->price;
+                $existingReleasedProduct->price = $selectedProduct['dataValues']['price'];
                 $existingReleasedProduct->save();
             } 
             else {

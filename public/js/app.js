@@ -20758,6 +20758,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var sweetalert2__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! sweetalert2 */ "./node_modules/sweetalert2/dist/sweetalert2.all.js");
 /* harmony import */ var sweetalert2__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(sweetalert2__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! axios */ "./node_modules/axios/lib/axios.js");
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 
 
 
@@ -20774,16 +20786,26 @@ __webpack_require__.r(__webpack_exports__);
       selectedTool: '',
       selectedSpecs: '',
       totalPrice: 0,
+      priceVat: 0,
+      reviewTotal: 0,
+      reviewVatTotal: 0,
+      reviewGrandTotal: 0,
+      serialNumbers: [],
       checkedSerialNumbers: [],
+      selectedIndexes: [],
       vat: 12,
+      backendTotal: 0,
+      selectedProducts: [],
       vatPercentage: 0.12,
       dataValues: {},
       modalId: 'modal-buytools',
       modalIdFinal: 'modal-buytools-final',
+      modalIdSelect: 'modal-select-srn',
       modalTitle: 'Buy Tools',
       modalPosition: 'modal-dialog-centered',
       modalSize: 'modal-md',
-      modalSizeFinal: 'modal-lg'
+      modalSizeFinal: 'modal-lg',
+      modalIdReview: 'modal-review'
     };
   },
   components: {
@@ -20794,7 +20816,18 @@ __webpack_require__.r(__webpack_exports__);
   methods: {
     showDetails: function showDetails(tool) {
       this.dataValues = tool;
+      this.priceVat = tool.price * this.vatPercentage;
+      this.totalPrice = Number(tool.price) + this.priceVat;
+      this.selectedIndexes.length = 0;
       $('#' + this.modalId).modal('show');
+    },
+    selectAll: function selectAll() {
+      // Get the keys of the serialNumbers object and convert them to an array of indexes
+      var keys = Object.keys(this.serialNumbers);
+      this.selectedIndexes = keys.map(Number); // Convert keys to numbers to ensure proper indexing
+    },
+    clearSelected: function clearSelected() {
+      this.selectedIndexes.length = 0;
     },
     getData: function getData() {
       var _this = this;
@@ -20842,18 +20875,114 @@ __webpack_require__.r(__webpack_exports__);
 
       return true; // Validation passed
     },
-    reviewProduct: function reviewProduct() {
-      // Validate the form
-      if (!this.validateForm()) {
+    addToReleaseCart: function addToReleaseCart() {
+      var _this2 = this;
+      if (this.selectedIndexes.length === 0) {
+        sweetalert2__WEBPACK_IMPORTED_MODULE_3___default().fire({
+          title: "No Serial Number selected!",
+          icon: 'warning',
+          timer: 3000
+        });
         return;
       }
+      var selectedSerials = this.selectedIndexes.map(function (index) {
+        return _this2.serialNumbers[index];
+      });
 
+      // Check if any of the selected serial numbers are already in the list of selected products for the same product_id
+      var existingProduct = this.selectedProducts.find(function (product) {
+        return product.dataValues.id === _this2.dataValues.id;
+      });
+      if (existingProduct) {
+        if (existingProduct.dataValues.status !== 'For Sale') {
+          this.selectedProducts.push({
+            dataValues: this.dataValues,
+            status: this.dataValues.status,
+            selectedSerialNumbers: selectedSerials
+          });
+          sweetalert2__WEBPACK_IMPORTED_MODULE_3___default().fire({
+            title: 'Added to Cart!',
+            text: '',
+            icon: 'success',
+            timer: 3000
+          });
+        } else {
+          // Add only the unique serial numbers if the status is the same
+          var newSerialNumbers = selectedSerials.filter(function (serial) {
+            return !existingProduct.selectedSerialNumbers.includes(serial);
+          });
+          if (newSerialNumbers.length > 0) {
+            var _existingProduct$sele;
+            (_existingProduct$sele = existingProduct.selectedSerialNumbers).push.apply(_existingProduct$sele, _toConsumableArray(newSerialNumbers));
+            sweetalert2__WEBPACK_IMPORTED_MODULE_3___default().fire({
+              title: 'Serial Number Added to Existing Product!',
+              text: '',
+              icon: 'success',
+              timer: 3000
+            });
+          } else {
+            sweetalert2__WEBPACK_IMPORTED_MODULE_3___default().fire({
+              title: 'Serial Number Already Selected for This Product!',
+              text: 'Please select a different one!',
+              icon: 'warning',
+              timer: 3000
+            });
+            return;
+          }
+        }
+      } else {
+        // Add new data entry with selected serial numbers
+        this.selectedProducts.push({
+          dataValues: this.dataValues,
+          selectedSerialNumbers: selectedSerials,
+          vatTotal: this.priceVat
+        });
+        console.log(this.selectedProducts);
+        sweetalert2__WEBPACK_IMPORTED_MODULE_3___default().fire({
+          title: 'Added to Cart!',
+          text: '',
+          icon: 'success',
+          timer: 3000
+        });
+      }
+      $('#' + this.modalIdSelect).modal('hide');
+    },
+    reviewProduct: function reviewProduct() {
+      // // Validate the form
+      this.checkedSerialNumbers = [];
+      this.serialNumbers = _objectSpread({}, this.dataValues.serial_numbers);
       // Show the final modal
-      $('#' + this.modalIdFinal).modal('show');
+      $('#' + this.modalIdSelect).modal('show');
       $('#' + this.modalId).modal('hide');
     },
+    checkout: function checkout() {
+      // // Calculate reviewTotal, reviewVatTotal, and reviewGrandTotal
+      var reviewTotalValue = this.selectedProducts.reduce(function (total, product) {
+        var pricePerSerial = product.dataValues.price * product.selectedSerialNumbers.length;
+        return total + pricePerSerial;
+      }, 0);
+
+      // Calculate reviewVatTotalValue based on the number of serial numbers collected
+      var reviewVatTotalValue = reviewTotalValue * 0.12;
+
+      // Calculate reviewGrandTotalValue
+      var reviewGrandTotalValue = reviewTotalValue + reviewVatTotalValue;
+      // Format the values with a peso sign and no decimal places
+      this.reviewTotal = '₱' + reviewTotalValue.toFixed(0);
+      this.reviewVatTotal = '₱' + reviewVatTotalValue.toFixed(0);
+      this.reviewGrandTotal = '₱' + reviewGrandTotalValue.toFixed(0);
+      if (this.selectedProducts.length === 0) {
+        sweetalert2__WEBPACK_IMPORTED_MODULE_3___default().fire({
+          title: "No Products selected!",
+          icon: 'warning',
+          timer: 3000
+        });
+        return;
+      }
+      $('#' + this.modalIdReview).modal('show');
+    },
     filterData: function filterData() {
-      var _this2 = this;
+      var _this3 = this;
       var searchData = {
         status: this.selectedStatus,
         brand: this.selectedBrand,
@@ -20861,8 +20990,8 @@ __webpack_require__.r(__webpack_exports__);
         specs: this.selectedSpecs
       };
       axios__WEBPACK_IMPORTED_MODULE_4__["default"].post('/buytools/filterData', searchData).then(function (response) {
-        _this2.data = response.data.data;
-        if (_this2.data.length === 0) {
+        _this3.data = response.data.data;
+        if (_this3.data.length === 0) {
           sweetalert2__WEBPACK_IMPORTED_MODULE_3___default().fire({
             title: "No Products available!",
             icon: 'warning',
@@ -20879,31 +21008,47 @@ __webpack_require__.r(__webpack_exports__);
         console.error(error);
       });
     },
-    buyProduct: function buyProduct() {
-      var _this3 = this;
+    getProduct: function getProduct() {
+      var _this4 = this;
       var data = {
-        serial_numbers: this.checkedSerialNumbers,
-        total_price: this.totalPrice,
-        dataValues: this.dataValues
+        selectedProducts: this.selectedProducts,
+        total_price: this.reviewGrandTotal
       };
       axios__WEBPACK_IMPORTED_MODULE_4__["default"].post('/buytools/buyTools', data).then(function (response) {
         sweetalert2__WEBPACK_IMPORTED_MODULE_3___default().fire({
-          title: "Success!",
-          text: response.data.message,
+          title: "Product Purchased Successfully!",
           icon: 'success',
           timer: 3000
         });
-        $('#' + _this3.modalIdFinal).modal('hide');
-        _this3.getData();
-        window.location.reload();
-      })["catch"](function (error) {
-        sweetalert2__WEBPACK_IMPORTED_MODULE_3___default().fire({
-          title: "Warning!",
-          text: error.response.data.error ? error.response.data.error : "Failed to purchase product.",
-          icon: 'warning',
-          timer: 3000
-        });
-        console.error(error);
+        _this4.getData();
+        _this4.selectedProducts = [];
+        $('#' + _this4.modalIdReview).modal('hide');
+      })["catch"](function (errors) {
+        // Check if the response contains an error indicating insufficient funds
+        if (errors.response.data.error === 'Insufficient funds') {
+          sweetalert2__WEBPACK_IMPORTED_MODULE_3___default().fire({
+            title: 'Insufficient Funds',
+            text: errors.response.data.error,
+            icon: 'error',
+            timer: 3000
+          });
+        } else if (errors.response.data.error === 'Low Stocks') {
+          sweetalert2__WEBPACK_IMPORTED_MODULE_3___default().fire({
+            title: 'Low Stocks',
+            text: 'Please wait for the Supplier to replenish their Product',
+            icon: 'warning',
+            timer: 3000
+          });
+        } else {
+          // Display general warning message for other errors
+          sweetalert2__WEBPACK_IMPORTED_MODULE_3___default().fire({
+            title: 'Warning',
+            text: 'An error occurred. Please try again later.',
+            icon: 'warning',
+            timer: 3000
+          });
+        }
+        _this4.errors = errors.response.data.errors;
       });
     }
   },
@@ -23736,11 +23881,10 @@ function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input ==
         return product.dataValues.id === _this3.dataValues.id;
       });
       if (existingProduct) {
-        // If the product already exists
-        if (existingProduct.dataValues.status !== this.dataValues.status) {
-          // Duplicate the product if the status is different
+        if (existingProduct.dataValues.status !== 'For Sale') {
           this.selectedProducts.push({
             dataValues: this.dataValues,
+            status: this.dataValues.status,
             selectedSerialNumbers: selectedSerials
           });
           sweetalert2__WEBPACK_IMPORTED_MODULE_3___default().fire({
@@ -28771,165 +28915,202 @@ var _hoisted_31 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElement
   value: "corded"
 }, "Corded", -1 /* HOISTED */);
 var _hoisted_32 = [_hoisted_29, _hoisted_30, _hoisted_31];
-var _hoisted_33 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+var _hoisted_33 = {
+  "class": "col-lg-2"
+};
+var _hoisted_34 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
   "class": "fas fa-sync-alt"
 }, null, -1 /* HOISTED */);
-var _hoisted_34 = [_hoisted_33];
-var _hoisted_35 = {
-  "class": "row"
-};
+var _hoisted_35 = [_hoisted_34];
 var _hoisted_36 = {
-  "class": "card"
+  "class": "col-lg-4 d-flex justify-content-end"
 };
 var _hoisted_37 = {
-  "class": "card-body"
-};
-var _hoisted_38 = {
-  "class": "d-flex justify-content-between"
-};
-var _hoisted_39 = {
-  style: {
-    "width": "50%"
-  }
-};
-var _hoisted_40 = {
-  "class": "card-title"
-};
-var _hoisted_41 = {
-  "class": "card-text"
-};
-var _hoisted_42 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("br", null, null, -1 /* HOISTED */);
-var _hoisted_43 = {
-  style: {
-    "width": "50%"
-  }
-};
-var _hoisted_44 = ["src"];
-var _hoisted_45 = {
-  key: 1
-};
-var _hoisted_46 = ["onClick"];
-var _hoisted_47 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
-  "class": "m-auto"
-}, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h4", null, "Purchase a Tool")], -1 /* HOISTED */);
-var _hoisted_48 = {
   "class": "row"
 };
-var _hoisted_49 = {
-  "class": "col-6 pb-2"
+var _hoisted_38 = {
+  "class": "card"
 };
-var _hoisted_50 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
-  "for": ""
-}, "Brand", -1 /* HOISTED */);
+var _hoisted_39 = {
+  "class": "card-body"
+};
+var _hoisted_40 = {
+  "class": "d-flex justify-content-between"
+};
+var _hoisted_41 = {
+  style: {
+    "width": "50%"
+  }
+};
+var _hoisted_42 = {
+  "class": "card-title"
+};
+var _hoisted_43 = {
+  "class": "card-text"
+};
+var _hoisted_44 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("br", null, null, -1 /* HOISTED */);
+var _hoisted_45 = {
+  style: {
+    "width": "50%"
+  }
+};
+var _hoisted_46 = ["src"];
+var _hoisted_47 = {
+  key: 1
+};
+var _hoisted_48 = ["onClick"];
+var _hoisted_49 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+  "class": "m-auto"
+}, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h4", null, "Purchase a Tool")], -1 /* HOISTED */);
+var _hoisted_50 = {
+  "class": "row"
+};
 var _hoisted_51 = {
   "class": "col-6 pb-2"
 };
 var _hoisted_52 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
   "for": ""
-}, "Tool", -1 /* HOISTED */);
+}, "Brand", -1 /* HOISTED */);
 var _hoisted_53 = {
-  "class": "col-12 pb-2"
+  "class": "col-6 pb-2"
 };
 var _hoisted_54 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
   "for": ""
-}, "Power Source", -1 /* HOISTED */);
+}, "Tool", -1 /* HOISTED */);
 var _hoisted_55 = {
-  "class": "col-6 pb-2"
+  "class": "col-12 pb-2"
 };
 var _hoisted_56 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
   "for": ""
-}, "Voltage", -1 /* HOISTED */);
+}, "Power Source", -1 /* HOISTED */);
 var _hoisted_57 = {
   "class": "col-6 pb-2"
 };
 var _hoisted_58 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
   "for": ""
-}, "Weight", -1 /* HOISTED */);
+}, "Voltage", -1 /* HOISTED */);
 var _hoisted_59 = {
   "class": "col-6 pb-2"
 };
 var _hoisted_60 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
   "for": ""
-}, "Dimension", -1 /* HOISTED */);
+}, "Weight", -1 /* HOISTED */);
 var _hoisted_61 = {
   "class": "col-6 pb-2"
 };
 var _hoisted_62 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
   "for": ""
-}, "Material", -1 /* HOISTED */);
+}, "Dimension", -1 /* HOISTED */);
 var _hoisted_63 = {
   "class": "col-6 pb-2"
 };
 var _hoisted_64 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
   "for": ""
-}, "Price", -1 /* HOISTED */);
+}, "Material", -1 /* HOISTED */);
 var _hoisted_65 = {
-  "class": "input-group"
-};
-var _hoisted_66 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
-  "class": "input-group-prepend"
-}, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
-  "class": "input-group-text"
-}, "₱")], -1 /* HOISTED */);
-var _hoisted_67 = {
   "class": "col-6 pb-2"
 };
-var _hoisted_68 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
+var _hoisted_66 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
   "for": ""
-}, "12% Vat", -1 /* HOISTED */);
-var _hoisted_69 = {
-  "class": "col-12 pb-2"
-};
-var _hoisted_70 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
-  "for": "serialNumber"
-}, "Please select Serial Number(s):", -1 /* HOISTED */);
-var _hoisted_71 = ["id", "value"];
-var _hoisted_72 = ["for"];
-var _hoisted_73 = {
-  key: 0,
-  "class": "text-danger"
-};
-var _hoisted_74 = {
-  "class": "col-12 pb-2"
-};
-var _hoisted_75 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
-  "for": ""
-}, "Grand Total including Vat:", -1 /* HOISTED */);
-var _hoisted_76 = {
+}, "Price each", -1 /* HOISTED */);
+var _hoisted_67 = {
   "class": "input-group"
 };
-var _hoisted_77 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+var _hoisted_68 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
   "class": "input-group-prepend"
 }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
   "class": "input-group-text"
 }, "₱")], -1 /* HOISTED */);
-var _hoisted_78 = {
+var _hoisted_69 = {
+  "class": "col-6 pb-2"
+};
+var _hoisted_70 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
+  "for": ""
+}, "12% Vat", -1 /* HOISTED */);
+var _hoisted_71 = {
+  "class": "col-12 pb-2"
+};
+var _hoisted_72 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
+  "for": ""
+}, "Total including Vat:", -1 /* HOISTED */);
+var _hoisted_73 = {
+  "class": "input-group"
+};
+var _hoisted_74 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+  "class": "input-group-prepend"
+}, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+  "class": "input-group-text"
+}, "₱")], -1 /* HOISTED */);
+var _hoisted_75 = {
   "class": "text-right"
 };
-var _hoisted_79 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+var _hoisted_76 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
   "class": "m-auto"
-}, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h3")], -1 /* HOISTED */);
-var _hoisted_80 = {
+}, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h4", null, "Select Serial Number")], -1 /* HOISTED */);
+var _hoisted_77 = {
+  "class": "modal-body",
+  style: {
+    "max-height": "400px",
+    "overflow-y": "auto"
+  }
+};
+var _hoisted_78 = {
+  "class": "col-lg-12 d-flex justify-content-around mt-2"
+};
+var _hoisted_79 = {
+  "class": "m-auto"
+};
+var _hoisted_80 = ["checked", "value"];
+var _hoisted_81 = {
+  "class": "m-auto"
+};
+var _hoisted_82 = ["value"];
+var _hoisted_83 = {
+  "class": "text-right"
+};
+var _hoisted_84 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+  "class": "m-auto"
+}, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h4", null, "Review your Purchased")], -1 /* HOISTED */);
+var _hoisted_85 = {
+  "class": "modal-body",
+  style: {
+    "max-height": "400px",
+    "overflow-y": "auto"
+  }
+};
+var _hoisted_86 = {
   "class": "row"
 };
-var _hoisted_81 = {
+var _hoisted_87 = {
   key: 0,
   "class": "col-6 text-center m-auto"
 };
-var _hoisted_82 = ["src"];
-var _hoisted_83 = {
+var _hoisted_88 = ["src"];
+var _hoisted_89 = {
   "class": "col-6"
 };
-var _hoisted_84 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", null, " Delivery will be made within 3-5 working days. ", -1 /* HOISTED */);
-var _hoisted_85 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", null, " If all details are correct, click the \"Buy Product\" button to proceed. ", -1 /* HOISTED */);
-
+var _hoisted_90 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Once you're confident that everything is in order, proceed by clicking "), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("b", null, "\"Confirm\""), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" button below. ")], -1 /* HOISTED */);
+var _hoisted_91 = {
+  "class": "row"
+};
+var _hoisted_92 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+  "class": "col-6"
+}, null, -1 /* HOISTED */);
+var _hoisted_93 = {
+  "class": "col-6"
+};
+var _hoisted_94 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("b", null, "Total:", -1 /* HOISTED */);
+var _hoisted_95 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("b", null, "VAT Total (12%):", -1 /* HOISTED */);
+var _hoisted_96 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("b", null, "Grand Total:", -1 /* HOISTED */);
+var _hoisted_97 = {
+  "class": "text-right"
+};
 function render(_ctx, _cache, $props, $setup, $data, $options) {
-  var _this = this;
   var _component_BreadCrumbComponent = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("BreadCrumbComponent");
   var _component_ModalComponent = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("ModalComponent");
   return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_BreadCrumbComponent, {
     tab_title: "Buy Tools"
-  }), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_2, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_3, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
+  }), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" FILTER DATA "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_2, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_3, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
     "onUpdate:modelValue": _cache[0] || (_cache[0] = function ($event) {
       return $data.selectedBrand = $event;
     }),
@@ -28944,7 +29125,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       return $data.selectedSpecs = $event;
     }),
     "class": "form-control"
-  }, _hoisted_32, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, $data.selectedSpecs]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+  }, _hoisted_32, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, $data.selectedSpecs]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_33, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
     "class": "btn btn-primary",
     onClick: _cache[3] || (_cache[3] = function () {
       return $options.filterData && $options.filterData.apply($options, arguments);
@@ -28954,11 +29135,16 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     onClick: _cache[4] || (_cache[4] = function () {
       return $options.refresh && $options.refresh.apply($options, arguments);
     })
-  }, _hoisted_34)])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" PRODUCT CARD "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_35, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($data.data, function (tool, index) {
+  }, _hoisted_35)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_36, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+    "class": "btn btn-success p-3",
+    onClick: _cache[5] || (_cache[5] = function () {
+      return $options.checkout && $options.checkout.apply($options, arguments);
+    })
+  }, "Checkout")])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" PRODUCT CARD "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_37, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($data.data, function (tool, index) {
     return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", {
       "class": "col-md-4",
       key: index
-    }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Card component for each tool "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_36, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_37, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Display tool information "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_38, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_39, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h5", _hoisted_40, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("b", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(tool.brand_name) + " " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(tool.tool_name), 1 /* TEXT */)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", _hoisted_41, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Price: " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(tool.price) + " ", 1 /* TEXT */), _hoisted_42, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Stocks: " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(tool.stocks), 1 /* TEXT */)])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_43, [tool.product_image ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("img", {
+    }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Card component for each tool "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_38, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_39, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Display tool information "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_40, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_41, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h5", _hoisted_42, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("b", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(tool.brand_name) + " " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(tool.tool_name), 1 /* TEXT */)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", _hoisted_43, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Price: " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(tool.price) + " ", 1 /* TEXT */), _hoisted_44, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Stocks: " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(tool.stocks), 1 /* TEXT */)])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_45, [tool.product_image ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("img", {
       key: 0,
       src: '/images/' + tool.product_image,
       alt: "Tool Image",
@@ -28966,12 +29152,12 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       style: {
         "height": "250px"
       }
-    }, null, 8 /* PROPS */, _hoisted_44)) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("p", _hoisted_45, "No Image"))])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+    }, null, 8 /* PROPS */, _hoisted_46)) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("p", _hoisted_47, "No Image"))])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
       "class": "btn btn-success",
       onClick: function onClick($event) {
         return $options.showDetails(tool);
       }
-    }, "Buy", 8 /* PROPS */, _hoisted_46)])])]);
+    }, "Purchase Product", 8 /* PROPS */, _hoisted_48)])])]);
   }), 128 /* KEYED_FRAGMENT */))]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Purchase a Tool Modal "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_ModalComponent, {
     id: $data.modalId,
     title: $data.modalTitle,
@@ -28979,89 +29165,73 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     position: $data.modalPosition
   }, {
     modalHeader: (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
-      return [_hoisted_47];
+      return [_hoisted_49];
     }),
     modalBody: (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
-      return [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_48, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_49, [_hoisted_50, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+      return [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_50, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_51, [_hoisted_52, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
         type: "text",
-        "onUpdate:modelValue": _cache[5] || (_cache[5] = function ($event) {
+        "onUpdate:modelValue": _cache[6] || (_cache[6] = function ($event) {
           return $data.dataValues.brand_name = $event;
         }),
         "class": "form-control",
         disabled: ""
-      }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $data.dataValues.brand_name]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_51, [_hoisted_52, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+      }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $data.dataValues.brand_name]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_53, [_hoisted_54, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
         type: "text",
-        "onUpdate:modelValue": _cache[6] || (_cache[6] = function ($event) {
+        "onUpdate:modelValue": _cache[7] || (_cache[7] = function ($event) {
           return $data.dataValues.tool_name = $event;
         }),
         "class": "form-control",
         disabled: ""
-      }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $data.dataValues.tool_name]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_53, [_hoisted_54, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+      }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $data.dataValues.tool_name]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_55, [_hoisted_56, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
         type: "text",
-        "onUpdate:modelValue": _cache[7] || (_cache[7] = function ($event) {
+        "onUpdate:modelValue": _cache[8] || (_cache[8] = function ($event) {
           return $data.dataValues.powerSources = $event;
         }),
         "class": "form-control",
         disabled: ""
-      }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $data.dataValues.powerSources]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_55, [_hoisted_56, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+      }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $data.dataValues.powerSources]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_57, [_hoisted_58, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
         type: "text",
-        "onUpdate:modelValue": _cache[8] || (_cache[8] = function ($event) {
+        "onUpdate:modelValue": _cache[9] || (_cache[9] = function ($event) {
           return $data.dataValues.voltage = $event;
         }),
         "class": "form-control",
         disabled: ""
-      }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $data.dataValues.voltage]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_57, [_hoisted_58, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+      }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $data.dataValues.voltage]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_59, [_hoisted_60, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
         type: "text",
-        "onUpdate:modelValue": _cache[9] || (_cache[9] = function ($event) {
+        "onUpdate:modelValue": _cache[10] || (_cache[10] = function ($event) {
           return $data.dataValues.weight = $event;
         }),
         "class": "form-control",
         disabled: ""
-      }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $data.dataValues.weight]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_59, [_hoisted_60, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+      }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $data.dataValues.weight]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_61, [_hoisted_62, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
         type: "text",
-        "onUpdate:modelValue": _cache[10] || (_cache[10] = function ($event) {
+        "onUpdate:modelValue": _cache[11] || (_cache[11] = function ($event) {
           return $data.dataValues.dimensions = $event;
         }),
         "class": "form-control",
         disabled: ""
-      }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $data.dataValues.dimensions]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_61, [_hoisted_62, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+      }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $data.dataValues.dimensions]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_63, [_hoisted_64, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
         type: "text",
-        "onUpdate:modelValue": _cache[11] || (_cache[11] = function ($event) {
+        "onUpdate:modelValue": _cache[12] || (_cache[12] = function ($event) {
           return $data.dataValues.material = $event;
         }),
         "class": "form-control",
         disabled: ""
-      }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $data.dataValues.material]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_63, [_hoisted_64, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_65, [_hoisted_66, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
-        type: "number",
-        "class": "form-control",
-        "onUpdate:modelValue": _cache[12] || (_cache[12] = function ($event) {
-          return $data.dataValues.price = $event;
-        }),
-        disabled: ""
-      }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $data.dataValues.price]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_67, [_hoisted_68, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+      }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $data.dataValues.material]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_65, [_hoisted_66, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_67, [_hoisted_68, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
         type: "number",
         "class": "form-control",
         "onUpdate:modelValue": _cache[13] || (_cache[13] = function ($event) {
+          return $data.dataValues.price = $event;
+        }),
+        disabled: ""
+      }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $data.dataValues.price]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_69, [_hoisted_70, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+        type: "number",
+        "class": "form-control",
+        "onUpdate:modelValue": _cache[14] || (_cache[14] = function ($event) {
           return $data.vat = $event;
         }),
         disabled: ""
-      }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $data.vat]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_69, [_hoisted_70, ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)(_this.dataValues.serial_numbers, function (serialNumber, index) {
-        return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", {
-          "class": "form-check",
-          key: index
-        }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
-          "class": "form-check-input",
-          type: "checkbox",
-          id: 'serialNumber_' + index,
-          value: serialNumber,
-          onChange: _cache[14] || (_cache[14] = function ($event) {
-            return $options.updateCheckedValues($event.target.value);
-          })
-        }, null, 40 /* PROPS, HYDRATE_EVENTS */, _hoisted_71), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
-          "class": "form-check-label",
-          "for": 'serialNumber_' + index
-        }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(serialNumber), 9 /* TEXT, PROPS */, _hoisted_72)]);
-      }), 128 /* KEYED_FRAGMENT */)), $data.errors.serial_numbers ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_73, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($data.errors.serial_numbers[0]), 1 /* TEXT */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_74, [_hoisted_75, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_76, [_hoisted_77, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+      }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $data.vat]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <div class=\"col-12 pb-2\">\n                        <label for=\"serialNumber\">Please select Serial Number(s):</label>\n                        <div class=\"form-check\" v-for=\"(serialNumber, index) in this.dataValues.serial_numbers\" :key=\"index\">\n                            <input class=\"form-check-input\" type=\"checkbox\" :id=\"'serialNumber_' + index\" :value=\"serialNumber\" @change=\"updateCheckedValues($event.target.value)\">\n                            <label class=\"form-check-label\" :for=\"'serialNumber_' + index\">{{ serialNumber }}</label>\n                        </div>\n                        <div class=\"text-danger\" v-if=\"errors.serial_numbers\">{{ errors.serial_numbers[0] }}</div>\n                    </div> "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_71, [_hoisted_72, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_73, [_hoisted_74, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
         type: "number",
         "class": "form-control",
         "onUpdate:modelValue": _cache[15] || (_cache[15] = function ($event) {
@@ -29071,40 +29241,130 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $data.totalPrice]])])])])];
     }),
     modalFooter: (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
-      return [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_78, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+      return [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_75, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
         "class": "btn btn-primary",
         onClick: _cache[16] || (_cache[16] = function () {
           return $options.reviewProduct && $options.reviewProduct.apply($options, arguments);
         })
-      }, "Review")])];
+      }, "Proceed")])];
     }),
     _: 1 /* STABLE */
-  }, 8 /* PROPS */, ["id", "title", "size", "position"]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" REVIEW PRODUCT MODAL "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_ModalComponent, {
-    id: $data.modalIdFinal,
+  }, 8 /* PROPS */, ["id", "title", "size", "position"]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" SELECT SRN AND PRN CODE "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_ModalComponent, {
+    id: $data.modalIdSelect,
+    title: $data.modalTitle,
+    size: $data.modalSize,
+    position: $data.modalPosition
+  }, {
+    modalHeader: (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
+      return [_hoisted_76];
+    }),
+    modalBody: (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
+      return [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_77, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)(Object.keys($data.serialNumbers), function (key, index) {
+        return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", {
+          "class": "row",
+          key: index
+        }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_78, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_79, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+          type: "checkbox",
+          checked: $data.selectedIndexes.includes(Number(key)),
+          "onUpdate:modelValue": _cache[17] || (_cache[17] = function ($event) {
+            return $data.selectedIndexes = $event;
+          }),
+          value: Number(key)
+        }, null, 8 /* PROPS */, _hoisted_80), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelCheckbox, $data.selectedIndexes]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_81, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, "Serial Number " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(index + 1), 1 /* TEXT */)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+          type: "text",
+          value: $data.serialNumbers[key],
+          "class": "form-control",
+          disabled: ""
+        }, null, 8 /* PROPS */, _hoisted_82)])])]);
+      }), 128 /* KEYED_FRAGMENT */))])];
+    }),
+
+    modalFooter: (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
+      return [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_83, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+        "class": "btn btn-primary mr-2",
+        onClick: _cache[18] || (_cache[18] = function () {
+          return $options.selectAll && $options.selectAll.apply($options, arguments);
+        })
+      }, "Select All"), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+        "class": "btn btn-primary mr-2",
+        onClick: _cache[19] || (_cache[19] = function () {
+          return $options.clearSelected && $options.clearSelected.apply($options, arguments);
+        })
+      }, "Clear"), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+        "class": "btn btn-success",
+        onClick: _cache[20] || (_cache[20] = function () {
+          return $options.addToReleaseCart && $options.addToReleaseCart.apply($options, arguments);
+        })
+      }, "Add to Cart")])];
+    }),
+    _: 1 /* STABLE */
+  }, 8 /* PROPS */, ["id", "title", "size", "position"]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" REVIEW PURCHASED MODAL "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_ModalComponent, {
+    id: $data.modalIdReview,
     title: $data.modalTitle,
     size: $data.modalSizeFinal,
     position: $data.modalPosition
   }, {
     modalHeader: (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
-      return [_hoisted_79];
+      return [_hoisted_84];
     }),
     modalBody: (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
-      return [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_80, [$data.dataValues.product_image ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_81, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("img", {
-        src: '/images/' + $data.dataValues.product_image,
-        alt: "Current Image",
-        "class": "img-fluid",
+      return [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_85, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($data.selectedProducts, function (product, index) {
+        return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", {
+          key: index
+        }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_86, [product.dataValues.product_image ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_87, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("img", {
+          src: '/images/' + product.dataValues.product_image,
+          alt: "Product Image",
+          "class": "img-fluid",
+          style: {
+            "height": "300px"
+          }
+        }, null, 8 /* PROPS */, _hoisted_88)])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_89, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" You are about to purchase "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("b", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(product.dataValues.brand) + " " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(product.dataValues.tool), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" with the voltage of "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("b", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(product.dataValues.voltage), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(", dimension of "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("b", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(product.dataValues.dimensions), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(", weight of "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("b", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(product.dataValues.weight), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" and powerSources of "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("b", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(product.dataValues.powerSources), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(". ")]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" You selected the Serial Number(s) of: "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("ul", null, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)(product.selectedSerialNumbers, function (serialNumber, index) {
+          return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("li", {
+            key: index
+          }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("b", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(serialNumber) + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(index !== product.selectedSerialNumbers.length - 1 ? '' : ''), 1 /* TEXT */)]);
+        }), 128 /* KEYED_FRAGMENT */))])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" The Product will be delivered in this location "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("b", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($data.userLocation), 1 /* TEXT */)]), _hoisted_90])])]);
+      }), 128 /* KEYED_FRAGMENT */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_91, [_hoisted_92, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_93, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [_hoisted_94, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+        type: "text",
+        "class": "form-control",
+        "onUpdate:modelValue": _cache[21] || (_cache[21] = function ($event) {
+          return $data.reviewTotal = $event;
+        }),
         style: {
-          "height": "300px"
-        }
-      }, null, 8 /* PROPS */, _hoisted_82)])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_83, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("b", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(_this.dataValues.brand_name) + " " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(_this.dataValues.tool_name), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" with the voltage of " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(_this.dataValues.voltage) + ", dimension of " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(_this.dataValues.dimensions) + ", weight of " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(_this.dataValues.weight) + " and powerSources of " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(_this.dataValues.powerSources) + ". ", 1 /* TEXT */)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" The Serial Number(s) selected are: "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("b", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(_this.checkedSerialNumbers.join(', ')), 1 /* TEXT */)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" You are about to purchase this tool for "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("b", null, "₱" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(_this.totalPrice), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" including VAT. ")]), _hoisted_84, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" This Product will be Delivered at: "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("b", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(_this.userLocation), 1 /* TEXT */)]), _hoisted_85])])];
+          borderColor: 'green',
+          color: 'darkgreen'
+        },
+        disabled: ""
+      }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $data.reviewTotal]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [_hoisted_95, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+        type: "text",
+        "class": "form-control",
+        "onUpdate:modelValue": _cache[22] || (_cache[22] = function ($event) {
+          return $data.reviewVatTotal = $event;
+        }),
+        style: {
+          borderColor: 'green',
+          color: 'darkgreen'
+        },
+        disabled: ""
+      }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $data.reviewVatTotal]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [_hoisted_96, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+        type: "text",
+        "class": "form-control",
+        "onUpdate:modelValue": _cache[23] || (_cache[23] = function ($event) {
+          return $data.reviewGrandTotal = $event;
+        }),
+        style: {
+          borderColor: 'green',
+          color: 'darkgreen'
+        },
+        disabled: ""
+      }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $data.reviewGrandTotal]])])])])])];
     }),
     modalFooter: (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
-      return [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+      return [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_97, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
         "class": "btn btn-success",
-        onClick: _cache[17] || (_cache[17] = function ($event) {
-          return $options.buyProduct();
+        onClick: _cache[24] || (_cache[24] = function () {
+          return $options.getProduct && $options.getProduct.apply($options, arguments);
         })
-      }, "Buy Product")];
+      }, "Confirm")])];
     }),
     _: 1 /* STABLE */
   }, 8 /* PROPS */, ["id", "title", "size", "position"])]);

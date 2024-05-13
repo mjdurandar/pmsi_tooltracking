@@ -59,75 +59,85 @@ class BuyToolsController extends Controller
 
     public function buyTools(Request $request)
     {   
-        // Get the authenticated user's ID
+        
+        // // Get the authenticated user's ID
+        $selectedProducts = $request->all();
+
+        $totalPriceWithoutCurrency = str_replace('₱', '', $request->total_price);
+        // Convert the string to a numeric type
+        $totalPriceNumeric = floatval($totalPriceWithoutCurrency);
+
         $user_id = Auth::id();
         // Find the user record
         $user = User::findOrFail($user_id);
         // Calculate the remaining balance after deducting the requested balance
-        $remaining_balance = $user->balance - $request->total_price;
+        $remaining_balance = $user->balance - $totalPriceNumeric;
         // Check if the remaining balance is sufficient
-        if ($remaining_balance > 0) {
-            // Update the user's balance
-            $user->balance = $remaining_balance;
-            $user->save();
     
-            // Find all AdminReleasedProducts for the given tools_and_equipment_id
-            $adminReleasedProducts = AdminReleasedProducts::where('tools_and_equipment_id', $request->dataValues['tools_and_equipment_id'])->get();
-
-            // Iterate through each AdminReleasedProduct
-            foreach ($adminReleasedProducts as $adminReleasedProduct) {
-                // Decode the JSON string of serial numbers stored in the database column
-                $releasedSerialNumbers = json_decode($adminReleasedProduct->serial_numbers, true); // Convert to array
-
-                // Iterate through the selected serial numbers
-                foreach ($request->serial_numbers as $selectedSerialNumber) {
-                    // Check if the selected serial number exists in the released serial numbers
-                    if (($key = array_search($selectedSerialNumber, $releasedSerialNumbers)) !== false) {
-                        // Remove the selected serial number from the released serial numbers
-                        unset($releasedSerialNumbers[$key]);
+        foreach ($selectedProducts as $selectedProduct) {
+            if ($remaining_balance > 0) {
+                // Update the user's balance
+                $user->balance = $remaining_balance;
+                $user->save();
+              
+            
+                // Find all AdminReleasedProducts for the given tools_and_equipment_id
+                $adminReleasedProducts = AdminReleasedProducts::where('tools_and_equipment_id', $selectedProduct[0]['dataValues']['tools_and_equipment_id'])->get();
+                // Iterate through each AdminReleasedProduct
+                foreach ($adminReleasedProducts as $adminReleasedProduct) {
+                    // Decode the JSON string of serial numbers stored in the database column
+                    $releasedSerialNumbers = json_decode($adminReleasedProduct->serial_numbers, true); // Convert to array
+                    // Iterate through the selected serial numbers  
+                    foreach ($selectedProduct[0]['selectedSerialNumbers'] as $selectedSerialNumber) {
+                        // Check if the selected serial number exists in the released serial numbers
+                        if (($key = array_search($selectedSerialNumber, $releasedSerialNumbers)) !== false) {
+                            // Remove the selected serial number from the released serial numbers
+                            unset($releasedSerialNumbers[$key]);
+                        }
                     }
+                    
+                    // Update the serial_numbers column in the database with the updated array
+                    $adminReleasedProduct->serial_numbers = json_encode($releasedSerialNumbers);
+                    $adminReleasedProduct->save();
                 }
-
-                // Update the serial_numbers column in the database with the updated array
-                $adminReleasedProduct->serial_numbers = json_encode($releasedSerialNumbers);
-                $adminReleasedProduct->save();
+                    
+                // Create a new track order
+                $trackOrder = new TrackOrder();
+                $trackOrder->status = 'Pending';
+                $trackOrder->product_id = $selectedProduct[0]['dataValues']['product_id'];
+                $trackOrder->serial_numbers = json_encode($selectedProduct[0]['selectedSerialNumbers']);
+                $trackOrder->type = "Buying";
+                $trackOrder->total_price = $totalPriceNumeric;
+                $trackOrder->user_id = $user_id;
+                $trackOrder->save();
+        
+                // Create a new ordered product
+                $orderedProduct = new OrderedProducts();
+                $orderedProduct->user_id = $user_id;
+                $orderedProduct->track_orders_id = $trackOrder->id;
+                $orderedProduct->status = 'Selling';
+                $orderedProduct->shipment_date = '00/00/0000'; // Set the default shipment date
+                $orderedProduct->delivery_date = '00/00/0000'; // Set the default delivery date
+                $orderedProduct->save();
+    
+                $history = new History();
+                $history->user_id = Auth::id();
+                $history->product_id = $selectedProduct[0]['dataValues']['product_id'];
+                $history->action = 'You bought this Product at the price of ₱' . $totalPriceNumeric . ' including VAT';
+                $history->save();
+    
+                $sales = new Sales();
+                $sales->users_id = 1;
+                $sales->total_price = $totalPriceNumeric;
+                $sales->save();
+        
+                return response()->json(['message' => 'Product Ordered Successfully']);
+            } else {
+                // Return response indicating insufficient funds
+                return response()->json(['error' => 'Insufficient funds'], 400);
             }
-                
-            // Create a new track order
-            $trackOrder = new TrackOrder();
-            $trackOrder->status = 'Pending';
-            $trackOrder->product_id = $request->dataValues['product_id'];
-            $trackOrder->serial_numbers = json_encode($request->serial_numbers);
-            $trackOrder->type = "Buying";
-            $trackOrder->total_price = $request->total_price;
-            $trackOrder->user_id = $user_id;
-            $trackOrder->save();
-    
-            // Create a new ordered product
-            $orderedProduct = new OrderedProducts();
-            $orderedProduct->user_id = $user_id;
-            $orderedProduct->track_orders_id = $trackOrder->id;
-            $orderedProduct->status = 'Selling';
-            $orderedProduct->shipment_date = '00/00/0000'; // Set the default shipment date
-            $orderedProduct->delivery_date = '00/00/0000'; // Set the default delivery date
-            $orderedProduct->save();
-
-            $history = new History();
-            $history->user_id = Auth::id();
-            $history->product_id = $request->dataValues['product_id'];
-            $history->action = 'You bought this Product at the price of ₱' . $request->total_price . ' including VAT';
-            $history->save();
-
-            $sales = new Sales();
-            $sales->users_id = 1;
-            $sales->total_price = $request->total_price;
-            $sales->save();
-    
-            return response()->json(['message' => 'Product Ordered Successfully']);
-        } else {
-            // Return response indicating insufficient funds
-            return response()->json(['error' => 'Insufficient funds'], 400);
         }
+       
     }
     
     public function filterData(Request $request)

@@ -395,15 +395,14 @@ export default{
             }
 
             const selectedSerials = this.selectedIndexes.map(index => this.serialNumbers[index]);
-
+            
             // Check if any of the selected serial numbers are already in the list of selected products for the same product_id
             const existingProduct = this.selectedProducts.find(product => product.dataValues.id === this.dataValues.id);
             if (existingProduct) {
-                // If the product already exists
-                if (existingProduct.dataValues.status !== this.dataValues.status) {
-                    // Duplicate the product if the status is different
+                if (existingProduct.dataValues.status !== 'For Sale') {
                     this.selectedProducts.push({
                         dataValues: this.dataValues,
+                        status: this.dataValues.status,
                         selectedSerialNumbers: selectedSerials,
                     });
                     Swal.fire({
