@@ -69,7 +69,10 @@
                             <b>{{ this.dataValues.brand_name }} {{ this.dataValues.tool_name }}</b> with the voltage of {{ this.dataValues.voltage }}, dimension of {{ this.dataValues.dimensions }}, weight of {{ this.dataValues.weight }} and powerSources of {{ this.dataValues.powerSources }}.
                         </p>
                         <p>
-                            Serial Numbers: <b>{{ this.dataValues.serial_numbers }}</b>
+                            Serial Number(s):
+                            <ul>
+                                <li v-for="serialNumber in this.dataValues.serial_numbers"><b>{{ serialNumber }}</b></li>
+                            </ul>
                         </p>
                         <p>
                             With a total of: <b>₱{{ this.dataValues.total_price }}</b>

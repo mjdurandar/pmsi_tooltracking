@@ -101,9 +101,9 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text">₱</span>
                                 </div>
-                                <input type="number" class="form-control" v-model="selectedPrice" min="0">
+                                <input type="number" class="form-control" v-model="dataValues.price" min="0">
                             </div>
-                            <div class="text-danger" v-if="errors.selectedPrice">{{ errors.selectedPrice[0] }}</div>
+                            <div class="text-danger" v-if="errors.price">{{ errors.price[0] }}</div>
                         </p>
                         <p v-if="dataValues.status === 'For Borrowing'"> 
                             Set Price for Borrowing:
@@ -111,24 +111,15 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text">₱</span>
                                 </div>
-                                <input type="number" class="form-control" v-model="selectedPrice" min="0">
+                                <input type="number" class="form-control" v-model="dataValues.price" min="0">
                             </div>
-                            <div class="text-danger" v-if="errors.selectedPrice">{{ errors.selectedPrice[0] }}</div>
-                        </p>   
-                        <!-- <div class="col-12">
-                            <label for="serialNumber">Please select Serial Number(s) for Product:</label>
-                            <div class="form-check" v-for="(serialNumber, index) in this.dataValues.serial_numbers" :key="index">
-                                <input class="form-check-input" type="checkbox" :id="'serialNumber_' + index" :value="serialNumber" @change="updateCheckedValues($event.target.value)" v-model="selectedIndexes">
-                                <label class="form-check-label" :for="'serialNumber_' + index">{{ serialNumber }}</label>
-                            </div>
-                            <div class="text-danger" v-if="errors.serial_numbers">{{ errors.serial_numbers[0] }}</div>
-                        </div> -->
+                            <div class="text-danger" v-if="errors.price">{{ errors.price[0] }}</div>
+                        </p>
                     </div>
                 </div>
             </template>
             <template #modalFooter>
                 <button class="btn btn-success mr-2" v-on:click="nextModal">Select Serial Number(s)</button>
-                <!-- <button class="btn btn-warning" v-on:click="addToReleaseCart">Add to Release Cart</button> -->
             </template>
         </ModalComponent>
 
@@ -166,7 +157,7 @@
         </ModalComponent>
 
         <!-- RELEASE MULTIPLE PRODUCTS MODAL -->
-        <!-- <ModalComponent :id="modalIdReview" :title="modalTitle" :size="modalSizeRelease" :position="modalPosition">
+        <ModalComponent :id="modalIdReview" :title="modalTitle" :size="modalSizeReleaseFinal" :position="modalPosition">
             <template #modalHeader>
                 <div class="m-auto">
                     <h4>Release your Product</h4>
@@ -174,30 +165,29 @@
             </template>
             <template #modalBody>
                 <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
-                    <div v-for="(product, index) in data" :key="index">
+                    <div v-for="(product, index) in selectedProducts" :key="index">
                         <div class="row">
                             <div class="col-6 text-center m-auto" v-if="product.dataValues.image">
                                 <img :src="'/images/' + product.dataValues.image" alt="Product Image" class="img-fluid" style="height:300px;">
                             </div>
                             <div class="col-6">
                                 <p>
-                                    You are about to release <b>{{ product.dataValues.brand }} {{ product.dataValues.tool }}</b>
+                                    You are about to release this product <b>{{ product.dataValues.brand_name }} {{ product.dataValues.tool_name }}</b>
                                     with the voltage of <b>{{ product.dataValues.voltage }}</b>, dimension of <b>{{ product.dataValues.dimensions }}</b>, weight of <b>{{ product.dataValues.weight }}</b> and powerSources of <b>{{ product.dataValues.powerSources }}</b>.
                                 </p>
                                 <p>
                                     You selected the Serial Number(s) of:
                                     <ul>
                                         <li v-for="(serialNumber, index) in product.selectedSerialNumbers" :key="index">
-                                            {{ serialNumber }}{{ index !== product.selectedSerialNumbers.length - 1 ? '' : '' }}
+                                            <b>{{ serialNumber }}{{ index !== product.selectedSerialNumbers.length - 1 ? '' : '' }}</b>
                                         </li>
                                     </ul>
                                 </p>
                                 <p>
-                                    The Product will be release for <b>testing</b>
-                               
+                                    Status: <b>{{ product.dataValues.status }}</b>
                                 </p>
                                 <p>
-                                    Once you're confident that everything is in order, proceed by clicking "Confirm" button below.
+                                    Once you're confident that everything is in order, proceed by clicking <b>"Release"</b> button below.
                                 </p>
                             </div>
                         </div>
@@ -206,10 +196,10 @@
             </template>
             <template #modalFooter>
                 <div class="text-right">
-                    <button class="btn btn-success" v-on:click="termsAndConditionModal">Confirm</button>
+                    <button class="btn btn-success" v-on:click="releasedProductFinal">Release</button>
                 </div>
             </template>
-        </ModalComponent> -->
+        </ModalComponent>
 
 
     </div>
@@ -243,7 +233,7 @@ export default{
                 category_number: '',
                 supplier_name: '',
                 serialNumbers: [],
-                selectedPrice : 0,
+                price : 0,
                 selectedIndexes: [],    
                 checkedSerialNumbers: [],
                 dataValues: {
@@ -259,6 +249,7 @@ export default{
                 modalPosition: 'modal-dialog-centered',
                 modalSize : 'modal-lg',
                 modalSizeRelease : 'modal-md',
+                modalSizeReleaseFinal : 'modal-lg',
         }
     },
     components: {
@@ -311,6 +302,7 @@ export default{
                 });
                 return;
             }
+            $('#' + this.modalIdReview).modal('show');
         },
         validateForm() {
             this.errors = [];
@@ -319,8 +311,8 @@ export default{
             //     this.errors.serial_numbers = ['Please select at least one serial number'];
             // }
  
-            if (!this.selectedPrice) {
-                this.errors.selectedPrice = ['Price is required'];
+            if (!this.dataValues.price) {
+                this.errors.price = ['Price is required'];
             }
 
             if (!this.dataValues.status) {
@@ -373,7 +365,6 @@ export default{
         releaseProduct(props){
             this.checkedSerialNumbers = [];
             this.dataValues = props;
-            this.selectedPrice = 0;
             this.dataValues.status = '';
             this.selectedIndexes.length = 0;
             if(this.dataValues.stocks === 0){
@@ -393,8 +384,8 @@ export default{
             $('#' + this.modalId).modal('hide'); 
             $('#' + this.modalIdFinal).modal('show'); 
         },
-        addToReleaseCart(){
-            if(this.selectedIndexes.length === 0){
+        addToReleaseCart() {
+            if (this.selectedIndexes.length === 0) {
                 Swal.fire({
                     title: "No Serial Number selected!",
                     icon: 'warning',
@@ -402,56 +393,51 @@ export default{
                 });
                 return;
             }
-            const selectedSerialNumbers = this.serialNumbers;
-            let existingDataIndex = -1;
-            console.log(selectedSerialNumbers);
-            // Find if data with the same values already exists
-            existingDataIndex = this.selectedProducts.findIndex(product => {
-                // Check if dataValues are the same
-                return JSON.stringify(product.dataValues) === JSON.stringify(this.dataValues);
-            });
 
-            if (existingDataIndex !== -1) {
-                // Data with same values already exists
-                const existingProduct = this.selectedProducts[existingDataIndex];
-                if (Array.isArray(selectedSerialNumbers)) {
-                    // Handle the case when selectedSerialNumbers is an array
-                    const newSerialNumbers = selectedSerialNumbers.filter(serial => !existingProduct.selectedSerialNumbers.includes(serial));
-                    // Proceed with further operations using newSerialNumbers
-                } else if (typeof selectedSerialNumbers === 'object' && selectedSerialNumbers !== null) {
-                    // Handle the case when selectedSerialNumbers is an object
-                    const selectedSerialArray = Object.values(selectedSerialNumbers); // Convert object values to an array
-                    const newSerialNumbers = selectedSerialArray.filter(serial => !existingProduct.selectedSerialNumbers.includes(serial));
-                    // Proceed with further operations using newSerialNumbers
-                } else {
-                    // Handle other cases, such as when selectedSerialNumbers is null or undefined
-                    console.error('selectedSerialNumbers is not an array or an object');
-                }
+            const selectedSerials = this.selectedIndexes.map(index => this.serialNumbers[index]);
 
-                
-                if (newSerialNumbers.length > 0) {
-                    // Add new serial numbers to existing data
-                    existingProduct.selectedSerialNumbers.push(...newSerialNumbers);
+            // Check if any of the selected serial numbers are already in the list of selected products for the same product_id
+            const existingProduct = this.selectedProducts.find(product => product.dataValues.id === this.dataValues.id);
+            if (existingProduct) {
+                // If the product already exists
+                if (existingProduct.dataValues.status !== this.dataValues.status) {
+                    // Duplicate the product if the status is different
+                    this.selectedProducts.push({
+                        dataValues: this.dataValues,
+                        selectedSerialNumbers: selectedSerials,
+                    });
                     Swal.fire({
-                        title: 'Serial Number Added to Existing Data!',
+                        title: 'Added to Release Product!',
                         text: '',
                         icon: 'success',
                         timer: 3000
                     });
                 } else {
-                    Swal.fire({
-                        title: 'Serial Number Already Selected for This Data!',
-                        text: 'Please select a different one!',
-                        icon: 'warning',
-                        timer: 3000
-                    });
-                    return;
+                    // Add only the unique serial numbers if the status is the same
+                    const newSerialNumbers = selectedSerials.filter(serial => !existingProduct.selectedSerialNumbers.includes(serial));
+                    if (newSerialNumbers.length > 0) {
+                        existingProduct.selectedSerialNumbers.push(...newSerialNumbers);
+                        Swal.fire({
+                            title: 'Serial Number Added to Existing Product!',
+                            text: '',
+                            icon: 'success',
+                            timer: 3000
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Serial Number Already Selected for This Product!',
+                            text: 'Please select a different one!',
+                            icon: 'warning',
+                            timer: 3000
+                        });
+                        return;
+                    }
                 }
             } else {
                 // Add new data entry with selected serial numbers
                 this.selectedProducts.push({
                     dataValues: this.dataValues,
-                    selectedSerialNumbers: selectedSerialNumbers,
+                    selectedSerialNumbers: selectedSerials,
                 });
                 Swal.fire({
                     title: 'Added to Release Product!',
@@ -460,52 +446,31 @@ export default{
                     timer: 3000
                 });
             }
-            $('#' + this.modalIdSelect).modal('hide'); 
-        },
-        sellProduct()
-        {   
-            // const data = {
-            //     category_id: this.category_id,
-            //     price: this.selectedPrice,
-            //     serial_numbers: this.checkedSerialNumbers,
-            //     dataValues: this.dataValues
-            // };
 
-            // Swal.fire({
-            //     title: 'Are you sure you want to Release the Product?',
-            //     text: 'This Product will be For Sale/For Borrowing!',
-            //     icon: 'warning',
-            //     showCancelButton: true,
-            //     confirmButtonText: 'Yes, Release it!',
-            //     cancelButtonText: 'Cancel',
-            // }).then((result) => {
-            //     if (result.isConfirmed) {
-            //         axios.post('/powertools/releasedProduct', data).then(response => {
-            //             if(response.status === 200) {
-            //                 Swal.fire({
-            //                     title: "Success",
-            //                     text: response.data.message,
-            //                     icon: 'success',
-            //                     timer: 3000
-            //                 });
-            //             }
-            //             $('#' + this.modalIdFinal).modal('hide');
-            //             window.location.reload();
-            //             this.getData();
-            //         }).catch(errors => {
-            //             if(errors.response.data.message.length > 0) {
-            //                 Swal.fire({
-            //                     title: "Failed",
-            //                     text: errors.response.data.message,
-            //                     icon: 'error',
-            //                     timer: 3000
-            //                 });
-            //             }
-            //         });
-            //     }
-            // });
-            
+            $('#' + this.modalIdSelect).modal('hide');
         },
+        releasedProductFinal()
+        {
+            axios.post('/powertools/releasedProduct', this.selectedProducts)
+                .then(response => {
+                    Swal.fire({
+                        title: "Product Release Successfully!",
+                        icon: 'success',
+                        timer: 3000
+                    });
+                    this.getData();
+                    $('#' + this.modalIdReview).modal('hide');
+                    this.selectedProducts = [];
+                })
+                .catch(errors => {
+                    Swal.fire({
+                            title: 'Something went wrong!',
+                            text: errors.response.data.error,
+                            icon: 'error',
+                            timer: 3000
+                        });
+                });
+        }
         },
         mounted() {
             this.getData();

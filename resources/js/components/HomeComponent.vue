@@ -14,7 +14,10 @@
         <!-- MODAL -->
         <div v-if="showModalSupplier" class="modal" @click="showModalSupplier = false">
             <div class="modal-content text-center" @click.stop>
-                <div class="row">
+                <div class="modal-header m-auto">
+                    <i class="fa-sharp fa-solid fa-circle-exclamation"></i> <h3>Notifications</h3>
+                </div>
+                <div class="row mt-3">
                     <div class="col-12" v-if="notifications.length > 0">
                         <h4>You got a total of {{ notifications.length }} Order(s)</h4>
                         <p>Please go to Orders Tab...</p>
@@ -29,7 +32,10 @@
 
         <div v-if="showModalAdmin" class="modal" @click="showModalAdmin = false">
             <div class="modal-content text-center" @click.stop>
-                <div class="row">
+                <div class="modal-header m-auto">
+                    <i class="fa-sharp fa-solid fa-circle-exclamation"></i> <h3>Notifications</h3>
+                </div>
+                <div class="row mt-3">
                     <div class="col-12" v-if="notifications.length > 0">
                         <div >
                             <h4>You got a total of {{ notifications.length }} order(s)</h4>

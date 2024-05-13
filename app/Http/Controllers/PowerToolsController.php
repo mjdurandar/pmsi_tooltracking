@@ -97,51 +97,56 @@ class PowerToolsController extends Controller
     }    
 
     public function releasedProduct(Request $request){
-        // Check if the product_id already exists in AdminReleasedProducts
-        $existingReleasedProduct = AdminReleasedProducts::where('tools_and_equipment_id', $request->dataValues['id'])
-                                                        ->first();
-    
-        // If the product already exists, update the existing record
-        if($existingReleasedProduct){
-            // Merge the existing serial numbers with the new ones
-            $existingSerialNumbers = json_decode($existingReleasedProduct->serial_numbers);
-            $newSerialNumbers = $request->serial_numbers;
-            $mergedSerialNumbers = array_unique(array_merge($existingSerialNumbers, $newSerialNumbers));
+
+        $selectedProducts = $request->all();
+
+        foreach ($selectedProducts as $selectedProduct) {
+            // Check if the product_id already exists in AdminReleasedProducts
+            $existingReleasedProduct = AdminReleasedProducts::where('tools_and_equipment_id', $selectedProduct['dataValues']['id'])
+            ->first();
+     
+            // If the product already exists, update the existing record
+            if($existingReleasedProduct){
+                // Merge the existing serial numbers with the new ones
+                $existingSerialNumbers = json_decode($existingReleasedProduct->serial_numbers);
+                $newSerialNumbers = $selectedProduct['selectedSerialNumbers'];
+                $mergedSerialNumbers = array_unique(array_merge($existingSerialNumbers, $newSerialNumbers));
+                // Update the serial numbers and price of the existing record
+                $existingReleasedProduct->serial_numbers = json_encode($mergedSerialNumbers);
+                $existingReleasedProduct->status = $selectedProduct['dataValues']['status'];
+                $existingReleasedProduct->price = $request->price;
+                $existingReleasedProduct->save();
+            } 
+            else {
+                // If the product doesn't exist, create a new record
+                $adminReleasedProducts = new AdminReleasedProducts();
+                $adminReleasedProducts->tools_and_equipment_id = $selectedProduct['dataValues']['id'];
+                $adminReleasedProducts->serial_numbers = json_encode($selectedProduct['selectedSerialNumbers']);
+                $adminReleasedProducts->status = $selectedProduct['dataValues']['status'];
+                $adminReleasedProducts->price = $selectedProduct['dataValues']['price'];
+                $adminReleasedProducts->save();
+            }
+
+            // Update the serial numbers of the associated ToolsAndEquipment record
+            $toolsAndEquipment = ToolsAndEquipment::find($selectedProduct['dataValues']['id']);
             
-            // Update the serial numbers and price of the existing record
-            $existingReleasedProduct->serial_numbers = json_encode($mergedSerialNumbers);
-            $existingReleasedProduct->status = $request->dataValues['status'];
-            $existingReleasedProduct->price = $request->price;
-            $existingReleasedProduct->save();
-        } else {
-            // If the product doesn't exist, create a new record
-            $adminReleasedProducts = new AdminReleasedProducts();
-            $adminReleasedProducts->tools_and_equipment_id = $request->dataValues['id'];
-            $adminReleasedProducts->serial_numbers = json_encode($request->serial_numbers);
-            $adminReleasedProducts->status = $request->dataValues['status'];
-            $adminReleasedProducts->price = $request->price;
-            $adminReleasedProducts->save();
+            if($toolsAndEquipment){
+                // Remove the returned serial numbers from the array
+                $serialNumbers = json_decode($toolsAndEquipment->serial_numbers);
+                $returnedSerialNumbers = $selectedProduct['selectedSerialNumbers'];
+                $serialNumbers = is_array($serialNumbers) ? array_diff($serialNumbers, $returnedSerialNumbers) : [];
+                // Update the serial_numbers column in the database with the updated array
+                $toolsAndEquipment->serial_numbers = json_encode($serialNumbers);
+                $toolsAndEquipment->save();
+            }
+
+            // Log the history of the action
+            $history = new History();
+            $history->user_id = Auth::id();
+            $history->product_id = $selectedProduct['dataValues']['product_id'];
+            $history->action = 'You Released this Product for ' .  $selectedProduct['dataValues']['status'] . ' with a price of ' . '₱' . $selectedProduct['dataValues']['price'];
+            $history->save();
         }
-    
-        // Update the serial numbers of the associated ToolsAndEquipment record
-        $toolsAndEquipment = ToolsAndEquipment::find($request->dataValues['id']);
-        if($toolsAndEquipment){
-            // Remove the returned serial numbers from the array
-            $serialNumbers = json_decode($toolsAndEquipment->serial_numbers);
-            $returnedSerialNumbers = $request->serial_numbers;
-            $serialNumbers = is_array($serialNumbers) ? array_diff($serialNumbers, $returnedSerialNumbers) : [];
-    
-            // Update the serial_numbers column in the database with the updated array
-            $toolsAndEquipment->serial_numbers = json_encode($serialNumbers);
-            $toolsAndEquipment->save();
-        }
-    
-        // Log the history of the action
-        $history = new History();
-        $history->user_id = Auth::id();
-        $history->product_id = $request->dataValues['product_id'];
-        $history->action = 'You Released this Product for ' . $request->dataValues['status'] . ' with a price of ' . '₱' . $request->price;
-        $history->save();
     
         return response()->json(['message' => 'Product has been released!']);
     }

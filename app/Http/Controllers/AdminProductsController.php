@@ -130,6 +130,7 @@ class AdminProductsController extends Controller
         $trackOrder->is_approved = true;
         $trackOrder->save();
         
+        $historyNumber = 'HIS-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
         // Check if a product with the same ID already exists in ToolsAndEquipment
         $existingProduct = ToolsAndEquipment::where('product_id', $trackOrder->product_id)->first();
     
@@ -161,8 +162,13 @@ class AdminProductsController extends Controller
         $history = new History();
         $history->user_id = Auth::id();
         $history->product_id = $request->product_id;
+        $history->history_number = $historyNumber;
         $history->action = 'You approved a Product';
         $history->save();
+
+        $notification = Notification::where('track_order_id', $request->id)->first();
+        $notification->is_approved = true;
+        $notification->save();
     
         return response()->json(['status' => 'success', 'message' => 'Product approved.']);
     }

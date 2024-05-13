@@ -123,6 +123,10 @@ class OrderedProductsController extends Controller
         return $item;
         });
 
+        foreach ($data as $order) {
+            $order->serial_numbers = json_decode($order->serial_numbers);
+        }
+
         return response()->json(['data' => $data]);
     }
 

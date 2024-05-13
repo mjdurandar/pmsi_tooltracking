@@ -604,7 +604,6 @@ export default{
             this.reviewTotal = '₱' + reviewTotalValue.toFixed(0);
             this.reviewVatTotal = '₱' + reviewVatTotalValue.toFixed(0);
             this.reviewGrandTotal = '₱' + reviewGrandTotalValue.toFixed(0);
-            console.log(this.reviewTotal, this.reviewVatTotal, this.reviewGrandTotal);
             $('#' + this.modalIdReview).modal('show');
         },
         yesProduct() {

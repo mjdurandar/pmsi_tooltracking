@@ -1,6 +1,7 @@
 <template>
     <div class="p-3">
         <BreadCrumbComponent tab_title="Orders"></BreadCrumbComponent>
+
         <div class="row mb-3">
             <div class="col-lg-2">
                 <input type="text" class="form-control" v-model="orderNumber" placeholder="Order Number">
@@ -39,6 +40,7 @@
                 <button class="btn btn-success ml-1" @click="refresh"><i class="fas fa-sync-alt"></i></button>
             </div>
         </div>
+        
         <div class="card">
             <div class="card-body">
                 <FormComponent 
