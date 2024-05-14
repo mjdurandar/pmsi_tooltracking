@@ -19,7 +19,7 @@
                 </div>
                 <div class="row mt-3">
                     <div class="col-12" v-if="notifications.length > 0">
-                        <h4>You got a total of {{ notifications.length }} Order(s)</h4>
+                        <h4>You got a total of <b>{{ notifications.length }}</b> Order(s)</h4>
                         <p>Please go to Orders Tab...</p>
                     </div>
                     <div class="col-12" v-if="returnedProducts.length > 0">
@@ -36,9 +36,9 @@
                     <i class="fa-sharp fa-solid fa-circle-exclamation"></i> <h3>Notifications</h3>
                 </div>
                 <div class="row mt-3">
-                    <div class="col-12" v-if="notifications.length > 0">
+                    <div class="col-12" v-if="orderedProducts.length > 0">
                         <div >
-                            <h4>You got a total of {{ notifications.length }} order(s)</h4>
+                            <h4>You got a total of <b>{{ orderedProducts.length }}</b> order(s)</h4>
                             <p>Please go to Orders Tab...</p>
                         </div>
                     </div>
@@ -54,9 +54,16 @@
 
         <div v-if="showModalUser" class="modal" @click="showModalUser = false">
             <div class="modal-content text-center" @click.stop>
-                <h5 class="modal-title">NOTIFICATION</h5>
-                <div>
-                    USER NOTIFICATION
+                <div class="modal-header m-auto">
+                    <i class="fa-sharp fa-solid fa-circle-exclamation"></i> <h3>Notifications</h3>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12" >
+                        <div>
+                            <h4><b></b> of your Order(s) has been Delivered</h4>
+                            <p>Please go to Products Tab...</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -80,6 +87,10 @@
                 type: Array,
                 default: () => []
             },
+            orderedProducts: {
+                type: Array,
+                default: () => []
+            }
         },
         data(){
             return{
@@ -99,15 +110,15 @@
                 this.showModalSupplier = true;
             }
 
-            if(this.role === 1 && this.notifications.length > 0 || this.completedOrder.length > 0)
+            if(this.role === 1 && this.orderedProducts.length > 0 || this.completedOrder.length > 0)
             {
                 this.showModalAdmin = true;
             }
 
-            if(this.role === 0)
-            {
-                this.showModalUser = true;
-            }
+            // if(this.role === 0 && this.notifications.length > 0 || this.completedOrder.length > 0)
+            // {
+            //     this.showModalUser = true;
+            // }
             // if (this.notifications.length > 0) {
             //     // Iterate over each notification in the notifications array
             //     this.notifications.forEach(notification => {
@@ -115,7 +126,7 @@
             //         console.log(notification.description);
             //     });
             // }
-            console.log(this.returnedProducts);
+            console.log(this.orderedProducts);
         }
 
     }

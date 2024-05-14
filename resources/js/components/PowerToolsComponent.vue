@@ -399,7 +399,7 @@ export default{
             // Check if any of the selected serial numbers are already in the list of selected products for the same product_id
             const existingProduct = this.selectedProducts.find(product => product.dataValues.id === this.dataValues.id);
             if (existingProduct) {
-                if (existingProduct.dataValues.status !== 'For Sale') {
+                if (existingProduct.dataValues.status !== this.dataValues.status) {
                     this.selectedProducts.push({
                         dataValues: this.dataValues,
                         status: this.dataValues.status,

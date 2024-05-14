@@ -136,7 +136,7 @@
                             <b>{{ this.dataValues.brand_name }} {{ this.dataValues.tool_name }}</b> with the voltage of {{ this.dataValues.voltage }}, dimension of {{ this.dataValues.dimensions }}, weight of {{ this.dataValues.weight }} and powerSources of {{ this.dataValues.powerSources }}.
                         </p>
                         <p>
-                            The User ordered a total of <b>{{ this.dataValues.serial_numbers_count }}</b> product(s) with the total price of <b>₱{{ this.dataValues.total_price }}.</b>
+                            The User ordered a total of <b>{{ this.dataValues.serial_numbers_count }}</b> product(s) with the total price of <b>₱{{ this.dataValues.total_price }} with the same Order Number.</b>
                         </p>
                         <p>
                             The Serial Number(s):

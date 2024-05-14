@@ -1,6 +1,7 @@
 <template>
     <div class="p-3">
         <BreadCrumbComponent tab_title="Borrow Tools"></BreadCrumbComponent>
+
         <div class="row mb-3">
             <div class="col-lg-2">
                 <select v-model="selectedBrand" class="form-control">
@@ -38,9 +39,12 @@
                     <option value="corded">Corded</option>
                 </select>
             </div>
-            <div>
+            <div class="col-lg-2">
                 <button class="btn btn-primary" @click="filterData">Search</button>
                 <button class="btn btn-success ml-1" @click="refresh"><i class="fas fa-sync-alt"></i></button>
+            </div>
+            <div class="col-lg-4 d-flex justify-content-end">
+                <button class="btn btn-success p-3" @click="checkout">Checkout</button>
             </div>
         </div>
 
@@ -61,7 +65,7 @@
                                 <p v-else>No Image</p>
                             </div>
                         </div>
-                        <button class="btn btn-primary" v-on:click="showDetails(tool)">Borrow</button>
+                        <button class="btn btn-primary" v-on:click="showDetails(tool)">For Rental</button>
                     </div>
                 </div>
             </div>
@@ -71,7 +75,7 @@
         <ModalComponent :id="modalId" :title="modalTitle" :size="modalSize" :position="modalPosition">
             <template #modalHeader>
                 <div class="m-auto">
-                    <h4>Borrow a Tool</h4>
+                    <h4>Rent a Tool</h4>
                 </div>
             </template>
             <template #modalBody>
@@ -121,21 +125,13 @@
                         <div class="text-danger" v-if="errors.returnday">{{ errors.returnday[0] }}</div>
                     </div> 
                     <div class="col-12 pb-2">
-                        <label for="">Penalty</label>
+                        <label for="">Penalty (if not returned by the given date)</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text">₱</span>
                             </div>
                             <input type="text" class="form-control" v-model="dataValues.penalty" disabled>
                         </div>
-                    </div>
-                    <div class="col-12 pb-2">
-                        <label for="serialNumber">Please select Serial Number(s):</label>
-                        <div class="form-check" v-for="(serialNumber, index) in this.dataValues.serial_numbers" :key="index">
-                            <input class="form-check-input" type="checkbox" :id="'serialNumber_' + index" :value="serialNumber" @change="updateCheckedValues($event.target.value)">
-                            <label class="form-check-label" :for="'serialNumber_' + index">{{ serialNumber }}</label>
-                        </div>
-                        <div class="text-danger" v-if="errors.serial_numbers">{{ errors.serial_numbers[0] }}</div>
                     </div>
                     <div class="col-12 pb-2">
                         <label for="serialNumber">Please Return the Product on or before:</label>
@@ -145,50 +141,111 @@
             </template>
             <template #modalFooter>
                 <div class="text-right">
-                    <button class="btn btn-primary" v-on:click="reviewProduct">Review</button>
+                    <button class="btn btn-warning" v-on:click="reviewProduct">Select Serial Number(s)</button>
                 </div>
             </template>
         </ModalComponent>
 
-        <!-- REVIEW PRODUCT MODAL -->
-        <ModalComponent :id="modalIdFinal" :title="modalTitle" :size="modalSizeFinal" :position="modalPosition">
+        <!-- SELECT SRN AND PRN CODE -->
+        <ModalComponent :id="modalIdSelect" :title="modalTitle" :size="modalSize" :position="modalPosition">
             <template #modalHeader>
                 <div class="m-auto">
-                    <h3></h3>
+                    <h4>Select Serial Number</h4>
                 </div>
             </template>
             <template #modalBody>
-                <div class="row">
-                    <div class="col-6 text-center m-auto" v-if="dataValues.product_image">
-                        <img :src="'/images/' + dataValues.product_image" alt="Current Image" class="img-fluid" style="height:300px;">
-                    </div>
-                    <div class="col-6">
-                        <p>
-                            <b>{{ this.dataValues.brand_name }} {{ this.dataValues.tool_name }}</b> with the voltage of {{ this.dataValues.voltage }}, dimension of {{ this.dataValues.dimensions }}, weight of {{ this.dataValues.weight }} and powerSources of {{ this.dataValues.powerSources }}.
-                        </p>
-                        <p>
-                            The Serial Number(s) selected are: <b>{{ this.checkedSerialNumbers.join(', ') }}</b> 
-                        </p>
-                        <p>
-                            You are about to purchase this tool for <b>₱{{ this.dataValues.price }}</b> and need to return it on or before <b>{{ this.dataValues.return_date }}</b>.
-                        </p>
-                        <p>
-                            If not return to the given days, a penalty of <b>₱{{ this.dataValues.penalty }}</b> will be charged.
-                        </p>
-                        <p>
-                            Delivery will be made within <b>3-5 working days.</b>
-                        </p>
-                        <p>
-                            This Product will be Delivered at: <b>{{ this.userLocation }}</b>
-                        </p>
-                        <p>
-                            If all details are correct, click the "Buy Product" button to proceed.
-                        </p>
+                <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+                    <div class="row" v-for="(key, index) in Object.keys(serialNumbers)" :key="index">
+                        <div class="col-lg-12 d-flex justify-content-around mt-2">
+                            <div class="m-auto">
+                                <input type="checkbox" :checked="selectedIndexes.includes(Number(key))" v-model="selectedIndexes" :value="Number(key)">
+                            </div>
+                            <div class="m-auto">
+                                <div>Serial Number {{ index + 1 }}</div>
+                            </div>
+                            <div>
+                                <input type="text" :value="serialNumbers[key]" class="form-control" disabled>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </template>
             <template #modalFooter>
-                <button class="btn btn-success" v-on:click="borrowProduct()">Borrow Product</button>
+                <div class="text-right">
+                    <button class="btn btn-primary mr-2" v-on:click="selectAll">Select All</button>
+                    <button class="btn btn-primary mr-2" v-on:click="clearSelected">Clear</button>
+                    <button class="btn btn-success" v-on:click="addToReleaseCart">Add to Cart</button>
+                </div>
+            </template>
+        </ModalComponent>
+
+         <!-- REVIEW PURCHASED MODAL -->
+         <ModalComponent :id="modalIdReview" :title="modalTitle" :size="modalSizeFinal" :position="modalPosition">
+            <template #modalHeader>
+                <div class="m-auto">
+                    <h4>Review your Purchased</h4>
+                </div>
+            </template>
+            <template #modalBody>
+                <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+                    <div v-for="(product, index) in selectedProducts" :key="index">
+                        <div class="row">
+                            <div class="col-6 text-center m-auto" v-if="product.dataValues.product_image">
+                                <img :src="'/images/' + product.dataValues.product_image" alt="Product Image" class="img-fluid" style="height:300px;">
+                            </div>
+                            <div class="col-6">
+                                <p>
+                                    You are about to purchase <b>{{ product.dataValues.brand }} {{ product.dataValues.tool }}</b>
+                                    with the voltage of <b>{{ product.dataValues.voltage }}</b>, dimension of <b>{{ product.dataValues.dimensions }}</b>, weight of <b>{{ product.dataValues.weight }}</b> and powerSources of <b>{{ product.dataValues.powerSources }}</b>.
+                                </p>
+                                <p>
+                                    You selected the Serial Number(s) of:
+                                    <ul>
+                                        <li v-for="(serialNumber, index) in product.selectedSerialNumbers" :key="index">
+                                            <b>{{ serialNumber }}{{ index !== product.selectedSerialNumbers.length - 1 ? '' : '' }}</b>
+                                        </li>
+                                    </ul>
+                                </p>
+                                <p>
+                                    The Product will be delivered in this location
+                                    <b>{{ userLocation }}</b>
+                                </p>
+                                <p>
+                                    The Product must be returned on or before <b>{{ product.dataValues.return_date }}</b>.
+                                </p>
+                                <p>
+                                    Once you're confident that everything is in order, proceed by clicking <b>"Confirm"</b> button below.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="text-center"><b>Terms and Conditions:</b></div>
+                            <ul>
+                                <li>Product must be returned on or before the given date.</li>
+                                <li>Product must be returned in good condition.</li>
+                                <li>Product must be returned with the same Serial Number(s).</li>
+                            </ul>
+                        </div>
+                        <div class="col-6">
+                            <div>
+                                <b>Total:</b> <input type="text" class="form-control" v-model="reviewTotal" :style="{borderColor: 'green', color: 'darkgreen'}" disabled>
+                            </div>
+                            <div>
+                                <b>VAT Total (12%):</b> <input type="text" class="form-control" v-model="reviewVatTotal" :style="{borderColor: 'green', color: 'darkgreen'}" disabled>
+                            </div>
+                            <div>
+                                <b>Grand Total:</b> <input type="text" class="form-control" v-model="reviewGrandTotal" :style="{borderColor: 'green', color: 'darkgreen'}" disabled>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+            <template #modalFooter>
+                <div class="text-right">
+                    <button class="btn btn-success" v-on:click="borrowProduct">Confirm</button>
+                </div>
             </template>
         </ModalComponent>
 
@@ -218,12 +275,20 @@ export default{
             serialNumberChecked : 0,
             returndays: [],
             checkedSerialNumbers: [],
+            serialNumbers: [],
+            selectedProducts: [],
+            selectedIndexes: [],
+            reviewTotal: 0,
+            reviewVatTotal: 0,
+            reviewGrandTotal: 0,
             vat: 12,
             vatPercentage: 0.12,
             dataValues: {
             },
             modalId : 'modal-buytools',
             modalIdFinal : 'modal-buytools-final',
+            modalIdReview : 'modal-review-purchased',
+            modalIdSelect : 'modal-select-srn',
             modalTitle : 'Buy Tools',
             modalPosition: 'modal-dialog-centered',
             modalSize : 'modal-md',
@@ -260,6 +325,7 @@ export default{
         showDetails(tool) {
             this.dataValues = tool;
             this.checkedSerialNumbers = [];
+            this.selectedIndexes.length = 0;
             $('#' + this.modalId).modal('show');
         },
         getData() {
@@ -269,6 +335,11 @@ export default{
                 this.userLocation = response.data.userLocation;
             })
         },
+        selectAll() {
+            // Get the keys of the serialNumbers object and convert them to an array of indexes
+            const keys = Object.keys(this.serialNumbers);
+            this.selectedIndexes = keys.map(Number); // Convert keys to numbers to ensure proper indexing
+        },
         clearInputs() {
             this.dataValues = {
                 name: '',
@@ -277,6 +348,10 @@ export default{
         },
         refresh(){
             window.location.reload();
+        },
+        clearSelected()
+        {
+            this.selectedIndexes.length = 0;
         },
         updateCheckedValues(serialNumber) {
             if (this.checkedSerialNumbers.includes(serialNumber)) {
@@ -297,13 +372,13 @@ export default{
         validateForm() {
             this.errors = [];
 
-            if (this.checkedSerialNumbers.length === 0) {
-                this.errors.serial_numbers = ['Please select at least one serial number'];
-            }
-            // Check if any errors are present
-            if (Object.keys(this.errors).length > 0) {
-                return false; // Validation failed
-            }
+            // if (this.checkedSerialNumbers.length === 0) {
+            //     this.errors.serial_numbers = ['Please select at least one serial number'];
+            // }
+            // // Check if any errors are present
+            // if (Object.keys(this.errors).length > 0) {
+            //     return false; // Validation failed
+            // }
 
             return true; // Validation passed
         },
@@ -312,9 +387,10 @@ export default{
             if (!this.validateForm()) {
                 return;
             }
-            this.dataValues.price *= this.checkedSerialNumbers.length; 
+            this.checkedSerialNumbers = [];
+            this.serialNumbers = { ...this.dataValues.serial_numbers };
             // Show the final modal
-            $('#' + this.modalIdFinal).modal('show');
+            $('#' + this.modalIdSelect).modal('show');
             $('#' + this.modalId).modal('hide');
         },
         filterData() {
@@ -346,34 +422,148 @@ export default{
                     console.error(error);
                 });
         },
+        checkout()
+        {   
+            // // Calculate reviewTotal, reviewVatTotal, and reviewGrandTotal
+            const reviewTotalValue = this.selectedProducts.reduce((total, product) => {
+                const pricePerSerial = product.dataValues.price * product.selectedSerialNumbers.length;
+                return total + pricePerSerial;
+            }, 0);
+
+            // Calculate reviewVatTotalValue based on the number of serial numbers collected
+            const reviewVatTotalValue = reviewTotalValue * 0.12;
+
+            // Calculate reviewGrandTotalValue
+            const reviewGrandTotalValue = reviewTotalValue + reviewVatTotalValue;
+            // Format the values with a peso sign and no decimal places
+            this.reviewTotal = '₱' + reviewTotalValue.toFixed(0);
+            this.reviewVatTotal = '₱' + reviewVatTotalValue.toFixed(0);
+            this.reviewGrandTotal = '₱' + reviewGrandTotalValue.toFixed(0);
+
+            if(this.selectedProducts.length === 0){
+                Swal.fire({
+                    title: "No Products selected!",
+                    icon: 'warning',
+                    timer: 3000
+                });
+                return;
+            }
+            $('#' + this.modalIdReview).modal('show');
+        },
+        addToReleaseCart() {
+            if (this.selectedIndexes.length === 0) {
+                Swal.fire({
+                    title: "No Serial Number selected!",
+                    icon: 'warning',
+                    timer: 3000
+                });
+                return;
+            }
+
+            const selectedSerials = this.selectedIndexes.map(index => this.serialNumbers[index]);
+            
+            // Check if any of the selected serial numbers are already in the list of selected products for the same product_id
+            const existingProduct = this.selectedProducts.find(product => product.dataValues.id === this.dataValues.id);
+            console.log(existingProduct);
+            if (existingProduct) {
+                if (existingProduct.dataValues.status !== 'For Borrowing') {
+                    this.selectedProducts.push({
+                        dataValues: this.dataValues,
+                        status: this.dataValues.status,
+                        selectedSerialNumbers: selectedSerials,
+                    });
+                    Swal.fire({
+                        title: 'Added to Cart!',
+                        text: '',
+                        icon: 'success',
+                        timer: 3000
+                    });
+                } else {
+                    // Add only the unique serial numbers if the status is the same
+                    const newSerialNumbers = selectedSerials.filter(serial => !existingProduct.selectedSerialNumbers.includes(serial));
+                    if (newSerialNumbers.length > 0) {
+                        existingProduct.selectedSerialNumbers.push(...newSerialNumbers);
+                        Swal.fire({
+                            title: 'Serial Number Added to Existing Product!',
+                            text: '',
+                            icon: 'success',
+                            timer: 3000
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Serial Number Already Selected for This Product!',
+                            text: 'Please select a different one!',
+                            icon: 'warning',
+                            timer: 3000
+                        });
+                        return;
+                    }
+                }
+            } else {
+                // Add new data entry with selected serial numbers
+                this.selectedProducts.push({
+                    dataValues: this.dataValues,
+                    selectedSerialNumbers: selectedSerials,
+                    vatTotal: this.priceVat,
+                });
+                console.log(this.selectedProducts);
+                Swal.fire({
+                    title: 'Added to Cart!',
+                    text: '',
+                    icon: 'success',
+                    timer: 3000
+                });
+            }
+            $('#' + this.modalIdSelect).modal('hide');
+        },
         borrowProduct(){
             const data = {
-                serial_numbers: this.checkedSerialNumbers,
-                dataValues: this.dataValues
+                selectedProducts: this.selectedProducts,
+                total_price: this.reviewGrandTotal,
+                dataValues: this.dataValues,
             };
 
             axios.post('/borrowtools/borrowTools', data)
                 .then(response => {
                     Swal.fire({
-                        title: "Success!",
-                        text: "Product has been successfully borrowed.",
+                        title: "Product Purchased Successfully!",
                         icon: 'success',
                         timer: 3000
                     });
-                    window.location.reload();
-                    $('#' + this.modalIdFinal).modal('hide');
                     this.getData();
+                    this.selectedProducts = [];
+                    $('#' + this.modalIdReview).modal('hide');
                 })
-                .catch(error => {
-                    Swal.fire({
-                        title: "Warning!",
-                        text: error.response.data.error,
-                        icon: 'warning',
-                        timer: 3000
-                    });
-                    console.error(error);
+                .catch(errors => {
+                    // Check if the response contains an error indicating insufficient funds
+                    if(errors.response.data.error === 'Insufficient funds') {
+                                Swal.fire({
+                                    title: 'Insufficient Funds',
+                                    text: errors.response.data.error,
+                                    icon: 'error',
+                                    timer: 3000
+                                });
+                            }
+                            else if(errors.response.data.error === 'Low Stocks')
+                            {
+                                Swal.fire({
+                                    title: 'Low Stocks',
+                                    text: 'Please wait for the Supplier to replenish their Product',
+                                    icon: 'warning',
+                                    timer: 3000
+                                });
+                            }
+                            else {
+                                // Display general warning message for other errors
+                                Swal.fire({
+                                    title: 'Warning',
+                                    text: 'An error occurred. Please try again later.',
+                                    icon: 'warning',
+                                    timer: 3000
+                                });
+                            }
+                            this.errors = errors.response.data.errors;
                 });
-
         }
     },
     mounted() {

@@ -13,6 +13,7 @@ use App\Models\Supplier;
 use App\Models\User;
 use App\Models\DeliverHistory;
 use App\Models\History;
+use App\Models\Notification;
 use App\Models\Order;
 use App\Models\OrderedProducts;
 use App\Models\PurchasedItems;
@@ -59,14 +60,14 @@ class BuyToolsController extends Controller
 
     public function buyTools(Request $request)
     {   
-        
-        // // Get the authenticated user's ID
         $selectedProducts = $request->all();
-
+        // // Get the authenticated user's ID
         $totalPriceWithoutCurrency = str_replace('₱', '', $request->total_price);
         // Convert the string to a numeric type
         $totalPriceNumeric = floatval($totalPriceWithoutCurrency);
-
+        $trackingNumber = 'TRK-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
+        $orderNumber = 'ORD-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
+        $historyNumber = 'HIS-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
         $user_id = Auth::id();
         // Find the user record
         $user = User::findOrFail($user_id);
@@ -105,6 +106,7 @@ class BuyToolsController extends Controller
                 $trackOrder = new TrackOrder();
                 $trackOrder->status = 'Pending';
                 $trackOrder->product_id = $selectedProduct[0]['dataValues']['product_id'];
+                $trackOrder->tracking_number = $trackingNumber;
                 $trackOrder->serial_numbers = json_encode($selectedProduct[0]['selectedSerialNumbers']);
                 $trackOrder->type = "Buying";
                 $trackOrder->total_price = $totalPriceNumeric;
@@ -114,6 +116,7 @@ class BuyToolsController extends Controller
                 // Create a new ordered product
                 $orderedProduct = new OrderedProducts();
                 $orderedProduct->user_id = $user_id;
+                $orderedProduct->order_number = $orderNumber;
                 $orderedProduct->track_orders_id = $trackOrder->id;
                 $orderedProduct->status = 'Selling';
                 $orderedProduct->shipment_date = '00/00/0000'; // Set the default shipment date
@@ -122,6 +125,7 @@ class BuyToolsController extends Controller
     
                 $history = new History();
                 $history->user_id = Auth::id();
+                $history->history_number = $historyNumber;
                 $history->product_id = $selectedProduct[0]['dataValues']['product_id'];
                 $history->action = 'You bought this Product at the price of ₱' . $totalPriceNumeric . ' including VAT';
                 $history->save();
@@ -130,6 +134,12 @@ class BuyToolsController extends Controller
                 $sales->users_id = 1;
                 $sales->total_price = $totalPriceNumeric;
                 $sales->save();
+
+                $notification = new Notification();
+                $notification->description = 'You have a new order';
+                $notification->track_order_id = $trackOrder->id;
+                $notification->type = 'Order';
+                $notification->save();
         
                 return response()->json(['message' => 'Product Ordered Successfully']);
             } else {

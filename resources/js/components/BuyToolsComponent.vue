@@ -142,7 +142,7 @@
             </template>
             <template #modalFooter>
                 <div class="text-right">
-                    <button class="btn btn-primary" v-on:click="reviewProduct">Proceed</button>
+                    <button class="btn btn-warning" v-on:click="reviewProduct">Select Serial Number(s)</button>
                 </div>
             </template>
         </ModalComponent>

@@ -104,18 +104,34 @@ class PowerToolsController extends Controller
             // Check if the product_id already exists in AdminReleasedProducts
             $existingReleasedProduct = AdminReleasedProducts::where('tools_and_equipment_id', $selectedProduct['dataValues']['id'])
             ->first();
-     
+            
             // If the product already exists, update the existing record
             if($existingReleasedProduct){
                 // Merge the existing serial numbers with the new ones
                 $existingSerialNumbers = json_decode($existingReleasedProduct->serial_numbers);
                 $newSerialNumbers = $selectedProduct['selectedSerialNumbers'];
-                $mergedSerialNumbers = array_unique(array_merge($existingSerialNumbers, $newSerialNumbers));
-                // Update the serial numbers and price of the existing record
-                $existingReleasedProduct->serial_numbers = json_encode($mergedSerialNumbers);
-                $existingReleasedProduct->status = $selectedProduct['dataValues']['status'];
-                $existingReleasedProduct->price = $selectedProduct['dataValues']['price'];
-                $existingReleasedProduct->save();
+                if($existingReleasedProduct->status === $selectedProduct['dataValues']['status'])
+                {
+                    $mergedSerialNumbers = array_unique(array_merge($existingSerialNumbers, $newSerialNumbers));
+                    $existingReleasedProduct->serial_numbers = json_encode($mergedSerialNumbers);
+                    $existingReleasedProduct->status = $selectedProduct['dataValues']['status'];
+                    $existingReleasedProduct->price = $selectedProduct['dataValues']['price'];
+                    $existingReleasedProduct->save();
+                }
+                else{
+                    $adminReleasedProducts = new AdminReleasedProducts();
+                    $adminReleasedProducts->tools_and_equipment_id = $selectedProduct['dataValues']['id'];
+                    $adminReleasedProducts->serial_numbers = json_encode($selectedProduct['selectedSerialNumbers']);
+                    $adminReleasedProducts->status = $selectedProduct['dataValues']['status'];
+                    $adminReleasedProducts->price = $selectedProduct['dataValues']['price'];
+                    $adminReleasedProducts->save();
+                }
+                // $mergedSerialNumbers = array_unique(array_merge($existingSerialNumbers, $newSerialNumbers));
+                // // Update the serial numbers and price of the existing record
+                // $existingReleasedProduct->serial_numbers = json_encode($mergedSerialNumbers);
+                // $existingReleasedProduct->status = $selectedProduct['dataValues']['status'];
+                // $existingReleasedProduct->price = $selectedProduct['dataValues']['price'];
+                // $existingReleasedProduct->save();
             } 
             else {
                 // If the product doesn't exist, create a new record

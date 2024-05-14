@@ -23,8 +23,10 @@ class TrackOrderController extends Controller
     {   
         
         $data = TrackOrder::leftjoin('products', 'track_orders.product_id', '=', 'products.id')
+                        ->leftjoin('users', 'users.id', 'products.user_id')
                         ->select('track_orders.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as image',
-                        'products.voltage as voltage', 'products.dimensions as dimensions', 'products.weight as weight', 'products.powerSources as powerSources')
+                        'products.voltage as voltage', 'products.dimensions as dimensions', 'products.weight as weight', 'products.powerSources as powerSources',
+                        'users.name as supplier_name')
                         ->where('track_orders.is_canceled', false)
                         ->where('track_orders.is_completed', false)
                         ->where('track_orders.user_id', '=', Auth::id())

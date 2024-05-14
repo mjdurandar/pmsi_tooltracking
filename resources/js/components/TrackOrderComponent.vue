@@ -121,7 +121,7 @@
                             <b>{{ this.dataValues.brand_name }} {{ this.dataValues.tool_name }}</b> with the voltage of {{ this.dataValues.voltage }}, dimension of {{ this.dataValues.dimensions }}, weight of {{ this.dataValues.weight }} and powerSources of {{ this.dataValues.powerSources }}.
                         </p>
                         <p>
-                            With a total of: <b>₱{{ this.dataValues.total_price }}</b>
+                            With a total of: <b>₱{{ this.dataValues.total_price }}</b> for the same Tracking Number.
                         </p>
                         <p>
                             Serial Numbers:
@@ -208,13 +208,14 @@ export default{
                 selectedBrand : '',
                 selectedTool : '',
                 selectedStatus : '',
-                columns : ['tracking_number', 'brand_name', 'tool_name' ,'status' ,'created_at' ,'action'],
+                columns : ['tracking_number', 'brand_name', 'tool_name', 'supplier_name' ,'status' ,'created_at' ,'action'],
                 errors: [],
                 options : {
                     headings : {
                         tracking_number : 'Tracking Number',
                         brand_name : 'Brand',
                         tool_name : 'Tool',
+                        supplier_name : 'Supplier',
                         status : 'Status',
                         created_at : 'Placed Order At',
                         action : 'Action',

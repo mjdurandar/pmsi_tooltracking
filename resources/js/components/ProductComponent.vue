@@ -29,7 +29,7 @@
                             <option value="Metabo">Metabo</option>
                         </select>
                     </div>
-                    <div class="col-lg-3">
+                    <div class="col-lg-2">
                         <select v-model="selectedTool" class="form-control">
                             <option value="" disabled selected>Tools</option> 
                             <option value="Drill">Drill</option>
@@ -49,6 +49,7 @@
                     <div>
                         <button class="btn btn-primary" @click="filterData">Search</button>
                         <button class="btn btn-success ml-1" @click="refresh"><i class="fas fa-sync-alt"></i></button>
+                        <button class="btn btn-success ml-1" @click="exportToCSV"><i class="fa-solid fa-file-csv"></i></button>
                     </div>
                 </div>
             </div>
@@ -804,6 +805,18 @@ export default{
                     $('#' + this.modalIdCode).modal('show');
                     $('#' + this.modalId).modal('hide');
                 }
+            }
+        },
+        reports(){
+            window.location.href = '/reports';
+        },
+        async exportToCSV() {
+            try {
+                // Make HTTP request to trigger CSV export
+                window.open('/export-csv/', '_blank');
+            } catch (error) {
+                console.error('Error exporting CSV:', error);
+                // Handle error
             }
         },
         storeData(){

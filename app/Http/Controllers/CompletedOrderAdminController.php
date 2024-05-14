@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\CompletedOrderAdmin;
-use App\Models\TrackOrder;
 use Illuminate\Http\Request;
 
 class CompletedOrderAdminController extends Controller

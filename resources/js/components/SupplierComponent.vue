@@ -70,7 +70,7 @@
                             </div>
                         </div>
                         <button class="btn btn-success" @click="purchaseProduct(product)">Purchase Product</button>
-                        <button class="btn btn-warning ml-1" @click="companyInformation(product)"><i class="fa-solid fa-circle-info"></i></button>  
+                        <!-- <button class="btn btn-warning ml-1" @click="companyInformation(product)"><i class="fa-solid fa-circle-info"></i></button>   -->
                     </div>
                 </div>
             </div>
@@ -578,6 +578,7 @@ export default{
             this.total = 0;
             this.vatTotal = 0;
              // Clear selected serial numbers
+             console.log(this.selectedSerialNumbers);
             this.selectedSerialNumbers = [];
             $('#' + this.modalIdPurchaseProduct).modal('show');
         },
@@ -608,6 +609,19 @@ export default{
         },
         yesProduct() {
             this.selectedIndexes.length = 0;
+            if (this.selectedSupplier) {
+                if (this.selectedSupplier !== this.dataValues.supplier_name) {
+                    Swal.fire({
+                        title: "You can only purchase from one supplier at a time. However, you can always place another order after completing your current transaction.",
+                        icon: 'warning',
+                        timer: 5000
+                    });
+                    return;
+                }
+            } else {
+                // Set the selected supplier
+                this.selectedSupplier = this.dataValues.supplier_name;
+            }
             if (this.validateForm()) {
                 if(this.requestedItems > this.dataValues.stocks){
                     Swal.fire({

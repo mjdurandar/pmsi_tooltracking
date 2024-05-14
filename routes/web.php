@@ -36,6 +36,8 @@ Route::group(['middleware' => 'auth'], function(){
     Route::get('/home/show',[App\Http\Controllers\HomeController::class, 'show']);
     
     Route::get('/qr/{id}',[App\Http\Controllers\QRController::class, 'index']);
+
+    Route::get('/export-csv', [App\Http\Controllers\ExportController::class, 'exportToCSV']);
     // Route::get('/powertools/show',[App\Http\Controllers\PowerToolsController::class, 'show']);
 
     // Route::get('/buyinghistory',[App\Http\Controllers\BuyToolsController::class, 'history']);
