@@ -38,6 +38,7 @@ Route::group(['middleware' => 'auth'], function(){
     Route::get('/qr/{id}',[App\Http\Controllers\QRController::class, 'index']);
 
     Route::get('/export-csv', [App\Http\Controllers\ExportController::class, 'exportToCSV']);
+    Route::get('/export-csv-admin', [App\Http\Controllers\ExportController::class, 'exportToCSVAdmin']);
     // Route::get('/powertools/show',[App\Http\Controllers\PowerToolsController::class, 'show']);
 
     // Route::get('/buyinghistory',[App\Http\Controllers\BuyToolsController::class, 'history']);
@@ -58,6 +59,10 @@ Route::group(['middleware' => 'auth'], function(){
     Route::get('/history',[App\Http\Controllers\HistoryController::class, 'index']);
     Route::get('/history/show',[App\Http\Controllers\HistoryController::class, 'show']);
     Route::post('/history/filterData',[App\Http\Controllers\HistoryController::class, 'filterData']);
+
+    //TRANSACTIONS
+    Route::get('/transactions',[App\Http\Controllers\TransactionsController::class, 'index']);
+    Route::get('/transactions/show',[App\Http\Controllers\TransactionsController::class, 'show']);
 
     Route::middleware(['CheckRole:admin'])->group(function() {
         Route::get('/dashboard',[App\Http\Controllers\DashboardController::class, 'index']);
@@ -103,6 +108,7 @@ Route::group(['middleware' => 'auth'], function(){
         Route::post('/powertools/store',[App\Http\Controllers\PowerToolsController::class, 'store']);
         Route::post('/powertools/filterData',[App\Http\Controllers\PowerToolsController::class, 'filterData']);
         Route::post('/powertools/releasedProduct',[App\Http\Controllers\PowerToolsController::class, 'releasedProduct']);
+        Route::post('/powertools/forMaintenance',[App\Http\Controllers\PowerToolsController::class, 'forMaintenance']);
 
         // USER
         Route::get('/users',[App\Http\Controllers\UsersController::class, 'index']);
@@ -159,7 +165,6 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('/canceled-order-admin-product/canceledOrderAdminShow',[App\Http\Controllers\OrderController::class, 'canceledOrderAdminShow']);
         Route::post('/canceled-order-admin-product/canceledFilterData',[App\Http\Controllers\OrderController::class, 'canceledFilterData']);
 
-
         //PRODUCT HISTORY
         Route::get('/product-history',[App\Http\Controllers\ProductHistoryController::class, 'index']);
         Route::get('/product-history/show',[App\Http\Controllers\ProductHistoryController::class, 'show']);
@@ -182,6 +187,13 @@ Route::group(['middleware' => 'auth'], function(){
         Route::post('/defective-products/damaged',[App\Http\Controllers\DefectiveProductsController::class, 'damaged']);
         Route::post('/defective-products/store',[App\Http\Controllers\DefectiveProductsController::class, 'store']);
 
+        //MESSAGE
+        Route::get('/messages',[App\Http\Controllers\MessageController::class, 'index']);
+        Route::get('/messages/show',[App\Http\Controllers\MessageController::class, 'show']);
+
+        //MAINTENANCE
+        Route::get('/maintenance',[App\Http\Controllers\MaintenanceController::class, 'index']);
+        Route::get('/maintenance/show',[App\Http\Controllers\MaintenanceController::class, 'show']);
     });
    
     Route::middleware(['CheckRole:user'])->group(function() {
@@ -240,6 +252,10 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('/damaged-return/show',[App\Http\Controllers\DamagedReturnController::class, 'show']);
         Route::post('/damaged-return/store',[App\Http\Controllers\DamagedReturnController::class, 'store']);
 
+        //User Product
+        Route::get('/users-product',[App\Http\Controllers\UserProductController::class, 'index']);
+        Route::get('/users-product/show',[App\Http\Controllers\UserProductController::class, 'show']);
+        Route::post('/users-product/brokenProduct',[App\Http\Controllers\UserProductController::class, 'brokenProduct']);
     });
 
     Route::middleware(['CheckRole:supplier'])->group(function() {

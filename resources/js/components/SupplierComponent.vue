@@ -660,45 +660,48 @@ export default{
             this.total = this.requestedItems * this.dataValues.price;
             this.vatTotal = this.total + (this.total * (this.vat / 100));
         },
-        getProduct(){
-            this.requestedItems = 0;
-            // this.vatTotal = 0;
-            this.agreementChecked = false;
-            this.requestData.selectedSerialNumbers = this.selectedSerialNumbers;
-            
-            axios.post('/supplier/purchaseProduct', this.selectedProducts)
-                .then(response => {
-                    Swal.fire({
-                        title: "Product Purchased Successfully!",
-                        icon: 'success',
-                        timer: 3000
-                    });
-                    this.getData();
-                    this.selectedProducts = [];
-                    $('#' + this.modalIdPurchaseProduct).modal('hide');
-                    $('#' + this.modalIdTermsandCondition).modal('hide');
-                })
-                .catch(errors => {
-                    // Check if the response contains an error indicating insufficient funds
-                    if(errors.response.data.error === 'Insufficient funds') {
+        getProduct() {
+                this.requestedItems = 0;
+                this.agreementChecked = false;
+                this.requestData.selectedSerialNumbers = this.selectedSerialNumbers;
+
+                const data = {
+                    selectedProducts: this.selectedProducts,
+                    reviewTotal: this.reviewTotal,
+                    reviewVatTotal: this.reviewVatTotal,
+                    reviewGrandTotal: this.reviewGrandTotal,
+                };
+
+                axios.post('/supplier/purchaseProduct', data)
+                    .then(response => {
+                        Swal.fire({
+                            title: "Product Purchased Successfully!",
+                            icon: 'success',
+                            timer: 3000
+                        });
+                        this.getData();
+                        this.selectedProducts = [];
+                        window.location.reload();
+                        $('#' + this.modalIdPurchaseProduct).modal('hide');
+                        $('#' + this.modalIdTermsandCondition).modal('hide');
+                    })
+                    .catch(errors => {
+                        if (errors.response && errors.response.data) {
+                            if (errors.response.data.error === 'Insufficient funds') {
                                 Swal.fire({
                                     title: 'Insufficient Funds',
                                     text: errors.response.data.error,
-                                    icon: 'error',
+                                    icon: 'warning',
                                     timer: 3000
                                 });
-                            }
-                            else if(errors.response.data.error === 'Low Stocks')
-                            {
+                            } else if (errors.response.data.error === 'Low Stocks') {
                                 Swal.fire({
                                     title: 'Low Stocks',
                                     text: 'Please wait for the Supplier to replenish their Product',
                                     icon: 'warning',
                                     timer: 3000
                                 });
-                            }
-                            else {
-                                // Display general warning message for other errors
+                            } else {
                                 Swal.fire({
                                     title: 'Warning',
                                     text: 'An error occurred. Please try again later.',
@@ -706,9 +709,17 @@ export default{
                                     timer: 3000
                                 });
                             }
-                            this.errors = errors.response.data.errors;
-                });
-        },
+                        } else {
+                            Swal.fire({
+                                title: 'Warning',
+                                text: 'An error occurred. Please try again later.',
+                                icon: 'warning',
+                                timer: 3000
+                            });
+                        }
+                        this.errors = errors.response.data.errors;
+                    });
+            }
         },
         mounted() {
             this.getData();

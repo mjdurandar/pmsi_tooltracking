@@ -51,7 +51,10 @@
                             <b>{{ this.dataValues.brand_name }} {{ this.dataValues.tool_name }}</b> with the voltage of {{ this.dataValues.voltage }}, dimension of {{ this.dataValues.dimensions }}, weight of {{ this.dataValues.weight }} and powerSources of {{ this.dataValues.powerSources }}.
                         </p>
                         <p>
-                            Serial Numbers: <b>{{ this.dataValues.serial_numbers }}</b>
+                            Serial Numbers:
+                            <ul>
+                                <li v-for="serial in this.dataValues.serial_numbers"><b>{{ serial }}</b></li>
+                            </ul>
                         </p>
                         <p>
                             With a total of: <b>₱{{ this.dataValues.total_price }}</b>
@@ -60,7 +63,13 @@
                             This Product is ordered by: <b>{{ this.dataValues.user_name }}</b>
                         </p>
                         <p>
-                            This Product is Delivered at: <b>{{ this.dataValues.location }}</b>
+                            This Product is Delivered at this location: <b>{{ this.dataValues.location }}</b>
+                        </p>
+                        <p>
+                            This Product is Delivered at:<br> <b>{{ this.dataValues.completed_at }}</b>
+                        </p>
+                        <p>
+                            This Product is Ordered/Borrowed at: <b>{{ this.dataValues.date_completed }}</b>
                         </p>
                     </div>
                 </div>
@@ -86,14 +95,16 @@ export default{
                 data : [],
                 orderNumber: '',
                 selectedType: '',
-                columns : ['order_number','brand_name', 'tool_name', 'type' ,'completed_at' ,'action'],
+                columns : ['order_number','brand_name', 'tool_name', 'type', 'date_completed' ,'completed_at' ,'action'],
                 errors: [],
+                serialNumbers: [],
                 options : {
                     headings : {
                         order_number : 'Order Number',
                         brand_name : 'Brand',
                         tool_name : 'Tool',
                         type : 'Type',
+                        date_completed : 'Ordered At/Borrowed At',
                         completed_at : 'Completed At',
                         action : 'Action',
                     },

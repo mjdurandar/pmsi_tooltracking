@@ -9,6 +9,7 @@ use App\Models\CompletedOrderAdmin;
 use App\Models\CompletedOrderUser;
 use App\Models\CustomerOrderedProducts;
 use App\Models\DeliverHistory;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Order;
@@ -16,6 +17,7 @@ use App\Models\OrderedProducts;
 use App\Models\PurchasedItems;
 use App\Models\Receipts;
 use App\Models\TrackOrder;
+use App\Models\Transactions;
 use App\Models\User;
 use App\Models\UserDelivery;
 use Carbon\Carbon;
@@ -47,13 +49,18 @@ class OrderController extends Controller
                                         ,'products.powerSources as powerSources', 'products.voltage as voltage', 'products.weight as weight', 
                                         'products.dimensions as dimensions', 'products.material as material', 'track_orders.status as status', 'track_orders.total_price as total_price'
                                         ,'users.location as location', 'users.contact_address as contact_address', 'users.email as email', 'users.name as user_name', 'track_orders.serial_numbers as serial_numbers',
-                                        'completed_order_users.created_at as completed_at','track_orders.type as type','ordered_products.order_number as order_number')
+                                        'completed_order_users.created_at as completed_at','track_orders.type as type','ordered_products.order_number as order_number', 'track_orders.created_at as date_completed')
                                 ->get();
 
                                 $data->transform(function ($item) {
                                     $item->completed_at = $item->completed_at ? \Carbon\Carbon::parse($item->completed_at)->setTimezone('Asia/Manila')->format('m/d/Y h:i:s A') : null;
+                                    $item->date_completed = $item->date_completed ? \Carbon\Carbon::parse($item->date_completed)->setTimezone('Asia/Manila')->format('m/d/Y h:i:s A') : null;
                                     return $item;
                                 });
+
+                                foreach ($data as $order) {
+                                    $order->serial_numbers = json_decode($order->serial_numbers);
+                                }
 
         return response()->json(['data' => $data]);
     }
@@ -109,10 +116,9 @@ class OrderController extends Controller
     }
 
     public function updateStatus(Request $request) {
+        $transactionNumber = 'TRN-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
 
-        $orderNumber = 'ORD-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
         $orderedProducts = OrderedProducts::find($request->id);
-
         // Parse and format the shipment date
         $shipmentDate = Carbon::parse($request->shipment_date)->format('m/d/Y');
         $orderedProducts->shipment_date = $shipmentDate;
@@ -120,39 +126,77 @@ class OrderController extends Controller
         // Parse and format the delivery date
         $deliveryDate = Carbon::parse($request->delivery_date)->format('m/d/Y');
         $orderedProducts->delivery_date = $deliveryDate;
-        $orderedProducts->order_number = $orderNumber;
         $orderedProducts->save();
 
         $trackOrders = TrackOrder::find($orderedProducts->track_orders_id);
         $trackOrders->status = $request->status_data;
         $trackOrders->save();
 
+        $orderedProducts->status = $request->status_data;
+        $orderedProducts->save();
+
+        //product now of the user
+        $orderedProducts->is_user = true;
+        $orderedProducts->save();
+
+        $trackOrders->is_completed = true;
+        $trackOrders->save();
+
+        $completedOrder = new CompletedOrderAdmin();
+        $completedOrder->track_order_id = $trackOrders->id;
+        $completedOrder->save();
+
+        $notification = Notification::where('track_order_id', $request->track_orders_id)->first();
+        $notification->is_done = true;
+        $notification->save();
+
         if($request->status_data == 'Completed'){
-            $trackOrders->is_completed = true;
-            $trackOrders->save();
+            // Check if all orders with the same order number are completed
+            $allOrdersCompleted = OrderedProducts::where('order_number', $orderedProducts->order_number)
+            ->where('status', '<>', 'Completed')
+            ->doesntExist();
 
-            $completedOrder = new CompletedOrderUser();
-            $completedOrder->track_order_id = $trackOrders->id;
-            $completedOrder->ordered_product_id = $orderedProducts->id;
-            $completedOrder->save();
+            if ($allOrdersCompleted) {
+                 // Aggregate product details to create a single receipt entry
+                 $receiptEntries = [];
+                  // Retrieve all ordered products with the same order number
+                 $allOrderedProducts = OrderedProducts::leftjoin('track_orders', 'ordered_products.track_orders_id', 'track_orders.id')
+                                        ->leftjoin('products', 'track_orders.product_id', 'products.id')
+                                        ->where('order_number', $orderedProducts->order_number)->get();
+                   
+                 foreach ($allOrderedProducts as $product) {
+                     $receiptEntries[] = [
+                         'brand_name' => $product->brand,
+                         'tool_name' => $product->tool,
+                         'price' => $trackOrders->total_price,
+                         'quantity' => $request->serial_numbers_count,
+                         'serial_numbers' => $product->serial_numbers,
+                     ];
 
-            $userBalance = User::findOrFail(Auth::id());
-            $userBalance->balance += $trackOrders->total_price;
-            $userBalance->save();
+                 }
 
-            $receipts = new Receipts();
-            $receipts->track_order_id = $request->track_orders_id;
-            $receipts->user_id = $request->user_id;
-            $receipts->ordered_product_id = $request->id;
-            $receipts->total_price = $request->total_price;
-            $receipts->receipt_number = 'REC-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
-            $receipts->save();
+                $receipts = new Receipts();
+                $receipts->track_order_id = $request->track_orders_id;
+                $receipts->user_id = $request->user_id;
+                $receipts->ordered_product_id = $request->id;
+                $receipts->total_price = $request->total_price;
+                $receipts->entries = json_encode($receiptEntries);
+                $receipts->receipt_number = 'REC-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
+                $receipts->save();
 
-            if($request->type === 'Borrowing')
-            {
-                $borrowed = BorrowedProduct::where('ordered_product_id', $orderedProducts->id)->first();
-                $borrowed->is_delivered = true;
-                $borrowed->save();
+                $userBalance = User::find(Auth::id());
+                $userBalance->balance += $request->total_price;
+                $userBalance->save();
+
+                //TRANSACTION HISTORY
+                $transactions = new Transactions();
+                $transactions->user_id = Auth::id();
+                $transactions->track_order_id = $trackOrders->id;
+                $transactions->transaction_id = $transactionNumber;
+                $transactions->transaction_type = 'Ordered';
+                $transactions->description = 'A total of ' . '₱' . $request->total_price . ' has been credited to your account';
+                $transactions->save();
+
             }
         }
 

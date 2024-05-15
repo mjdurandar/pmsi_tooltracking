@@ -102,7 +102,7 @@ class ReturnedProductsSupplierController extends Controller
 
     public function submit(Request $request)
     {   
-        $data = AdminReturnedProducts::where('track_order_id', $request->track_order_id)->first();
+        $data = AdminReturnedProducts::where('serial_number', $request->serial_number)->first();
         $data->status = $request->selectedStatus;
         $data->description = $request->description;
         $data->save();

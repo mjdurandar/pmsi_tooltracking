@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\CanceledOrder;
+use App\Models\History;
 use App\Models\Notification;
 use App\Models\Product;
 use App\Models\ReleasedProduct;
 use App\Models\SerialNumber;
 use App\Models\TrackOrder;
+use App\Models\Transactions;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -26,7 +28,7 @@ class TrackOrderController extends Controller
                         ->leftjoin('users', 'users.id', 'products.user_id')
                         ->select('track_orders.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as image',
                         'products.voltage as voltage', 'products.dimensions as dimensions', 'products.weight as weight', 'products.powerSources as powerSources',
-                        'users.name as supplier_name')
+                        'users.name as supplier_name', 'track_orders.total_price as price', 'track_orders.id as track_order_id')
                         ->where('track_orders.is_canceled', false)
                         ->where('track_orders.is_completed', false)
                         ->where('track_orders.user_id', '=', Auth::id())
@@ -43,8 +45,11 @@ class TrackOrderController extends Controller
     public function cancelOrder(Request $request)
     {   
         //UPDATE THE TRACK ORDER DATA TO CANCELED
-        $trackOrder = TrackOrder::find($request->id);
-       
+        $trackOrder = TrackOrder::find($request->track_order_id);
+   
+        $transactionNumber = 'TRN-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
+        $historyNumber = 'HIS-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
+        
         if($trackOrder->status == 'Pending'){
             $trackOrder->status = 'Canceled';
             $trackOrder->is_canceled = true;
@@ -86,8 +91,26 @@ class TrackOrderController extends Controller
     
             // UPDATE THE BALANCE OF THE USER
             $userBalance = User::find(Auth::id());
-            $userBalance->balance += $trackOrder->total_price;
+            $userBalance->balance = floatval($request->total_price) + floatval($userBalance->balance);
             $userBalance->save();
+            
+            //CREATE TRANSACTIONS
+            $transactions = new Transactions();
+            $transactions->user_id = Auth::id();
+            $transactions->track_order_id = $trackOrder->id;
+            $transactions->transaction_id = $transactionNumber;
+            $transactions->transaction_type = 'Canceled';
+            $transactions->description = 'Order has been Canceled the amount of ₱'.$request->total_price. ' has been refunded to your account';
+            $transactions->save();
+
+            //HISTORY
+            $history = new History();
+            $history->user_id = Auth::id();
+            $history->product_id = $request->product_id;
+            $history->history_number = $historyNumber;
+            $history->action = 'You Canceled a Order';
+            $history->save();
+
             return response()->json(['status' => 'success', 'message' => 'Order has been Canceled']);
         }
         else{

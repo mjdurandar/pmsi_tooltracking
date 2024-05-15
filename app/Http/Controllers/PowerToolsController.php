@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\AdminReleasedProducts;
+use App\Models\AllProducts;
 use App\Models\ToolsAndEquipment;
 use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Models\History;
+use App\Models\Maintenance;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -23,7 +25,7 @@ class PowerToolsController extends Controller
                                     ->leftjoin('categories', 'categories.id', 'tools_and_equipment.category_id')
                                     ->select('tools_and_equipment.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as image', 'categories.name as category_name'
                                     ,'products.powerSources as powerSources', 'products.voltage as voltage', 'products.weight as weight', 'products.dimensions as dimensions', 
-                                    'products.material as material',
+                                    'products.material as material', 'tools_and_equipment.id as tools_and_equipment_id',
                                     DB::raw('JSON_LENGTH(tools_and_equipment.serial_numbers) as stocks'))
                                     ->get();
 
@@ -97,14 +99,24 @@ class PowerToolsController extends Controller
     }    
 
     public function releasedProduct(Request $request){
-
+        $historyNumber = 'HIS-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
+        
         $selectedProducts = $request->all();
-        // dd($selectedProducts);
+        
         foreach ($selectedProducts as $selectedProduct) {
+            foreach ($selectedProduct['selectedSerialNumbers'] as $serialNumber) {
+                // Find the corresponding record in AllProducts by serial number
+                $allProduct = AllProducts::where('serial_numbers', $serialNumber)->first();
+                
+                // If the record exists, update its status to 'Released'
+                if ($allProduct) {
+                    $allProduct->status = $selectedProduct['dataValues']['status'];;
+                    $allProduct->save();
+                }
+            }
             // Check if the product_id already exists in AdminReleasedProducts
-            $existingReleasedProduct = AdminReleasedProducts::where('tools_and_equipment_id', $selectedProduct['dataValues']['id'])
+            $existingReleasedProduct = AdminReleasedProducts::where('tools_and_equipment_id', $selectedProduct['dataValues']['tools_and_equipment_id'])
             ->first();
-            
             // If the product already exists, update the existing record
             if($existingReleasedProduct){
                 // Merge the existing serial numbers with the new ones
@@ -136,10 +148,11 @@ class PowerToolsController extends Controller
             else {
                 // If the product doesn't exist, create a new record
                 $adminReleasedProducts = new AdminReleasedProducts();
-                $adminReleasedProducts->tools_and_equipment_id = $selectedProduct['dataValues']['id'];
+                $adminReleasedProducts->tools_and_equipment_id = $selectedProduct['dataValues']['tools_and_equipment_id'];
                 $adminReleasedProducts->serial_numbers = json_encode($selectedProduct['selectedSerialNumbers']);
                 $adminReleasedProducts->status = $selectedProduct['dataValues']['status'];
                 $adminReleasedProducts->price = $selectedProduct['dataValues']['price'];
+
                 $adminReleasedProducts->save();
             }
 
@@ -160,12 +173,37 @@ class PowerToolsController extends Controller
             $history = new History();
             $history->user_id = Auth::id();
             $history->product_id = $selectedProduct['dataValues']['product_id'];
+            $history->history_number = $historyNumber;
             $history->action = 'You Released this Product for ' .  $selectedProduct['dataValues']['status'] . ' with a price of ' . '₱' . $selectedProduct['dataValues']['price'];
             $history->save();
         }
     
         return response()->json(['message' => 'Product has been released!']);
     }
+    
+    public function forMaintenance(Request $request)
+    {   
+        foreach ($request->serialNumbers as $serialNumber) {    
+            // Create a new maintenance record
+            $maintenance = new Maintenance();
+            $maintenance->product_id = $request->dataValues['product_id'];
+            $maintenance->serial_number = $serialNumber;
+            $maintenance->status = 'For Maintenance';
+            $maintenance->save();
+    
+            // Find and delete the corresponding ToolsAndEquipment record(s)
+            $toolsAndEquipment = ToolsAndEquipment::whereJsonContains('serial_numbers', $serialNumber)->get();
+            foreach ($toolsAndEquipment as $equipment) {
+                $serialNumbers = json_decode($equipment->serial_numbers);
+                // Remove the serial number from the array
+                $updatedSerialNumbers = array_values(array_diff($serialNumbers, [$serialNumber]));
+                // Update the serial_numbers column in the database with the updated array
+                $equipment->serial_numbers = json_encode($updatedSerialNumbers);
+                $equipment->save();
+            }
+        }
+    }
+    
     
 
 }

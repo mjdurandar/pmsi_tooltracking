@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AdminReturnedProducts;
+use App\Models\AllProducts;
 use App\Models\History;
 use App\Models\Notification;
 use App\Models\Product;
@@ -84,7 +85,8 @@ class AdminProductsController extends Controller
     {   
         $trackOrder = TrackOrder::find($request->dataValues['id']);
         $trackOrder->is_returned = true;
-        // $trackOrder->save();
+        $trackOrder->save();
+
         $notification = Notification::where('track_order_id', $request->dataValues['id'])->first();
         $notification->is_returned = true;
         $notification->save();
@@ -126,6 +128,7 @@ class AdminProductsController extends Controller
 
     public function approvedProduct(Request $request)
     {   
+
         $trackOrder = TrackOrder::find($request->id);
         $trackOrder->is_approved = true;
         $trackOrder->save();
@@ -169,6 +172,15 @@ class AdminProductsController extends Controller
         $notification = Notification::where('track_order_id', $request->id)->first();
         $notification->is_approved = true;
         $notification->save();
+        
+        foreach ($request->serial_numbers as $serial_number) {
+            $allProduct = new AllProducts();
+            $allProduct->brand = $request->brand_name;
+            $allProduct->tool = $request->tool_name;
+            $allProduct->serial_numbers = $serial_number; // Assuming there's a field named 'serial_number'
+            $allProduct->status = 'Unreleased';
+            $allProduct->save();
+        }
     
         return response()->json(['status' => 'success', 'message' => 'Product approved.']);
     }

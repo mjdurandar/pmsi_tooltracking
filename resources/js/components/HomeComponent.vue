@@ -36,9 +36,9 @@
                     <i class="fa-sharp fa-solid fa-circle-exclamation"></i> <h3>Notifications</h3>
                 </div>
                 <div class="row mt-3">
-                    <div class="col-12" v-if="orderedProducts.length > 0">
+                    <div class="col-12" v-if="notifyAdminforOrders.length > 0">
                         <div >
-                            <h4>You got a total of <b>{{ orderedProducts.length }}</b> order(s)</h4>
+                            <h4>You got a total of <b>{{ notifyAdminforOrders.length }}</b> order(s)</h4>
                             <p>Please go to Orders Tab...</p>
                         </div>
                     </div>
@@ -87,7 +87,7 @@
                 type: Array,
                 default: () => []
             },
-            orderedProducts: {
+            notifyAdminforOrders: {
                 type: Array,
                 default: () => []
             }
@@ -110,7 +110,7 @@
                 this.showModalSupplier = true;
             }
 
-            if(this.role === 1 && this.orderedProducts.length > 0 || this.completedOrder.length > 0)
+            if(this.role === 1 && this.notifyAdminforOrders.length > 0 || this.completedOrder.length > 0)
             {
                 this.showModalAdmin = true;
             }
@@ -126,7 +126,7 @@
             //         console.log(notification.description);
             //     });
             // }
-            console.log(this.orderedProducts);
+            console.log(this.notifyAdminforOrders);
         }
 
     }

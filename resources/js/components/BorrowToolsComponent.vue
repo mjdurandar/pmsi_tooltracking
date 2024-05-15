@@ -469,7 +469,6 @@ export default{
                 if (existingProduct.dataValues.status !== 'For Borrowing') {
                     this.selectedProducts.push({
                         dataValues: this.dataValues,
-                        status: this.dataValues.status,
                         selectedSerialNumbers: selectedSerials,
                     });
                     Swal.fire({
@@ -504,7 +503,6 @@ export default{
                 this.selectedProducts.push({
                     dataValues: this.dataValues,
                     selectedSerialNumbers: selectedSerials,
-                    vatTotal: this.priceVat,
                 });
                 console.log(this.selectedProducts);
                 Swal.fire({
@@ -520,7 +518,6 @@ export default{
             const data = {
                 selectedProducts: this.selectedProducts,
                 total_price: this.reviewGrandTotal,
-                dataValues: this.dataValues,
             };
 
             axios.post('/borrowtools/borrowTools', data)

@@ -395,6 +395,12 @@ return [
                     'can' => ['admin'],
                     'url'  => '/powertools',
                 ],
+                [
+                    'text' => 'Maintenance',
+                    'icon' => 'fa-solid fa-wrench', 
+                    'can' => ['admin'],  
+                    'url'  => '/maintenance',
+                ],
                 // [
                 //     'text' => 'Borrowed Tools',
                 //     'icon'    => '',  
@@ -411,6 +417,12 @@ return [
                 //     'icon'    => '',
                 //     'url'  => '/category',
                 // ],
+                [
+                    'text' => 'Request Return', 
+                    'icon'    => 'fa-solid fa-people-carry-box',   
+                    'can' => ['admin'], 
+                    'url'  => '/messages',
+                ],
                 [
                     'text' => 'Customer Data',
                     'icon'    => 'fa-solid fa-user',   
@@ -520,7 +532,13 @@ return [
         //     'url'  => '/borrowedhistory',
         // ],
         [
-            'text' => 'Borrowed Product', 
+            'text' => 'Products', 
+            'icon' => 'fa-solid fa-wrench',
+            'can' => ['user'], 
+            'url'  => '/users-product', 
+        ],
+        [
+            'text' => 'Borrowed Products', 
             'icon' => 'fa-solid fa-people-carry-box',
             'can' => ['user'], 
             'url'  => '/return-product',
@@ -548,6 +566,12 @@ return [
             'icon' => 'fa-solid fa-money-bill',
             'can' => ['admin', 'user'], 
             'url'  => '/add-balance',
+        ],
+        [
+            'text' => 'Transactions',
+            'icon' => 'fa-solid fa-book-open',
+            'can' => ['admin', 'user', 'supplier'],  
+            'url'  => '/transactions',
         ],
          [
             'text' => 'History', 

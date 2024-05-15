@@ -92,83 +92,82 @@ class BorrowToolsController extends Controller
     }
 
     public function borrowTools(Request $request) {
-        $selectedProducts = $request->all();
-
         $totalPriceWithoutCurrency = str_replace('₱', '', $request->total_price);
-        // Convert the string to a numeric type
         $totalPriceNumeric = floatval($totalPriceWithoutCurrency);
-        $user_id = Auth::id();
-        // Find the user record
         $trackingNumber = 'TRK-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
         $orderNumber = 'ORD-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
         $historyNumber = 'HIS-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
+    
+        $user_id = Auth::id();
         $user = User::findOrFail($user_id);
         $remaining_balance = $user->balance - $totalPriceNumeric;
-        foreach ($selectedProducts as $selectedProduct) {
-            if ($remaining_balance > 0) {
-
-                $user->balance = $remaining_balance;
-                $user->save();
     
-                // Find all AdminReleasedProducts for the given tools_and_equipment_id
-                $adminReleasedProducts = AdminReleasedProducts::where('tools_and_equipment_id',  $selectedProduct[0]['dataValues']['tools_and_equipment_id'])->get();
-                // Iterate through each AdminReleasedProduct
-                foreach ($adminReleasedProducts as $adminReleasedProduct) {
-                    // Decode the JSON string of serial numbers stored in the database column and cast it as an array
-                    $releasedSerialNumbers = (array) json_decode($adminReleasedProduct->serial_numbers);
-                    // Iterate through the selected serial numbers
-                    foreach ($selectedProduct[0]['selectedSerialNumbers'] as $selectedSerialNumber) {
-                        // Check if the selected serial number exists in the released serial numbers
-                        if (($key = array_search($selectedSerialNumber, $releasedSerialNumbers)) !== false) {
-                            // Remove the selected serial number from the released serial numbers
-                            unset($releasedSerialNumbers[$key]);
-                        }
-                    }
-        
-                    // Update the serial_numbers column in the database with the updated array
-                    $adminReleasedProduct->serial_numbers = json_encode($releasedSerialNumbers);
-                    $adminReleasedProduct->save();
-                }
-                
-                // Create a new track order
-                $trackOrder = new TrackOrder();
-                $trackOrder->status = 'Pending';
-                $trackOrder->product_id = $selectedProduct[0]['dataValues']['product_id'];
-                $trackOrder->serial_numbers = json_encode($selectedProduct[0]['selectedSerialNumbers']);
-                $trackOrder->tracking_number = $trackingNumber;
-                $trackOrder->type = "Borrowing";
-                $trackOrder->total_price = $totalPriceNumeric;
-                $trackOrder->user_id = $user_id;
-                $trackOrder->save();
-                // Create a new ordered product
-                $orderedProduct = new OrderedProducts();
-                $orderedProduct->user_id = $user_id;
-                $orderedProduct->track_orders_id = $trackOrder->id;
-                $orderedProduct->order_number = $orderNumber;
-                $orderedProduct->status = 'Borrowing';
-                $orderedProduct->shipment_date = '00/00/0000'; // Set the default shipment date
-                $orderedProduct->delivery_date = '00/00/0000'; // Set the default delivery date
-                $orderedProduct->save();
-    
-                //CREATA A BORROWED PRODUCT DATA
-                $borrowed = new BorrowedProduct();
-                $borrowed->ordered_product_id = $orderedProduct->id;
-                $borrowed->return_date = $selectedProduct[0]['dataValues']['return_date'];
-                $borrowed->penalty = $selectedProduct[0]['dataValues']['penalty'];
-                $borrowed->save();
-    
-                $history = new History();
-                $history->user_id = Auth::id();
-                $history->history_number = $historyNumber;
-                $history->product_id = $selectedProduct[0]['dataValues']['product_id'];
-                $history->action = 'You Borrow this Product and need to return at ' . $selectedProduct[0]['dataValues']['return_date'];
-                $history->save();
-    
-                return response()->json(['message' => 'Data Successfully Saved']);
-            } else {
-                // Return response indicating insufficient funds
-                return response()->json(['error' => 'Insufficient funds'], 400);
-            }
+        if ($remaining_balance < 0) {
+            return response()->json(['error' => 'Insufficient funds'], 400);
         }
+    
+        $user->balance = $remaining_balance;
+        $user->save();
+    
+        foreach ($request->selectedProducts as $selectedProduct) {
+            // Find all AdminReleasedProducts for the given tools_and_equipment_id
+            $adminReleasedProducts = AdminReleasedProducts::where('tools_and_equipment_id', $selectedProduct['dataValues']['tools_and_equipment_id'])->get();
+            // Iterate through each AdminReleasedProduct
+            foreach ($adminReleasedProducts as $adminReleasedProduct) {
+                // Decode the JSON string of serial numbers stored in the database column and cast it as an array
+                $releasedSerialNumbers = (array) json_decode($adminReleasedProduct->serial_numbers);
+                // Iterate through the selected serial numbers
+                foreach ($selectedProduct['selectedSerialNumbers'] as $selectedSerialNumber) {
+                    // Check if the selected serial number exists in the released serial numbers
+                    if (($key = array_search($selectedSerialNumber, $releasedSerialNumbers)) !== false) {
+                        // Remove the selected serial number from the released serial numbers
+                        unset($releasedSerialNumbers[$key]);
+                    }
+                }
+    
+                // Update the serial_numbers column in the database with the updated array
+                $adminReleasedProduct->serial_numbers = json_encode($releasedSerialNumbers);
+                $adminReleasedProduct->save();
+            }
+    
+            // Create a new track order
+            $trackOrder = new TrackOrder();
+            $trackOrder->status = 'Pending';
+            $trackOrder->product_id = $selectedProduct['dataValues']['product_id'];
+            $trackOrder->serial_numbers = json_encode($selectedProduct['selectedSerialNumbers']);
+            $trackOrder->tracking_number = $trackingNumber;
+            $trackOrder->type = "Borrowing";
+            $trackOrder->total_price = $totalPriceNumeric;
+            $trackOrder->user_id = $user_id;
+            $trackOrder->save();
+    
+            // Create a new ordered product
+            $orderedProduct = new OrderedProducts();
+            $orderedProduct->user_id = $user_id;
+            $orderedProduct->track_orders_id = $trackOrder->id;
+            $orderedProduct->order_number = $orderNumber;
+            $orderedProduct->status = 'Borrowing';
+            $orderedProduct->shipment_date = '00/00/0000'; // Set the default shipment date
+            $orderedProduct->delivery_date = '00/00/0000'; // Set the default delivery date
+            $orderedProduct->save();
+    
+            // Create a borrowed product record
+            $borrowed = new BorrowedProduct();
+            $borrowed->ordered_product_id = $orderedProduct->id;
+            $borrowed->return_date = $selectedProduct['dataValues']['return_date'];
+            $borrowed->penalty = $selectedProduct['dataValues']['penalty'];
+            $borrowed->save();
+    
+            // Create a history record
+            $history = new History();
+            $history->user_id = Auth::id();
+            $history->history_number = $historyNumber;
+            $history->product_id = $selectedProduct['dataValues']['product_id'];
+            $history->action = 'You Borrow this Product and need to return at ' . $selectedProduct['dataValues']['return_date'];
+            $history->save();
+        }
+    
+        return response()->json(['message' => 'Data Successfully Saved']);
     }
+    
 }

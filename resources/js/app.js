@@ -64,6 +64,10 @@ import ReceiptsComponent from './components/ReceiptsComponent.vue';
 import HistoryComponent from './components/HistoryComponent.vue';
 import ReturningProductsComponent from './components/ReturningProductsComponent.vue';
 import ReturnedProductsSupplierCompletedComponent from './components/ReturnedProductsSupplierCompletedComponent.vue';
+import UsersProductComponent from './components/UsersProductComponent.vue';
+import MessagesComponent from './components/MessagesComponent.vue';
+import TransactionsComponent from './components/TransactionsComponent.vue';
+import MaintenanceComponent from './components/MaintenanceComponent.vue';
 
 app.config.globalProperties.$swal = Swal;
 app.use(ServerTable, {}, 'bootstrap4')
@@ -117,6 +121,10 @@ app.component('receipts-component', ReceiptsComponent);
 app.component('history-component', HistoryComponent);
 app.component('returning-products-component', ReturningProductsComponent);
 app.component('returned-products-supplier-completed-component', ReturnedProductsSupplierCompletedComponent);
+app.component('users-product-component', UsersProductComponent);
+app.component('messages-component', MessagesComponent);
+app.component('transactions-component', TransactionsComponent);
+app.component('maintenance-component', MaintenanceComponent);
 
 /**
  * The following block of code may be used to automatically register your

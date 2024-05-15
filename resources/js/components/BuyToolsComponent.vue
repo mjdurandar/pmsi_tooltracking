@@ -120,15 +120,7 @@
                     <div class="col-6 pb-2">
                         <label for="">12% Vat</label>
                             <input type="number" class="form-control" v-model="vat" disabled>
-                    </div>  
-                    <!-- <div class="col-12 pb-2">
-                        <label for="serialNumber">Please select Serial Number(s):</label>
-                        <div class="form-check" v-for="(serialNumber, index) in this.dataValues.serial_numbers" :key="index">
-                            <input class="form-check-input" type="checkbox" :id="'serialNumber_' + index" :value="serialNumber" @change="updateCheckedValues($event.target.value)">
-                            <label class="form-check-label" :for="'serialNumber_' + index">{{ serialNumber }}</label>
-                        </div>
-                        <div class="text-danger" v-if="errors.serial_numbers">{{ errors.serial_numbers[0] }}</div>
-                    </div> -->
+                    </div> 
                     <div class="col-12 pb-2">
                         <label for="">Total including Vat:</label>
                         <div class="input-group">
@@ -370,8 +362,6 @@ export default{
             if (existingProduct) {
                 if (existingProduct.dataValues.status !== 'For Sale') {
                     this.selectedProducts.push({
-                        dataValues: this.dataValues,
-                        status: this.dataValues.status,
                         selectedSerialNumbers: selectedSerials,
                     });
                     Swal.fire({
@@ -406,9 +396,8 @@ export default{
                 this.selectedProducts.push({
                     dataValues: this.dataValues,
                     selectedSerialNumbers: selectedSerials,
-                    vatTotal: this.priceVat,
                 });
-                console.log(this.selectedProducts);
+
                 Swal.fire({
                     title: 'Added to Cart!',
                     text: '',
@@ -452,6 +441,7 @@ export default{
                 });
                 return;
             }
+            
             $('#' + this.modalIdReview).modal('show');
         },
         filterData() {
@@ -486,7 +476,7 @@ export default{
         getProduct(){
             const data = {
                 selectedProducts: this.selectedProducts,
-                total_price: this.reviewGrandTotal,
+                total_price: this.reviewGrandTotal
             };
 
             axios.post('/buytools/buyTools', data)

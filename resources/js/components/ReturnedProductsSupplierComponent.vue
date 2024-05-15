@@ -219,6 +219,7 @@ export default{
                             icon: 'success',
                             timer: 3000
                         });
+                        this.getData();
                         $('#' + this.modalIdReview).modal('hide');
                 })
                 .catch(error => {

@@ -3,6 +3,9 @@
         <BreadCrumbComponent tab_title="Completed Orders"></BreadCrumbComponent>
         <div class="row mb-3">
             <div class="col-lg-2">
+                <input type="text" class="form-control" v-model="trackingNumber" placeholder="Tracking Number">
+            </div>
+            <div class="col-lg-2">
                 <select v-model="selectedBrand" class="form-control">
                     <option value="" disabled selected>Brand</option>
                     <option value="Bosch">Bosch</option>
@@ -76,7 +79,7 @@
                             </ul>
                         </p>
                         <p>
-                            With a total of: <b>₱{{ this.dataValues.total_price }}</b>
+                            With a total of: <b>₱{{ this.dataValues.total_price }}</b> with the same tracking number.
                         </p>
                         <p>
                             This Product is ordered by: <b>{{ this.dataValues.user_name }}</b>
@@ -108,10 +111,11 @@ export default{
                 data : [],
                 selectedBrand: '',
                 selectedTool: '',
-                columns : ['brand_name', 'tool_name', 'completed_at' ,'action'],
+                columns : ['tracking_number','brand_name', 'tool_name', 'completed_at' ,'action'],
                 errors: [],
                 options : {
                     headings : {
+                        tracking_number : 'Tracking Number',
                         brand_name : 'Brand',
                         tool_name : 'Tool',
                         completed_at : 'Completed At',

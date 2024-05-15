@@ -9,6 +9,7 @@ use App\Models\Notification;
 use App\Models\OrderedProducts;
 use App\Models\Receipts;
 use App\Models\TrackOrder;
+use App\Models\Transactions;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -45,6 +46,7 @@ class OrderedProductsController extends Controller
         ->leftJoin('products', 'track_orders.product_id', 'products.id')
         ->leftjoin('users', 'track_orders.user_id', 'users.id')
         ->leftjoin('users as admin', 'products.user_id', 'admin.id')
+        ->leftjoin('users as supplier', 'supplier.id', 'products.user_id')
         ->select(
             'ordered_products.*', 
             'products.brand as brand_name', 
@@ -67,6 +69,8 @@ class OrderedProductsController extends Controller
         )
         ->whereNotIn('track_orders.status', ['Canceled', 'Completed'])
         ->where('admin.name', $supplierName)
+        ->where('ordered_products.is_admin', false)
+        // ->whereNull('admin.id') 
         ->get();
 
         foreach ($data as $order) {
@@ -91,6 +95,7 @@ class OrderedProductsController extends Controller
                                     'track_orders.created_at as completed_at', 'users.name as user_name', 'users.location as location')
                             ->where('track_orders.is_completed', true)
                             ->where('supplier.id', Auth::id())
+                            ->where('is_admin', true)
                             ->get(); 
 
                             foreach ($data as $order) {
@@ -133,7 +138,7 @@ class OrderedProductsController extends Controller
     public function updateStatus(Request $request)
     {   
         $orderedProducts = OrderedProducts::find($request->id);
-        
+        $transactionNumber = 'TRN-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
         // Parse and format the shipment date
         $shipmentDate = Carbon::parse($request->shipment_date)->format('m/d/Y');
         $orderedProducts->shipment_date = $shipmentDate;
@@ -145,31 +150,75 @@ class OrderedProductsController extends Controller
 
         $trackOrders = TrackOrder::find($orderedProducts->track_orders_id);
         $trackOrders->status = $request->status_data;
+        $trackOrders->is_admin = true;
         $trackOrders->save();
 
+        $orderedProducts->status = $request->status_data;
+        $orderedProducts->save();
+
+        //product now of the admin
+        $orderedProducts->is_admin = true;
+        $orderedProducts->save();
+
+        $trackOrders->is_completed = true;
+        $trackOrders->save();
+
+        $completedOrder = new CompletedOrderAdmin();
+        $completedOrder->track_order_id = $trackOrders->id;
+        $completedOrder->save();
+
+        $notification = Notification::where('track_order_id', $request->track_orders_id)->first();
+        $notification->is_done = true;
+        $notification->save();
+
         if($request->status_data == 'Completed'){
-            $trackOrders->is_completed = true;
-            $trackOrders->save();
+            // Check if all orders with the same order number are completed
+            $allOrdersCompleted = OrderedProducts::where('order_number', $orderedProducts->order_number)
+            ->where('status', '<>', 'Completed')
+            ->doesntExist();
 
-            $completedOrder = new CompletedOrderAdmin();
-            $completedOrder->track_order_id = $trackOrders->id;
-            $completedOrder->save();
+            if ($allOrdersCompleted) {
+                 // Aggregate product details to create a single receipt entry
+                 $receiptEntries = [];
+                  // Retrieve all ordered products with the same order number
+                 $allOrderedProducts = OrderedProducts::leftjoin('track_orders', 'ordered_products.track_orders_id', 'track_orders.id')
+                                        ->leftjoin('products', 'track_orders.product_id', 'products.id')
+                                        ->where('order_number', $orderedProducts->order_number)->get();
+                   
+                 foreach ($allOrderedProducts as $product) {
+                     $receiptEntries[] = [
+                         'brand_name' => $product->brand,
+                         'tool_name' => $product->tool,
+                         'price' => $trackOrders->total_price,
+                         'quantity' => $request->serial_numbers_count,
+                         'serial_numbers' => $product->serial_numbers,
+                     ];
 
-            $receipts = new Receipts();
-            $receipts->track_order_id = $request->track_orders_id;
-            $receipts->user_id = $request->user_id;
-            $receipts->ordered_product_id = $request->id;
-            $receipts->total_price = $request->total_price;
-            $receipts->receipt_number = 'REC-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
-            $receipts->save();
+                 }
 
-            $userBalance = User::find(Auth::id());
-            $userBalance->balance += $request->total_price;
-            $userBalance->save();
+                $receipts = new Receipts();
+                $receipts->track_order_id = $request->track_orders_id;
+                $receipts->user_id = $request->user_id;
+                $receipts->ordered_product_id = $request->id;
+                $receipts->total_price = $request->total_price;
+                $receipts->entries = json_encode($receiptEntries);
+                $receipts->receipt_number = 'REC-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
+                $receipts->save();
 
-            $notification = Notification::where('track_order_id', $request->track_orders_id)->first();
-            $notification->is_done = true;
-            $notification->save();
+                $userBalance = User::find(Auth::id());
+                $userBalance->balance += $request->total_price;
+                $userBalance->save();
+
+                //TRANSACTION HISTORY 
+                $transactions = new Transactions();
+                $transactions->user_id = Auth::id();
+                $transactions->track_order_id = $trackOrders->id;
+                $transactions->transaction_id = $transactionNumber;
+                $transactions->transaction_type = 'Ordered';
+                $transactions->description = 'A total of ' . '₱' . $request->total_price . ' has been credited to your account';
+                $transactions->save();
+
+            }
         }
 
         return response()->json(['message' => 'Status updated successfully']);

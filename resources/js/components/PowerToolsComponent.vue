@@ -40,6 +40,7 @@
             <div class="col-lg-2">
                 <button class="btn btn-primary" @click="filterData">Search</button>
                 <button class="btn btn-success ml-1" @click="refresh"><i class="fas fa-sync-alt"></i></button>
+                <button class="btn btn-success ml-1" @click="exportToCSVAdmin"><i class="fa-solid fa-file-csv"></i></button>
             </div>
             <div class="col-lg-4 d-flex justify-content-end">
                 <button class="btn btn-success p-3" @click="checkout">Release</button>
@@ -66,6 +67,7 @@
                         <button class="btn btn-success" @click="releaseProduct(product)">
                             Release Product
                         </button>
+                        <button class="btn btn-warning ml-1" @click="maintenance(product)"><i class="fa-solid fa-wrench"></i></button>
                     </div>
                 </div>
             </div>
@@ -202,6 +204,38 @@
         </ModalComponent>
 
 
+        <!-- SELECT SRN AND PRN CODE FOR MAINTENANCE -->
+        <ModalComponent :id="modalIdSelectMaintenance" :title="modalTitle" :size="modalSizeRelease" :position="modalPosition">
+            <template #modalHeader>
+                <div class="m-auto">
+                    <h4>Select Serial Number</h4>
+                </div>
+            </template>
+            <template #modalBody>
+                <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+                    <div class="row" v-for="(key, index) in Object.keys(serialNumbers)" :key="index">
+                        <div class="col-lg-12 d-flex justify-content-around mt-2">
+                            <div class="m-auto">
+                                <input type="checkbox" :checked="selectedIndexes.includes(Number(key))" v-model="selectedIndexes" :value="Number(key)">
+                            </div>
+                            <div class="m-auto">
+                                <div>Serial Number {{ index + 1 }}</div>
+                            </div>
+                            <div>
+                                <input type="text" :value="serialNumbers[key]" class="form-control" disabled>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+            <template #modalFooter>
+                <div class="text-right">
+                    <button class="btn btn-primary mr-2" v-on:click="forMaintenance">Proceed</button>
+                </div>
+            </template>
+        </ModalComponent>
+
+
     </div>
 </template>
 
@@ -245,6 +279,7 @@ export default{
                 modalIdFinal : 'modal-final-release-product',
                 modalIdSelect : 'modal-select-serial-number',
                 modalIdReview : 'modal-review-product',
+                modalIdSelectMaintenance : 'modal-select-serial-number-maintenance',
                 modalTitle : 'Power Tools',
                 modalPosition: 'modal-dialog-centered',
                 modalSize : 'modal-lg',
@@ -284,6 +319,63 @@ export default{
             this.serialNumbers = { ...this.dataValues.serial_numbers };
             $('#' + this.modalId).modal('hide'); 
             $('#' + this.modalIdSelect).modal('show'); 
+        },
+        maintenance(product){
+            if(product.stocks === 0)
+            {
+                Swal.fire({
+                    title: "No Serial Numbers available!",
+                    icon: 'warning',
+                    timer: 3000
+                });
+                return;
+            }
+            this.dataValues = product;
+            this.serialNumbers = { ...product.serial_numbers };
+            $('#' + this.modalIdSelectMaintenance).modal('show'); 
+        },
+        forMaintenance()
+        {   
+             // Create an array to store selected serial numbers for maintenance
+            const selectedForMaintenance = [];
+            // Iterate over the selected indexes
+            this.selectedIndexes.forEach(index => {
+                // Push the serial number corresponding to the index to the selectedForMaintenance array
+                selectedForMaintenance.push(this.serialNumbers[index]);
+                // Remove the serial number from the release list
+                delete this.serialNumbers[index];
+            });
+
+            axios.post('/powertools/forMaintenance', {
+                serialNumbers: selectedForMaintenance,
+                dataValues: this.dataValues
+            })
+                .then(response => {
+                    Swal.fire({
+                        title: "Product Up for Maintenance!",
+                        icon: 'success',
+                        timer: 3000
+                    });
+                    this.getData();
+                    $('#' + this.modalIdSelectMaintenance).modal('hide');
+                })
+                .catch(errors => {
+                    Swal.fire({
+                            title: 'Something went wrong!',
+                            text: errors.response.data.error,
+                            icon: 'error',
+                            timer: 3000
+                        });
+                });
+        },
+        async exportToCSVAdmin() {
+            try {
+                // Make HTTP request to trigger CSV export
+                window.open('/export-csv-admin/', '_blank');
+            } catch (error) {
+                console.error('Error exporting CSV:', error);
+                // Handle error
+            }
         },
         refresh(){
             window.location.reload();

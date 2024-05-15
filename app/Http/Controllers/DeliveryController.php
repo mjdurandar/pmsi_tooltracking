@@ -11,6 +11,7 @@ use App\Models\CompletedOrderUser;
 use Illuminate\Http\Request;
 use App\Models\DeliverHistory;
 use App\Models\Delivery;
+use App\Models\History;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\PurchasedItems;
@@ -19,6 +20,7 @@ use App\Models\SerialNumber;
 use App\Models\Sold;
 use App\Models\ToolsAndEquipment;
 use App\Models\TrackOrder;
+use App\Models\Transactions;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
@@ -80,7 +82,8 @@ class DeliveryController extends Controller
 
         $data = TrackOrder::leftjoin('products', 'products.id', 'track_orders.product_id')
                             ->select('track_orders.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as image', 
-                            'products.powerSources as powerSources', 'products.voltage as voltage', 'products.weight as weight', 'products.dimensions as dimensions', 'products.material as material', 'track_orders.created_at as ordered_at')
+                            'products.powerSources as powerSources', 'products.voltage as voltage', 'products.weight as weight', 'products.dimensions as dimensions', 
+                            'products.material as material', 'track_orders.created_at as ordered_at')
                             ->where('track_orders.user_id', $id)
                             ->where('track_orders.is_canceled', false)
                             ->where('track_orders.status', '!=', 'Completed')
@@ -90,7 +93,10 @@ class DeliveryController extends Controller
                                 $item->ordered_at = $item->ordered_at ? \Carbon\Carbon::parse($item->ordered_at)->setTimezone('Asia/Manila')->format('m/d/Y h:i:s A') : null;
                                 return $item;
                             });
-                    
+
+                            foreach ($data as $order) {
+                                $order->serial_numbers = json_decode($order->serial_numbers);
+                            }
 
         return response()->json([ 'data' => $data ]);
     }
@@ -128,6 +134,8 @@ class DeliveryController extends Controller
 
     public function cancelOrder(Request $request)
     {   
+        $historyNumber = 'HIS-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
+        $transactionNumber = 'TRN-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
         //UPDATE THE TRACK ORDER DATA TO CANCELED
         $trackOrder = TrackOrder::find($request->id);
 
@@ -150,17 +158,36 @@ class DeliveryController extends Controller
             // Decode the JSON string of serial numbers stored in the database column
             $existingSerialNumbers = json_decode($adminReleaseProduct->serial_numbers, true);
             // Append the new serial numbers to the existing ones
-            $newSerialNumbers = json_decode($request->serial_numbers);
+            $newSerialNumbers = $request->serial_numbers;
+
             $updatedSerialNumbers = array_merge($existingSerialNumbers, $newSerialNumbers);
-            
+            $updatedSerialNumbersJson = json_encode($updatedSerialNumbers);
             // Update the serial_numbers column in the database with the updated array
-            $adminReleaseProduct->serial_numbers = $updatedSerialNumbers;
+            $adminReleaseProduct->serial_numbers = $updatedSerialNumbersJson;
             $adminReleaseProduct->save();
     
             // UPDATE THE BALANCE OF THE USER
             $userBalance = User::find(Auth::id());
             $userBalance->balance += $trackOrder->total_price;
             $userBalance->save();
+
+            //TRANSACTION HISTORY 
+            $transactions = new Transactions();
+            $transactions->user_id = Auth::id();
+            $transactions->track_order_id = $trackOrder->id;
+            $transactions->transaction_id = $transactionNumber;
+            $transactions->transaction_type = 'Canceled';
+            $transactions->description = 'A total of ' . '₱' . $trackOrder->total_price . ' has been credited to your account';
+            $transactions->save();
+
+            //HISTORY
+            $history = new History();
+            $history->user_id = Auth::id();
+            $history->product_id = $request->product_id;
+            $history->history_number = $historyNumber;
+            $history->action = 'You Canceled a Product';
+            $history->save();
+  
 
             // dd($trackOrder, $canceledOrder, $adminReleaseProduct, $userBalance);
             return response()->json(['status' => 'success', 'message' => 'Order has been Canceled']);

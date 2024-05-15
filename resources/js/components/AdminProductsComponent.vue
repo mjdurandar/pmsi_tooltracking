@@ -368,6 +368,7 @@ export default{
                             title: 'Success',
                             text: response.data.message,
                         });
+                        window.location.reload();
                         $('#' + this.modalIdReturn).modal('hide');
                         this.getData();
                     } else {

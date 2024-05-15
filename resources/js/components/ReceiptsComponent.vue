@@ -86,17 +86,27 @@ export default{
             window.location.reload();
         },
         printReceipt(props) {
-            // Calculate VAT amount
-            const vat = props.data.total_price * 0.12;
+            // Parse the entries JSON string to an array
+            const entries = JSON.parse(props.data.entries);
+            // Calculate subtotal by summing up the prices of all items
+            // const subtotal = entries.reduce((acc, entry) => acc + (parseFloat(entry.quantity) * parseFloat(entry.price)), 0);
+            const firstEntryPrice = entries[0].price;
+            // Calculate VAT amount (12% of the total amount)
+            const vatRate = 0.12;
+            const vat = firstEntryPrice * vatRate;
+            const subtotal = firstEntryPrice - vat;
 
-            const noVat = props.data.total_price - vat;
+            // Calculate grand total by adding VAT to subtotal
+            const grandTotal = firstEntryPrice + vat;
+
             // Open a new window for printing
             const printWindow = window.open('', '_blank');
+
             // Pass data to print template
             printWindow.document.write(`
                 <html>
                 <head>
-                    <title>Print Receipt</title>
+                    <title>Receipt</title>
                     <style>
                     body {
                         font-family: Arial, sans-serif;
@@ -119,20 +129,7 @@ export default{
                 </head>
                 <body class="margin">
                     <div class="receipt">
-                    <h1 style="text-align:center;">PMSI RECEIPT</h1>
-                    <div class="padding">
-                        <strong>COMPANY NAME:</strong> PROFESSIONAL MANAGEMENT STRATEGISTS INTERNATIONAL Inc.
-                    </div>
-                    <div class="padding">
-                        <strong>ADDRESS:</strong> ${ this.adminLocation.location ? this.adminLocation.location : ''}
-                    </div>
-                    <div class="padding">
-                        <strong>PHONE:</strong> ${props.data && props.data.contact_address ? props.data.contact_address : ''}
-                    </div>
-                    <div class="padding"> 
-                        <strong>WEBSITE:</strong> https://pmsitooltracking.com/
-                    </div>
-                    <hr> 
+                    <h1 style="text-align:center;">RECEIPT</h1>
                     <div class="padding">
                         <strong>DATE:</strong> ${props.data && props.data.order_date ? props.data.order_date : ''}
                     </div>
@@ -142,20 +139,24 @@ export default{
                     <hr> 
                     <div class="padding">
                         <strong>ITEMS:</strong>
+                        <li>
+                            ${entries.map(entry => `${entry.brand_name} - ${entry.tool_name}`).join(' ')}
+                        </li>
+                    </div>
+                    <div class="padding">
+                        <strong>SERIAL NUMBERS:</strong>
                         <ul>
-                            <li>
-                                ${props.data.brand_name} - ${props.data.tool_name} - ${props.data.serial_numbers.join(', ')}
-                            </li>
+                            ${entries.map(entry => `<li>${entry.serial_numbers}</li>`).join('')}
                         </ul>
                     </div>
                     <div class="padding">
-                        <strong>SUBTOTAL:</strong> ₱${noVat.toFixed(2)}
+                        <strong>SUBTOTAL:</strong> ₱${subtotal}
                     </div>
                     <div class="padding">
-                        <strong>WITH VAT:</strong> ₱${vat.toFixed(2)}
+                        <strong>VAT (${vatRate * 100}%):</strong> ₱${vat}
                     </div>
                     <div class="padding">
-                        <strong>GRAND TOTAL:</strong> ₱${props.data && props.data.total_price ? props.data.total_price : ''}
+                        <strong>GRAND TOTAL:</strong> ₱${firstEntryPrice}
                     </div>
                     <hr> 
                     <div class="padding" style="text-align:center;">
@@ -165,11 +166,12 @@ export default{
                 </body>
                 </html>
             `);
+
             printWindow.document.close();
             // Print the content
             printWindow.print();
         },
-        filterData()
+        filterData() 
         {
             axios.post('/receipts/filterData', { receiptNumber: this.receipt_number })
                 .then(response => {

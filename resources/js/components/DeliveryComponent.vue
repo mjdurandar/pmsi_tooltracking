@@ -31,17 +31,13 @@
                     <option value="Saw">Saw</option>
                 </select>
             </div>
-            <!-- <div class="col-lg-2">
+            <div class="col-lg-2">
                 <select v-model="selectedType" class="form-control">
                     <option value="" disabled selected>Select Type</option> 
-                    <option value="Drill">Drill</option>
-                    <option value="Screwdriver">Screwdriver</option>
-                    <option value="Wrench">Wrench</option>
-                    <option value="Grinder">Grinder</option>
-                    <option value="Jigsaw">Jigsaw</option>
-                    <option value="Saw">Saw</option>
+                    <option value="Borrowing">Borrowing</option>
+                    <option value="Buying">Buying</option>
                 </select>
-            </div> -->
+            </div>
             <div>
                 <button class="btn btn-primary" @click="filterData">Search</button>
                 <button class="btn btn-success ml-1" @click="refresh"><i class="fas fa-sync-alt"></i></button>
@@ -101,7 +97,7 @@
             </template>
         </ModalComponent>
 
-                <!-- VIEW ORDER -->
+        <!-- VIEW ORDER -->
         <ModalComponent :id="modalIdView" :title="modalTitle" :size="modalSizeView" :position="modalPosition">
             <template #modalHeader>
                 <div class="m-auto">
@@ -124,6 +120,12 @@
                         </p>
                         <p>
                             You are <b>{{ this.dataValues.type }}</b> this product.
+                        </p>
+                        <p>
+                            Serial Number(s):
+                            <ul>
+                                <li v-for="serialNumber in this.dataValues.serial_numbers"><b>{{ serialNumber }}</b></li>
+                            </ul>
                         </p>
                         <p>
                             Please wait for your Product usually it takes <b> 2-3 business days</b> to deliver. 
