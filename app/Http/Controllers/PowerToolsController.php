@@ -20,7 +20,6 @@ class PowerToolsController extends Controller
     }
     
     public function show(){
-
         $data = ToolsAndEquipment::leftjoin('products', 'products.id', 'tools_and_equipment.product_id')
                                     ->leftjoin('categories', 'categories.id', 'tools_and_equipment.category_id')
                                     ->select('tools_and_equipment.*', 'products.brand as brand_name', 'products.tool as tool_name', 'products.image as image', 'categories.name as category_name'
@@ -36,7 +35,6 @@ class PowerToolsController extends Controller
         foreach ($data as $order) {
             $order->serial_numbers = json_decode($order->serial_numbers);
         }
-
         return response()->json([ 'data' => $data, 'categories' => $categories, 'suppliers' => $suppliers ]);
     }
 

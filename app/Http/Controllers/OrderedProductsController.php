@@ -225,10 +225,10 @@ class OrderedProductsController extends Controller
     }
     
     public function completedFilterData(Request $request)
-    {
+    {   
         $brand = $request->brand;
         $tool = $request->tool;
-        $serialNumber = $request->serialNumber;
+        $trackingNumber = $request->trackingNumber;
     
         $query = TrackOrder::leftjoin('products', 'track_orders.product_id', 'products.id')
         ->leftjoin('users', 'track_orders.user_id', 'users.id')
@@ -247,8 +247,8 @@ class OrderedProductsController extends Controller
             $query->where('products.tool', 'like', '%' . $tool . '%');
         }
 
-        if (!empty($serialNumber)) {
-            $query->where('track_orders.serial_number', 'like', '%' . $serialNumber . '%');
+        if (!empty($trackingNumber)) {
+            $query->where('track_orders.tracking_number', 'like', '%' . $trackingNumber . '%');
         }
     
         $data = $query->get();

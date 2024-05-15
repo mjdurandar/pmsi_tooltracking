@@ -5,12 +5,12 @@
             <div class="col-lg-2">
                 <input type="text" class="form-control" v-model="trackingNumber" placeholder="Tracking Number">
             </div>
-            <div class="col-lg-2">
+            <!-- <div class="col-lg-2">
                 <select v-model="selectedTool" class="form-control">
                     <option value="" disabled selected>Supplier</option> 
                 </select>
-            </div>
-            <div class="col-lg-2">
+            </div> -->
+            <!-- <div class="col-lg-2">
                 <select v-model="selectedStatus" class="form-control">
                     <option value="" disabled selected>Status</option> 
                     <option value="Preparing">Preparing</option>
@@ -19,7 +19,7 @@
                     <option value="Completed">Completed</option>
                     <option value="Pending">Pending</option>
                 </select>
-            </div>
+            </div> -->
             <div>
                 <button class="btn btn-primary" @click="filterData">Search</button>
                 <button class="btn btn-success ml-1" @click="refresh"><i class="fas fa-sync-alt"></i></button>

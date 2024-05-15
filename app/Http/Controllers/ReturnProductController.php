@@ -35,6 +35,8 @@ class ReturnProductController extends Controller
                                 ->where('borrowed_products.is_delivered', true)
                                 ->get();
 
+                                
+
         return response()->json([ 'data' => $data, 'userAdmin' => $userAdmin]);
     }
 

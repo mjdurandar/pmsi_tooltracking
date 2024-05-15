@@ -111,6 +111,7 @@ export default{
                 data : [],
                 selectedBrand: '',
                 selectedTool: '',
+                trackingNumber: '',
                 columns : ['tracking_number','brand_name', 'tool_name', 'completed_at' ,'action'],
                 errors: [],
                 options : {
@@ -153,7 +154,7 @@ export default{
         },  
         filterData(){
             const searchData = {
-                serialNumber: this.serialNumber,
+                trackingNumber: this.trackingNumber,
                 brand: this.selectedBrand,
                 tool: this.selectedTool,
             };

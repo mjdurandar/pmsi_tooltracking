@@ -153,7 +153,7 @@ class BorrowToolsController extends Controller
     
             // Create a borrowed product record
             $borrowed = new BorrowedProduct();
-            $borrowed->ordered_product_id = $orderedProduct->id;
+            $borrowed->ordered_product_id = $selectedProduct['dataValues']['product_id'];
             $borrowed->return_date = $selectedProduct['dataValues']['return_date'];
             $borrowed->penalty = $selectedProduct['dataValues']['penalty'];
             $borrowed->save();

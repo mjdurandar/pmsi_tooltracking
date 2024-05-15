@@ -116,8 +116,13 @@ class OrderController extends Controller
     }
 
     public function updateStatus(Request $request) {
-        $transactionNumber = 'TRN-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
 
+
+        $completedOrder = new CompletedOrderUser();
+        $completedOrder->track_order_id = $request->track_orders_id;
+        $completedOrder->ordered_product_id = $request->id;
+        $completedOrder->save();
+        $transactionNumber = 'TRN-' . str_pad(mt_rand(1, 999999999), 9, '0', STR_PAD_LEFT);
         $orderedProducts = OrderedProducts::find($request->id);
         // Parse and format the shipment date
         $shipmentDate = Carbon::parse($request->shipment_date)->format('m/d/Y');
@@ -142,19 +147,23 @@ class OrderController extends Controller
         $trackOrders->is_completed = true;
         $trackOrders->save();
 
-        $completedOrder = new CompletedOrderAdmin();
-        $completedOrder->track_order_id = $trackOrders->id;
-        $completedOrder->save();
-
-        $notification = Notification::where('track_order_id', $request->track_orders_id)->first();
-        $notification->is_done = true;
-        $notification->save();
+        // $notification = Notification::where('track_order_id', $request->track_orders_id)->first();
+        // $notification->is_done = true;
+        // $notification->save();
 
         if($request->status_data == 'Completed'){
             // Check if all orders with the same order number are completed
             $allOrdersCompleted = OrderedProducts::where('order_number', $orderedProducts->order_number)
             ->where('status', '<>', 'Completed')
             ->doesntExist();
+
+            // if($request->type === 'Borrowing')
+            // {
+            //     $borrowedProduct = new BorrowedProduct();
+            //     $borrowedProduct->ordered_product_id = $request->id;
+            //     $borrowedProduct->is_delivered = true;
+            //     $borrowedProduct->save();
+            // }
 
             if ($allOrdersCompleted) {
                  // Aggregate product details to create a single receipt entry

@@ -357,6 +357,7 @@ export default{
                         timer: 3000
                     });
                     this.getData();
+                    window.location.reload();
                     $('#' + this.modalIdSelectMaintenance).modal('hide');
                 })
                 .catch(errors => {

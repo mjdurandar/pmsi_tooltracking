@@ -68,13 +68,12 @@ export default{
         return{
                 data : [],
                 serialNumbers: '',
-                columns : ['serial_number', 'status' ,'action'],
+                columns : ['serial_number', 'status'],
                 errors: [],
                 options : {
                     headings : {
                         serial_number : 'Serial Numbers',
                         status : 'Description',
-                        action : 'Action',
                     },
                     filterable: false,
                     sortable: []
@@ -114,8 +113,35 @@ export default{
         },
         viewClicked(props){
             console.log(props);
-        }
-        
+        },
+         filterData() {
+            const searchData = {
+                serialNumbers: this.serialNumbers,
+            };
+            axios.post('/maintenance/filterData', searchData)
+                .then(response => {
+                    this.data = response.data.data;
+                    this.data.forEach(item => {
+                        item.created_at = new Date(item.created_at).toLocaleString(); // Format to the user's locale
+                    })
+                    if (this.data.length === 0) {
+                        Swal.fire({
+                            title: "No Products available!",
+                            icon: 'warning',
+                            timer: 3000
+                        });
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        title: "Error!",
+                        text: "Failed to fetch data.",
+                        icon: 'error',
+                        timer: 3000
+                    });
+                    console.error(error);
+                });
+        },
         },
         mounted() {
             this.getData();

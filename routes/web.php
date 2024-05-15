@@ -194,6 +194,7 @@ Route::group(['middleware' => 'auth'], function(){
         //MAINTENANCE
         Route::get('/maintenance',[App\Http\Controllers\MaintenanceController::class, 'index']);
         Route::get('/maintenance/show',[App\Http\Controllers\MaintenanceController::class, 'show']);
+        Route::post('/maintenance/filterData',[App\Http\Controllers\MaintenanceController::class, 'filterData']);
     });
    
     Route::middleware(['CheckRole:user'])->group(function() {
